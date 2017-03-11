@@ -2,10 +2,10 @@
   "id": "{12301EE2-6859-492A-9B7B-25EDAA6D48FE}",
   "name": "DBLClick",
   "type": 3,
-  "vendor": "Bluetooth",
-  "aliases": [ "Bluetooth Presence Client" ],
+  "vendor": "PS",
+  "aliases": [ "DoppelKlick" ],
   "parentRequirements": [],
   "childRequirements": [],
   "implemented": [],
-  "prefix": "BTPC"
+  "prefix": "DBLC"
 }
