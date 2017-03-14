@@ -49,117 +49,27 @@ class DBLClick extends IPSModule {
  
   public function Check() {
     if(IPS_SemaphoreEnter('DBLClick', 1000)) {
-      //$mac = $this->ReadPropertyString('Mac');
       $stringID=$this->ReadPropertyInteger('idSourceInstance');
       $stringInfo= IPS_GetVariable($stringID);
       $zeit = $stringInfo['VariableUpdated'];//Zeitpunkt des aktuellen Updates
       $lastUpdID=$this->GetIDForIdent('LASTUPD');// ID für LastUpd suchen 
       $lastUpdValue= GetValueInteger($lastUpdID);// WErt für LastUpd lesen
       $string=GetValueString($stringID);
+      $DBLClickTime=ReadPropertyInteger('DBLClickTime');
       IPS_LogMessage('DBLClick',"Wert eingelesen");
+      
       if(strstr($string, "111")===FALSE){ //Falls Update nicht durch einfachen Klick verursacht
-          IPS_LogMessage('DBLClick',"");
+          IPS_LogMessage('DBLClick',"Update war kein Einfach-klick");
           exit ();
       }
-      $last_updated=GetValueInteger($ID_last_updated);
-      SetValueInteger($ID_last_updated, $zeit);
+      
+      SetValueInteger($lastUpdID, $zeit);
       IPS_LogMessage('DBLClick',"Update bei",$zeit);
-      if(($zeit-$last_updated)<=$zeit_doppelklick)
+      if(($zeit-$lastUpdValue)<=$DBLClickTime)
 	SetValueBoolean($ID_doppelklick, true);
       else
 	SetValueBoolean($ID_doppelklick, false);    
-      /*foreach($array as $item){
-      if($item!=""){
-      $subarray=explode("=",$item);
-      $tag=$subarray[0];
-      $value=$subarray[1];
-      IPS_LogMessage('BTPClient',"Tag:".$tag." Value:".$value);
-      //echo("tag:".$tag.chr(13));
-      //echo("value:".$value.chr(13));
-      switch($tag){
- 	      case "User" : $user = $value; break;
-	      case "Name": $name = $value; break;
-	      case "Zustand": $state = $value; break;
-	      case "Anwesend seit": $anw = $value; break;
-	      case "Abwesend seit": $abw = $value; break;
-        default : IPS_LogMessage('BTPClient',"Tag=".$tag." nicht erkannt!"); 
- 	      }
-       }
-      }
-      if (preg_match('/^(?:[0-9A-F]{2}[:]?){6}$/i', $mac)) {
-        $lastState = GetValueBoolean($this->GetIDForIdent('STATE'));
-        $search = trim(shell_exec("hcitool name $mac"));
-        $state = ($search != '');
-        }*/
-	//User Namen prüfen, ob Instance schon angelegt ist
-      $inst_id=IPS_GetParent($this->GetIDForIdent('STATE'));	// ID der aktuellen Instanz 
-      $parent_id=IPS_GetParent($inst_id);  			// ID der übergeordneten Instanz  
-      $inst_obj=IPS_GetObject($inst_id);   			// Objekt_Info der aktuellen Instanz lesen
-      $inst_name=$inst_obj['ObjectName'];  			// Name der aktuellen Instanz lesen
-	IPS_LogMessage('BTPClient',"Objekt Name:".$inst_name);
-	$UserInstID = @IPS_GetInstanceIDByName($user, $parent_id); // Instanz mit Namen suchen, der im "USER"-Eintrag steht
-	if ($UserInstID === false){				// Instanz nicht gefunden
-    	 IPS_LogMessage('BTPClient',"Instanz mit Namen: ".$user." nicht gefunden! Muss neu angelegt werden!");
-	 IPS_LogMessage('BTPClient',"Anlegen in: ".$parent_id);	
-	 $NewInsID = IPS_CreateInstance("{58C01EE2-6859-492A-9B7B-25EDAA6D48FE}");
-	 IPS_SetName($NewInsID, $user); // Instanz benennen
-	 IPS_SetParent($NewInsID, $parent_id); // Instanz einsortieren unter der übergeordneten Instanz
-	 $UserInstID=$NewInsID;
-	}
-	else{							// instanz gefunden
-    	 IPS_LogMessage('BTPClient',"Instanz mit Namen: ".$user." gefunden! ID:".$UserInstID);
-	 
-	}
-        /*$lastState = GetValueBoolean($this->GetIDForIdent('STATE'));
-        SetValueBoolean($this->GetIDForIdent('STATE'), $state);
-        if ($state) SetValueString($this->GetIDForIdent('NAME'), $name);
-        if ($lastState != $state) {
-          if ($state) SetValueInteger($this->GetIDForIdent('PRESENT_SINCE'), $anw);
-          if (!$state) SetValueInteger($this->GetIDForIdent('ABSENT_SINCE'), $abw);
         
-      
-        IPS_SetHidden($this->GetIDForIdent('PRESENT_SINCE'), !$state);
-        IPS_SetHidden($this->GetIDForIdent('ABSENT_SINCE'), $state);
-	*/
-	IPS_LogMessage('BTPClient',"Suche Zustand in ID: ".$UserInstID);
-	$id_state=@IPS_GetVariableIDByName('Zustand', $UserInstID); 
-	if($id_state === false){
-		IPS_LogMessage('BTPClient',"Fehler : Variable Zustand nicht gefunden!");
-		exit;
-	}
-	IPS_LogMessage('BTPClient',"Gefunden! ID: ".$id_state);
-	$lastState = GetValueBoolean($id_state);
-        SetValueBoolean($id_state, $state);
-	IPS_LogMessage('BTPClient',"Suche Name_Device in ID: ".$UserInstID);
-	$id_name=@IPS_GetVariableIDByName('Name_Device', $UserInstID);
-	if($id_name === false){
-		IPS_LogMessage('BTPClient',"Fehler : Variable Name_Device nicht gefunden!");
-		exit;
-	}
-	IPS_LogMessage('BTPClient',"Gefunden! ID: ".$id_name);
-        if ($state) SetValueString($id_name, $name);
-	IPS_LogMessage('BTPClient',"Suche Anwesend seit in ID: ".$UserInstID);
-	$id_anw=@IPS_GetVariableIDByName('Anwesend seit', $UserInstID);
-	if($id_name === false){
-		IPS_LogMessage('BTPClient',"Fehler : Variable Abwesend seit nicht gefunden!");
-		exit;
-	}    
-	IPS_LogMessage('BTPClient',"Gefunden! ID: ".$id_anw);
-	IPS_LogMessage('BTPClient',"Suche Abwesend seit in ID: ".$UserInstID);
-	$id_abw=@IPS_GetVariableIDByName('Abwesend seit', $UserInstID);
-	if($id_name === false){
-		IPS_LogMessage('BTPClient',"Fehler : Variable Anwesend seit nicht gefunden!");
-		exit;
-	} 
-	IPS_LogMessage('BTPClient',"Gefunden! ID: ".$id_abw);
-        if ($lastState != $state) {
-          if ($state) SetValueInteger($id_anw, $anw);
-          if (!$state) SetValueInteger($id_abw, $abw);
-        
-      
-        IPS_SetHidden($id_anw, !$state);
-        IPS_SetHidden($id_abw, $state);
-      }
       IPS_SemaphoreLeave('BTPCScan');
     } else {
       IPS_LogMessage('BTPClient', 'Semaphore Timeout');
