@@ -73,9 +73,9 @@ class DBLClick extends IPSModule {
       else
 	SetValueBoolean($DBLClickDetectID, false);    
         
-      IPS_SemaphoreLeave('BTPCScan');
+      IPS_SemaphoreLeave('DBLClick');
     } else {
-      IPS_LogMessage('BTPClient', 'Semaphore Timeout');
+      IPS_LogMessage('DBLClick', 'Semaphore Timeout');
     }
    }
 } 
