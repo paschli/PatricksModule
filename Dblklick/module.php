@@ -66,7 +66,7 @@ class DBLClick extends IPSModule {
       }
       
       SetValueInteger($lastUpdID, $zeit);
-      IPS_LogMessage('DBLClick',"Update bei",$zeit);
+      IPS_LogMessage('DBLClick',"Update bei".$zeit);
       if(($zeit-$lastUpdValue)<=$DBLClickTime)
 	SetValueBoolean($ID_doppelklick, true);
       else
