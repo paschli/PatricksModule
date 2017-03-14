@@ -57,7 +57,7 @@ class DBLClick extends IPSModule {
       $lastUpdID=$this->GetIDForIdent('LASTUPD');// ID für LastUpd suchen 
       $lastUpdValue= GetValueInteger($lastUpdID);// WErt für LastUpd lesen
       $string=GetValueString($stringID);
-      $DBLClickTime=ReadPropertyInteger('DBLClickTime');
+      $DBLClickTime= $this->ReadPropertyInteger('DBLClickTime');
       IPS_LogMessage('DBLClick',"Wert eingelesen");
       
       if(strstr($string, "111")===FALSE){ //Falls Update nicht durch einfachen Klick verursacht
