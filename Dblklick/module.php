@@ -25,7 +25,7 @@ class DBLClick extends IPSModule {
     IPS_SetIcon($this->GetIDForIdent('LASTUPD'), 'Clock');
     
     if($this->ReadPropertyInteger('idSourceInstance')!=0){  
-    	$this->RegisterTimer('OnVariableUpdate', 0, 'BTPC_Check($id)');
+    	$this->RegisterTimer('OnVariableUpdate', 0, 'Check($id)');
     }
   }
   protected function RegisterTimer($ident, $interval, $script) {
