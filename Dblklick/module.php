@@ -70,13 +70,15 @@ class DBLClick extends IPSModule {
       IPS_LogMessage('DBLClick',"Aktuelle Zeit =".$AktuelleZeit);
       IPS_LogMessage('DBLClick',"Letzer Click bei =".$lastUpdValue);
       IPS_LogMessage('DBLClick',"Differenz =".($AktuelleZeit-$lastUpdValue));
-      if(($AktuelleZeit-$lastUpdValue)<=$DBLClickTime)
+      if(($AktuelleZeit-$lastUpdValue)<=$DBLClickTime){ 
 	SetValueBoolean($DBLClickDetectID, true);
-      else
+      }
+      else{
 	SetValueBoolean($DBLClickDetectID, false);    
-        
+      }
       IPS_SemaphoreLeave('DBLClick');
-    } else {
+     } 
+     else {
       IPS_LogMessage('DBLClick', 'Semaphore Timeout');
     }
    }
