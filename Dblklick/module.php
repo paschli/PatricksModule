@@ -6,12 +6,12 @@ class DBLClick extends IPSModule {
   public function Create() {
     parent::Create();
     $this->RegisterPropertyInteger('idSourceInstance', 0);
-    $this->RegisterPropertyInteger('DblClickTime', 1);
+    $this->RegisterPropertyInteger('DBLClickTime', 1);
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
     
-    $this->RegisterPropertyInteger('DblClickTime', 1);
+    $this->RegisterPropertyInteger('DBLClickTime', 1);
     $this->RegisterPropertyInteger('idSourceInstance', 0); //Id der zu beobachtenden Variable	  
     $DBLClickDetectId = $this->RegisterVariableBoolean('DBLClickDetect', 'DoppelKlickErkannt','', 1); //Boolean anlegen, der bei erkennung gesetzt wird 
     $stringInhalt="<?\n\n SetValueBoolean($DBLClickDetectId, FALSE); \n//Start your code here\n\n?>"; //Inhalt für Skript erzeugen, das bei Erkennung ausgeführt wird 
