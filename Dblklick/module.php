@@ -2,27 +2,30 @@
 //Modul überwacht die letzte Aktualisierung bei einer Variable und startet ein 
 //Skript, falls die Zeit der letzten zur aktuellen Aktualisierung kleiner gleich 
 //einem Wert ist
-class BTPClient extends IPSModule {
+class DBLClick extends IPSModule {
   public function Create() {
     parent::Create();
-    $this->RegisterPropertyInteger('idSourceString', 0);
-    //$this->RegisterPropertyInteger('ScanInterval', 60);
+    $this->RegisterPropertyInteger('idSourceInstance', 0);
+    $this->RegisterPropertyInteger('DblClickTime', 1);
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
-	  
-    //$this->RegisterPropertyInteger('ScanInterval', 30);
-    $this->RegisterPropertyInteger('idSourceString', 0);	  
-    $stateId = $this->RegisterVariableBoolean('STATE', 'Zustand', '~Presence', 1);
+    
+    $this->RegisterPropertyInteger('DblClickTime', 1);
+    $this->RegisterPropertyInteger('idSourceInstance', 0); //Id der zu beobachtenden Variable	  
+    $DBLClickDetectId = $this->RegisterVariableBoolean('DBLClickDetect', 'DoppelKlickErkannt', 1); //Boolean anlegen, der bei erkennung gesetzt wird 
+    $stringInhalt="<?\n\n SetValueBoolean($DBLClickDetectId, FALSE); \n//Start your code here\n\n?>"; //Inhalt für Skript erzeugen, das bei Erkennung ausgeführt wird 
+    $scriptID = $this->RegisterScript('SCRIPT', 'DBLClickScript',$stringInhalt,2);//Skript anlegen
+    $lastUpdID = $this->RegisterVariableInteger('LASTUPD','last_updated','~UnixTimestamp',3);//Hilfsvariable anlegen
 //    $presentId = $this->RegisterVariableInteger('PRESENT_SINCE', 'Anwesend seit', '~UnixTimestamp', 3);
 //    $absentId = $this->RegisterVariableInteger('ABSENT_SINCE', 'Abwesend seit', '~UnixTimestamp', 3);
 //    $nameId = $this->RegisterVariableString('NAME', 'Name_Device', '', 2);
-//    IPS_SetIcon($this->GetIDForIdent('STATE'), 'Motion');
-//    IPS_SetIcon($this->GetIDForIdent('NAME'), 'Keyboard');
-//    IPS_SetIcon($this->GetIDForIdent('PRESENT_SINCE'), 'Clock');
-//    IPS_SetIcon($this->GetIDForIdent('ABSENT_SINCE'), 'Clock');
-    if($this->ReadPropertyInteger('idSourceString')!=0){  
-    	$this->RegisterTimer('OnStringChange', 0, 'BTPC_Scan($id)');
+//    IPS_SetIcon($this->GetIDForIdent('DBLClickDetect'), 'Motion');
+//    IPS_SetIcon($this->GetIDForIdent('SCRIPT'), 'Keyboard');
+    IPS_SetIcon($this->GetIDForIdent('LASTUPD'), 'Clock');
+    
+    if($this->ReadPropertyInteger('idSourceInstance')!=0){  
+    	$this->RegisterTimer('OnVariableUpdate', 0, 'BTPC_Check($id)');
     }
   }
   protected function RegisterTimer($ident, $interval, $script) {
@@ -33,7 +36,7 @@ class BTPClient extends IPSModule {
     }
     if (!$id) {
       $id = IPS_CreateEvent(0);
-      IPS_SetEventTrigger($id, 1, $this->ReadPropertyInteger('idSourceString')); //Bei Änderung von der gewählten Variable 
+      IPS_SetEventTrigger($id, 0, $this->ReadPropertyInteger('idSourceInstance')); //Bei Update von der gewählten Variable 
       IPS_SetEventActive($id, true);             //Ereignis aktivieren
       IPS_SetParent($id, $this->InstanceID);
       IPS_SetIdent($id, $ident);
@@ -44,13 +47,28 @@ class BTPClient extends IPSModule {
     if (!IPS_EventExists($id)) throw new Exception("Ident with name $ident is used for wrong object type");
   }
  
-  public function Scan() {
-    if(IPS_SemaphoreEnter('BTPCScan', 5000)) {
+  public function Check() {
+    if(IPS_SemaphoreEnter('DBLClick', 1000)) {
       //$mac = $this->ReadPropertyString('Mac');
-      $string=GetValueString($this->ReadPropertyInteger('idSourceString'));
-      IPS_LogMessage('BTPClient',"String eingelesen");
-      $array=explode(";",$string);
-      foreach($array as $item){
+      $stringID=$this->ReadPropertyInteger('idSourceInstance');
+      $stringInfo= IPS_GetVariable($stringID);
+      $zeit = $stringInfo['VariableUpdated'];//Zeitpunkt des aktuellen Updates
+      $lastUpdID=$this->GetIDForIdent('LASTUPD');// ID für LastUpd suchen 
+      $lastUpdValue= GetValueInteger($lastUpdID);// WErt für LastUpd lesen
+      $string=GetValueString($stringID);
+      IPS_LogMessage('DBLClick',"Wert eingelesen");
+      if(strstr($string, "111")===FALSE){ //Falls Update nicht durch einfachen Klick verursacht
+          IPS_LogMessage('DBLClick',"");
+          exit ();
+      }
+      $last_updated=GetValueInteger($ID_last_updated);
+      SetValueInteger($ID_last_updated, $zeit);
+      IPS_LogMessage('DBLClick',"Update bei",$zeit);
+      if(($zeit-$last_updated)<=$zeit_doppelklick)
+	SetValueBoolean($ID_doppelklick, true);
+      else
+	SetValueBoolean($ID_doppelklick, false);    
+      /*foreach($array as $item){
       if($item!=""){
       $subarray=explode("=",$item);
       $tag=$subarray[0];
@@ -68,16 +86,16 @@ class BTPClient extends IPSModule {
  	      }
        }
       }
-      /*if (preg_match('/^(?:[0-9A-F]{2}[:]?){6}$/i', $mac)) {
+      if (preg_match('/^(?:[0-9A-F]{2}[:]?){6}$/i', $mac)) {
         $lastState = GetValueBoolean($this->GetIDForIdent('STATE'));
         $search = trim(shell_exec("hcitool name $mac"));
         $state = ($search != '');
         }*/
 	//User Namen prüfen, ob Instance schon angelegt ist
-	$inst_id=IPS_GetParent($this->GetIDForIdent('STATE'));	// ID der aktuellen Instanz 
-	$parent_id=IPS_GetParent($inst_id);  			// ID der übergeordneten Instanz  
-	$inst_obj=IPS_GetObject($inst_id);   			// Objekt_Info der aktuellen Instanz lesen
-	$inst_name=$inst_obj['ObjectName'];  			// Name der aktuellen Instanz lesen
+      $inst_id=IPS_GetParent($this->GetIDForIdent('STATE'));	// ID der aktuellen Instanz 
+      $parent_id=IPS_GetParent($inst_id);  			// ID der übergeordneten Instanz  
+      $inst_obj=IPS_GetObject($inst_id);   			// Objekt_Info der aktuellen Instanz lesen
+      $inst_name=$inst_obj['ObjectName'];  			// Name der aktuellen Instanz lesen
 	IPS_LogMessage('BTPClient',"Objekt Name:".$inst_name);
 	$UserInstID = @IPS_GetInstanceIDByName($user, $parent_id); // Instanz mit Namen suchen, der im "USER"-Eintrag steht
 	if ($UserInstID === false){				// Instanz nicht gefunden
