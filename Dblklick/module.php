@@ -48,7 +48,9 @@ class DBLClick extends IPSModule {
   }
  
   public function Check() {
+    IPS_LogMessage('DBLClick',"Setze Semaphore");
     if(IPS_SemaphoreEnter('DBLClick', 1000)) {
+      IPS_LogMessage('DBLClick',"Starte Check...");
       $stringID=$this->ReadPropertyInteger('idSourceInstance');
       $stringInfo= IPS_GetVariable($stringID);
       $zeit = $stringInfo['VariableUpdated'];//Zeitpunkt des aktuellen Updates
