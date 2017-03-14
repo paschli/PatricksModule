@@ -52,6 +52,7 @@ class DBLClick extends IPSModule {
     if(IPS_SemaphoreEnter('DBLClick', 1000)) {
       IPS_LogMessage('DBLClick',"Starte Check...");
       $stringID=$this->ReadPropertyInteger('idSourceInstance');
+      $DBLClickDetectID=$this->GetIDForIdent('DBLClickDetect');
       $stringInfo= IPS_GetVariable($stringID);
       $zeit = $stringInfo['VariableUpdated'];//Zeitpunkt des aktuellen Updates
       $lastUpdID=$this->GetIDForIdent('LASTUPD');// ID für LastUpd suchen 
@@ -68,9 +69,9 @@ class DBLClick extends IPSModule {
       SetValueInteger($lastUpdID, $zeit);
       IPS_LogMessage('DBLClick',"Update bei".$zeit);
       if(($zeit-$lastUpdValue)<=$DBLClickTime)
-	SetValueBoolean($ID_doppelklick, true);
+	SetValueBoolean($DBLClickDetectID, true);
       else
-	SetValueBoolean($ID_doppelklick, false);    
+	SetValueBoolean($DBLClickDetectID, false);    
         
       IPS_SemaphoreLeave('BTPCScan');
     } else {
