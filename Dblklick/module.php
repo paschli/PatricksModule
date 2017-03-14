@@ -72,9 +72,11 @@ class DBLClick extends IPSModule {
       IPS_LogMessage('DBLClick',"Differenz =".($AktuelleZeit-$lastUpdValue));
       if(($AktuelleZeit-$lastUpdValue)<=$DBLClickTime){ 
 	SetValueBoolean($DBLClickDetectID, true);
+        IPS_LogMessage('DBLClick',"Doppelklick erkannt");
       }
       else{
-	SetValueBoolean($DBLClickDetectID, false);    
+	SetValueBoolean($DBLClickDetectID, false);
+        IPS_LogMessage('DBLClick',"Doppelklick nicht erkannt");
       }
       IPS_SemaphoreLeave('DBLClick');
      } 
