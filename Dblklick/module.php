@@ -14,7 +14,7 @@ class DBLClick extends IPSModule {
     $this->RegisterPropertyInteger('DBLClickTime', 1);
     $this->RegisterPropertyInteger('idSourceInstance', 0); //Id der zu beobachtenden Variable	  
     $DBLClickDetectId = $this->RegisterVariableBoolean('DBLClickDetect', 'DoppelKlickErkannt','', 1); //Boolean anlegen, der bei erkennung gesetzt wird 
-    $stringInhalt="<?\n\n SetValueBoolean($DBLClickDetectId, FALSE); \n//Start your code here\n\n?>"; //Inhalt für Skript erzeugen, das bei Erkennung ausgeführt wird 
+    $stringInhalt="<?\n IPS_LogMessage('DBLClick_Script','Starte User_Script.....................'); \n SetValueBoolean($DBLClickDetectId, FALSE); \n//Start your code here\n\n?>"; //Inhalt für Skript erzeugen, das bei Erkennung ausgeführt wird 
     $scriptID = $this->RegisterScript('SCRIPT', 'DBLClickScript',$stringInhalt,2);//Skript anlegen
     $lastUpdID = $this->RegisterVariableInteger('LASTUPD','last_updated','~UnixTimestamp',3);//Hilfsvariable anlegen
 //    $presentId = $this->RegisterVariableInteger('PRESENT_SINCE', 'Anwesend seit', '~UnixTimestamp', 3);
