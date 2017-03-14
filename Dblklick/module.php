@@ -48,13 +48,13 @@ class DBLClick extends IPSModule {
   }
  
   public function Check() {
-    IPS_LogMessage('DBLClick',"Setze Semaphore");
+    //IPS_LogMessage('DBLClick',"Setze Semaphore");
     if(IPS_SemaphoreEnter('DBLClick', 1000)) {
-      IPS_LogMessage('DBLClick',"Starte Check...");
+      IPS_LogMessage('DBLClick',"Starte Check.....................");
       $stringID=$this->ReadPropertyInteger('idSourceInstance');
       $DBLClickDetectID=$this->GetIDForIdent('DBLClickDetect');
       $stringInfo= IPS_GetVariable($stringID);
-      $zeit = $stringInfo['VariableUpdated'];//Zeitpunkt des aktuellen Updates
+      $AktuelleZeit = $stringInfo['VariableUpdated'];//Zeitpunkt des aktuellen Updates
       $lastUpdID=$this->GetIDForIdent('LASTUPD');// ID für LastUpd suchen 
       $lastUpdValue= GetValueInteger($lastUpdID);// WErt für LastUpd lesen
       $string=GetValueString($stringID);
@@ -66,8 +66,10 @@ class DBLClick extends IPSModule {
           exit ();
       }
       
-      SetValueInteger($lastUpdID, $zeit);
-      IPS_LogMessage('DBLClick',"Update bei".$zeit);
+      SetValueInteger($lastUpdID, $AktuelleZeit);
+      IPS_LogMessage('DBLClick',"Aktuelle Zeit =".$AktuelleZeit);
+      IPS_LogMessage('DBLClick',"Letzer Click bei =".$lastUpdValue);
+      IPS_LogMessage('DBLClick',"Differenz =".($AktuelleZeit-$lastUpdValue));
       if(($zeit-$lastUpdValue)<=$DBLClickTime)
 	SetValueBoolean($DBLClickDetectID, true);
       else
