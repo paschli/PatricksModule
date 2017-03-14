@@ -63,6 +63,7 @@ class DBLClick extends IPSModule {
       
       if(strstr($string, "111")===FALSE){ //Falls Update nicht durch einfachen Klick verursacht
           IPS_LogMessage('DBLClick',"Update war kein Einfach-klick");
+          IPS_SemaphoreLeave('DBLClick');
           exit ();
       }
       
@@ -74,7 +75,7 @@ class DBLClick extends IPSModule {
 	SetValueBoolean($DBLClickDetectID, true);
         IPS_LogMessage('DBLClick',"Doppelklick erkannt");
         $scriptID=$this->GetIDForIdent('SCRIPT');
-        IPS_Execute($scriptID);
+        IPS_RunScript($scriptID);
       }
       else{
 	//SetValueBoolean($DBLClickDetectID, false);
