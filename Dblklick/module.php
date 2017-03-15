@@ -50,27 +50,33 @@ class DBLClick extends IPSModule {
   public function Check() {
     //IPS_LogMessage('DBLClick',"Setze Semaphore");
     if(IPS_SemaphoreEnter('DBLClick', 1000)) {
-      IPS_LogMessage('DBLClick',"Starte Check.....................");
       $stringID=$this->ReadPropertyInteger('idSourceInstance');
-      $DBLClickDetectID=$this->GetIDForIdent('DBLClickDetect');
-      $stringInfo= IPS_GetVariable($stringID);
-      $AktuelleZeit = $stringInfo['VariableUpdated'];//Zeitpunkt des aktuellen Updates
-      $lastUpdID=$this->GetIDForIdent('LASTUPD');// ID für LastUpd suchen 
-      $lastUpdValue= GetValueInteger($lastUpdID);// WErt für LastUpd lesen
       $string=GetValueString($stringID);
-      $DBLClickTime= $this->ReadPropertyInteger('DBLClickTime');
-      IPS_LogMessage('DBLClick',"Wert eingelesen");
-      
+      $inst_id=IPS_GetParent($stringID);	// ID der aktuellen Instanz
+      $inst_info= IPS_GetObject($inst_id);
+      $inst_name=$inst_info['ObjectName'];
+      IPS_LogMessage('DBLClick-'.$inst_name,"Starte Check.....................");
       if(strstr($string, "111")===FALSE){ //Falls Update nicht durch einfachen Klick verursacht
           IPS_LogMessage('DBLClick',"Update war kein Einfach-klick");
           IPS_SemaphoreLeave('DBLClick');
           exit ();
       }
+       
+      $DBLClickDetectID=$this->GetIDForIdent('DBLClickDetect');
+      $stringInfo= IPS_GetVariable($stringID);
+      $AktuelleZeit = $stringInfo['VariableUpdated'];//Zeitpunkt des aktuellen Updates
+      $lastUpdID=$this->GetIDForIdent('LASTUPD');// ID für LastUpd suchen 
+      $lastUpdValue= GetValueInteger($lastUpdID);// WErt für LastUpd lesen
+      
+      $DBLClickTime= $this->ReadPropertyInteger('DBLClickTime');
+      IPS_LogMessage('DBLClick-'.$inst_name,"Wert eingelesen");
+      
+      
       
       SetValueInteger($lastUpdID, $AktuelleZeit);
-      IPS_LogMessage('DBLClick',"Aktuelle Zeit =".$AktuelleZeit);
-      IPS_LogMessage('DBLClick',"Letzer Click bei =".$lastUpdValue);
-      IPS_LogMessage('DBLClick',"Differenz =".($AktuelleZeit-$lastUpdValue));
+      IPS_LogMessage('DBLClick-'.$inst_name,"Aktuelle Zeit =".$AktuelleZeit);
+      IPS_LogMessage('DBLClick-'.$inst_name,"Letzer Click bei =".$lastUpdValue);
+      IPS_LogMessage('DBLClick-'.$inst_name,"Differenz =".($AktuelleZeit-$lastUpdValue));
       if(($AktuelleZeit-$lastUpdValue)<=$DBLClickTime){ 
 	SetValueBoolean($DBLClickDetectID, true);
         IPS_LogMessage('DBLClick',"Doppelklick erkannt");
@@ -79,7 +85,7 @@ class DBLClick extends IPSModule {
       }
       else{
 	//SetValueBoolean($DBLClickDetectID, false);
-        IPS_LogMessage('DBLClick',"Doppelklick nicht erkannt");
+        IPS_LogMessage('DBLClick-'.$inst_name,"Doppelklick nicht erkannt");
       }
       IPS_SemaphoreLeave('DBLClick');
      } 
