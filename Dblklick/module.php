@@ -114,7 +114,7 @@ class DBLClick extends IPSModule {
 	SetValueBoolean($DBLClickDetectID, true);
         IPS_LogMessage('DBLClick',"Doppelklick erkannt");
 //Skript für erkannte Taste ermitteln oder erstellen
-        $scriptID=@IPS_GetScriptIDByName("Taste_".$source_taste, $inst_id);
+        $scriptID=@IPS_GetScriptIDByName("Taste_".$source_taste, $instancethisID);
 //Falls Skript noch nicht vorhanden
         if(!$scriptID){
             $stringInhalt="<?\n IPS_LogMessage('DBLClick_Script'.$source_taste,'Starte User_Script.....................'); \n SetValueBoolean($DBLClickDetectID, FALSE); \n//Start your code here\n\n?>";
