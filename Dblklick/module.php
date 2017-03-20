@@ -72,7 +72,7 @@ class DBLClick extends IPSModule {
       IPS_LogMessage('DBLClick-'.$inst_name,"Wert eingelesen");
       
       
-      
+      //Überarbeiten für verschiedene Taster!!!
       SetValueInteger($lastUpdID, $AktuelleZeit);
       IPS_LogMessage('DBLClick-'.$inst_name,"Aktuelle Zeit =".$AktuelleZeit);
       IPS_LogMessage('DBLClick-'.$inst_name,"Letzer Click bei =".$lastUpdValue);
