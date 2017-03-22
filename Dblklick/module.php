@@ -117,7 +117,9 @@ class DBLClick extends IPSModule {
         $scriptID=@IPS_GetScriptIDByName("Taste_".$source_taste, $instancethisID);
 //Falls Skript noch nicht vorhanden
         if(!$scriptID){
-            $stringInhalt="<?\n IPS_LogMessage('DBLClick_Script'.$source_taste,'Starte User_Script.....................'); \n SetValueBoolean($DBLClickDetectID, FALSE); \n//Start your code here\n\n?>";
+            $stringInhalt="<?\n IPS_LogMessage('DBLClick_Script'.'$source_taste','Starte User_Script.....................'); \n SetValueBoolean($DBLClickDetectID, FALSE); \n
+             IPS_SetValue($lastUpdID,$lastUpdValue-10)\n;//Start your code here\n\n?>";
+            
             $scriptID= IPS_CreateScript(0);
             IPS_SetParent($scriptID, $instancethisID);
             IPS_SetName($scriptID, "Taste_".$source_taste);
