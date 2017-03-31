@@ -43,8 +43,7 @@ class LCNLA extends IPSModule {
   }*/
  
   public function Check() {
-    //IPS_LogMessage('DBLClick',"Setze Semaphore");
-    if(IPS_SemaphoreEnter('DBLClick', 1000)) {
+    if(IPS_SemaphoreEnter('LCNLA', 1000)) {
 //ID und Wert von "command" ermitteln
       $stringID=$this->ReadPropertyInteger('idLCNInstance');
       $string=GetValueString($stringID);
@@ -123,10 +122,10 @@ class LCNLA extends IPSModule {
 	//SetValueBoolean($DBLClickDetectID, false);
         IPS_LogMessage('DBLClick-'.$inst_name,"Doppelklick nicht erkannt");
       }
-      IPS_SemaphoreLeave('DBLClick');
+      IPS_SemaphoreLeave('LCNLA');
      } 
      else {
-      IPS_LogMessage('DBLClick', 'Semaphore Timeout');
+      IPS_LogMessage('LCNLA', 'Semaphore Timeout');
     }
    }
 } 
