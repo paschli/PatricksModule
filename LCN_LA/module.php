@@ -5,8 +5,8 @@
 class LCNLA extends IPSModule {
   public function Create() {
     parent::Create();
-    $this->RegisterPropertyInteger('idSourceInstance', 0);
-    $this->RegisterPropertyInteger('DBLClickTime', 1);
+    $this->RegisterPropertyInteger('idLCNInstance', 0);
+    $this->RegisterPropertyInteger('LaempchenNr', 1);
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
