@@ -59,6 +59,8 @@ class LCNLA extends IPSModule {
       else{
         LCN_SetLamp($lcn_instID,$lampNo,'A');  
       }
+//Neuen Wert in die Statusvariable schreiben
+      SetValue($this->GetIDForIdent($Ident), $Value);
 }
   
 
