@@ -1,6 +1,6 @@
 {
   "elements": [
-    { "name": "idSourceInstance", "type": "SelectVariable", "caption": "zu überwachende Variable" },
+    { "name": "idSourceInstance", "type": "SelectVariable", "caption": "Variable" },
     { "name": "DBLClickTime", "type": "IntervalBox", "caption": "Sekunden" }
   ]
   
