@@ -25,7 +25,7 @@ class LCNLA extends IPSModule {
 //    $nameId = $this->RegisterVariableString('NAME', 'Name_Device', '', 2);
 //    IPS_SetIcon($this->GetIDForIdent('DBLClickDetect'), 'Motion');
 //    IPS_SetIcon($this->GetIDForIdent('SCRIPT'), 'Keyboard');
-    IPS_SetIcon($this->GetIDForIdent('LASTUPD'), 'Clock');
+    //IPS_SetIcon($this->GetIDForIdent('LASTUPD'), 'Clock');
     
     if($this->ReadPropertyInteger('idLCNInstance')!=0){  
     	$this->RegisterTimer('OnVariableUpdate', 0, 'DBLC_Check($id)');
