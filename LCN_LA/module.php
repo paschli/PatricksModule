@@ -48,7 +48,12 @@ class LCNLA extends IPSModule {
 //ID und Wert von "Status" ermitteln
       $statusID=$this->ReadPropertyBoolean('Status');
       $status=GetValue($statusID);    
-        
+//ID der Instanz ermitteln   
+      $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');	
+//Lämpchen Nr. ermitteln
+      $lampNo=$this->ReadPropertyInteger('LaempchenNr');
+//Auswertung 
+      IPS_LogMessage('LCNLA',"Starte.....................");        
         
         
         
