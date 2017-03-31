@@ -43,12 +43,9 @@ class LCNLA extends IPSModule {
   }*/
  public function RequestAction($Status, $value) {
  
-    if($status){
-        LCN_SetLamp($lcn_instID,$lampNo,'E');  
-      }
-      else{
-        LCN_SetLamp($lcn_instID,$lampNo,'A');  
-      }
+     
+     
+    Check();
     
  
 }
