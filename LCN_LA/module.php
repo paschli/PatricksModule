@@ -12,7 +12,7 @@ class LCNLA extends IPSModule {
     parent::ApplyChanges();
     
     $this->RegisterPropertyInteger('DBLClickTime', 1);
-    $this->RegisterPropertyInteger('idSourceInstance', 0); //Id der zu beobachtenden Variable	  
+    $this->RegisterPropertyInteger('idLCNInstance', 0); //Id der zu beobachtenden Variable	  
     $DBLClickDetectId = $this->RegisterVariableBoolean('DBLClickDetect', 'DoppelKlickErkannt','', 1); //Boolean anlegen, der bei erkennung gesetzt wird 
     $lastUpdID = $this->RegisterVariableInteger('LASTUPD','last_updated','~UnixTimestamp',3);//Hilfsvariable anlegen
     
@@ -27,7 +27,7 @@ class LCNLA extends IPSModule {
 //    IPS_SetIcon($this->GetIDForIdent('SCRIPT'), 'Keyboard');
     IPS_SetIcon($this->GetIDForIdent('LASTUPD'), 'Clock');
     
-    if($this->ReadPropertyInteger('idSourceInstance')!=0){  
+    if($this->ReadPropertyInteger('idLCNInstance')!=0){  
     	$this->RegisterTimer('OnVariableUpdate', 0, 'DBLC_Check($id)');
     }
   }
@@ -39,7 +39,7 @@ class LCNLA extends IPSModule {
     }
     if (!$id) {
       $id = IPS_CreateEvent(0);
-      IPS_SetEventTrigger($id, 0, $this->ReadPropertyInteger('idSourceInstance')); //Bei Update von der gewählten Variable 
+      IPS_SetEventTrigger($id, 0, $this->ReadPropertyInteger('idLCNInstance')); //Bei Update von der gewählten Variable 
       IPS_SetEventActive($id, true);             //Ereignis aktivieren
       IPS_SetParent($id, $this->InstanceID);
       IPS_SetIdent($id, $ident);
@@ -54,7 +54,7 @@ class LCNLA extends IPSModule {
     //IPS_LogMessage('DBLClick',"Setze Semaphore");
     if(IPS_SemaphoreEnter('DBLClick', 1000)) {
 //ID und Wert von "command" ermitteln
-      $stringID=$this->ReadPropertyInteger('idSourceInstance');
+      $stringID=$this->ReadPropertyInteger('idLCNInstance');
       $string=GetValueString($stringID);
 //ID der aktuellen Instanz ermitteln   
       $inst_id=IPS_GetParent($stringID);	
