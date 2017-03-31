@@ -52,6 +52,8 @@ class LCNLA extends IPSModule {
       $lampNo=$this->ReadPropertyInteger('LaempchenNr');
 //Auswertung 
       IPS_LogMessage('LCNLA',"Starte.....................");
+      IPS_LogMessage('LCNLA',"ident=".$ident);
+      IPS_LogMessage('LCNLA',"value=".$value);
 //Überprüfen Status und sende Befehl an LCN_Instanz
       if($ident){
         LCN_SetLamp($lcn_instID,$lampNo,'E');  
