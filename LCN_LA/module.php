@@ -11,11 +11,11 @@ class LCNLA extends IPSModule {
   public function ApplyChanges() {
     parent::ApplyChanges();
     
-    $this->RegisterPropertyInteger('DBLClickTime', 1);
-    $this->RegisterPropertyInteger('idLCNInstance', 0); //Id der zu beobachtenden Variable	  
-    $DBLClickDetectId = $this->RegisterVariableBoolean('DBLClickDetect', 'DoppelKlickErkannt','', 1); //Boolean anlegen, der bei erkennung gesetzt wird 
-    $lastUpdID = $this->RegisterVariableInteger('LASTUPD','last_updated','~UnixTimestamp',3);//Hilfsvariable anlegen
-    
+    $status=$this->RegisterPropertyBoolean('Status', FALSE);
+    $this->RegisterPropertyInteger('idLCNInstance', 0); //Id der zu beobachtenden Variable
+    $this->RegisterPropertyInteger('LaempchenNr', 0);	
+    $statusID = $this->RegisterVariableBoolean('Status',FALSE);//
+    IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
 //Inhalt für Skript erzeugen, das bei Erkennung ausgeführt wird 
 /*  $stringInhalt="<?\n IPS_LogMessage('DBLClick_Script','Starte User_Script.....................'); \n SetValueBoolean($DBLClickDetectId, FALSE); \n//Start your code here\n\n?>"; */
     //Skript anlegen
