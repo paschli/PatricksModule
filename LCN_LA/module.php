@@ -64,52 +64,7 @@ class LCNLA extends IPSModule {
         
 
 
-      $source_taste=$source_table.$source_button;
-      IPS_LogMessage('DBLClick-'.$inst_name,"Taste =".$source_taste);
-//Ermitteln ob doppelter Tastendruck in Zeit "DBLCLickTime" vorliegt
-//ID der Bool-Variable für Doppelklick
-      $DBLClickDetectID=$this->GetIDForIdent('DBLClickDetect');
-      $instancethisID= IPS_GetParent($DBLClickDetectID);
-//Eigenschaften der "command" Variable ermitteln 
-      $stringInfo= IPS_GetVariable($stringID);
-//Zeit des letzten Tastendrucks ermitteln
-      $AktuelleZeit = $stringInfo['VariableUpdated'];//Zeitpunkt des aktuellen Updates
-//Zeit des vorletzten Tastendrucks lesen
-      $lastUpdID=$this->GetIDForIdent('LASTUPD');// ID für LastUpd suchen 
-      $lastUpdValue= GetValueInteger($lastUpdID);// Wert für LastUpd lesen
-//Eingestellte Grenze für Doppelklickerkennung lesen      
-      $DBLClickTime= $this->ReadPropertyInteger('DBLClickTime');
-      IPS_LogMessage('DBLClick-'.$inst_name,"Werte eingelesen");
-      
-//letzte Tastenbedienung speichern
-      SetValueInteger($lastUpdID, $AktuelleZeit);
-//Debugausgaben
-      IPS_LogMessage('DBLClick-'.$inst_name,"Aktuelle Zeit =".$AktuelleZeit);
-      IPS_LogMessage('DBLClick-'.$inst_name,"Letzer Click bei =".$lastUpdValue);
-      IPS_LogMessage('DBLClick-'.$inst_name,"Differenz =".($AktuelleZeit-$lastUpdValue));
-//Überprüfen ob Zeit zwischen vorletzter und letzter Bedienung kleiner Grenze ist
-      if(($AktuelleZeit-$lastUpdValue)<=$DBLClickTime){ 
-	SetValueBoolean($DBLClickDetectID, true);
-        IPS_LogMessage('DBLClick',"Doppelklick erkannt");
-//Skript für erkannte Taste ermitteln oder erstellen
-        $scriptID=@IPS_GetScriptIDByName("Taste_".$source_taste, $instancethisID);
-//Falls Skript noch nicht vorhanden
-        if(!$scriptID){
-            $stringInhalt="<?\n IPS_LogMessage('DBLClick_Script'.'$source_taste','Starte User_Script.....................'); \n SetValueBoolean($DBLClickDetectID, FALSE); \n SetValueInteger($lastUpdID,GetValueInteger($lastUpdID)-20);\n//Start your code here\n\n?>";
-            
-            $scriptID= IPS_CreateScript(0);
-            IPS_SetParent($scriptID, $instancethisID);
-            IPS_SetName($scriptID, "Taste_".$source_taste);
-            IPS_SetScriptContent($scriptID, $stringInhalt);   
-        }
-            
-        IPS_RunScript($scriptID);
-      }
-      else{
-	//SetValueBoolean($DBLClickDetectID, false);
-        IPS_LogMessage('DBLClick-'.$inst_name,"Doppelklick nicht erkannt");
-      }
-      IPS_SemaphoreLeave('LCNLA');
+       IPS_SemaphoreLeave('LCNLA');
      } 
      else {
       IPS_LogMessage('LCNLA', 'Semaphore Timeout');
