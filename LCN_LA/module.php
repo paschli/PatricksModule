@@ -41,7 +41,7 @@ class LCNLA extends IPSModule {
     IPS_SetEventScript($id, "\$id = \$_IPS['TARGET'];\n$script;");
     if (!IPS_EventExists($id)) throw new Exception("Ident with name $ident is used for wrong object type");
   }*/
- public function RequestAction('Status', 'True') {
+ public function RequestAction($Status) {
  
     if($status){
         LCN_SetLamp($lcn_instID,$lampNo,'E');  
