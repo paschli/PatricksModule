@@ -62,41 +62,8 @@ class LCNLA extends IPSModule {
         LCN_SetLamp($lcn_instID,$lampNo,'A');  
       }
         
-        
-        
-//ID und Wert von "command" ermitteln
-      $stringID=$this->ReadPropertyInteger('idLCNInstance');
-      $string=GetValueString($stringID);
-//ID der aktuellen Instanz ermitteln   
-      $inst_id=IPS_GetParent($stringID);	
-      $inst_info= IPS_GetObject($inst_id);
-      $inst_name=$inst_info['ObjectName'];
-//Auswertung 
-      IPS_LogMessage('DBLClick-'.$inst_name,"Starte Check.....................");
-//Test, ob Event ein kurzer Tastendruck war
-      if(strstr(substr($string, -3), "111")===FALSE){ //Falls Update nicht durch einfachen Tastendruck verursacht
-          IPS_LogMessage('DBLClick',"Update war kein Einfach-klick -> Exit");
-          IPS_SemaphoreLeave('DBLClick');
-          exit ();
-      }
-//Sender-Taste ermitteln (Tabelle und Tastennummer
-      $source_table= substr($string,1,1);
-      $source_button= substr($string, 2,1);
-//Sender-Tabelle nach LCN in Buchstaben wandeln
-      switch ($source_table){
-        case "1": $source_table="A";          
-          break;
-        case "2": $source_table="B";
-          break;
-        case "3": $source_table="C";
-          break;
-        case "4": $source_table="D";
-          break;
-        default : IPS_LogMessage('DBLClick',"Tastentabelle nicht erkannt -> Exit");
-          IPS_SemaphoreLeave('DBLClick');
-          exit ();
-          break;
-      }
+
+
       $source_taste=$source_table.$source_button;
       IPS_LogMessage('DBLClick-'.$inst_name,"Taste =".$source_taste);
 //Ermitteln ob doppelter Tastendruck in Zeit "DBLCLickTime" vorliegt
