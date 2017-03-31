@@ -1,0 +1,11 @@
+{
+  "id": "{D7FAE89C-EA7F-4EA6-B801-7AB863170CCA}",
+  "name": "LCNLA",
+  "type": 3,
+  "vendor": "Patrick",
+  "aliases": [ "Laempchen" ],
+  "parentRequirements": [],
+  "childRequirements": [],
+  "implemented": [],
+  "prefix": "LCNLA"
+}
