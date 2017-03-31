@@ -16,20 +16,11 @@ class LCNLA extends IPSModule {
     $this->RegisterPropertyInteger('LaempchenNr', 0);	
     $statusID = $this->RegisterVariableBoolean('Status',FALSE);//
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
-//Inhalt für Skript erzeugen, das bei Erkennung ausgeführt wird 
-/*  $stringInhalt="<?\n IPS_LogMessage('DBLClick_Script','Starte User_Script.....................'); \n SetValueBoolean($DBLClickDetectId, FALSE); \n//Start your code here\n\n?>"; */
-    //Skript anlegen
-//    $scriptID = $this->RegisterScript('SCRIPT', 'DBLClickScript',$stringInhalt,2);
-//    $presentId = $this->RegisterVariableInteger('PRESENT_SINCE', 'Anwesend seit', '~UnixTimestamp', 3);
-//    $absentId = $this->RegisterVariableInteger('ABSENT_SINCE', 'Abwesend seit', '~UnixTimestamp', 3);
-//    $nameId = $this->RegisterVariableString('NAME', 'Name_Device', '', 2);
-//    IPS_SetIcon($this->GetIDForIdent('DBLClickDetect'), 'Motion');
-//    IPS_SetIcon($this->GetIDForIdent('SCRIPT'), 'Keyboard');
-    //IPS_SetIcon($this->GetIDForIdent('LASTUPD'), 'Clock');
+
     
-    if($this->ReadPropertyInteger('idLCNInstance')!=0){  
-    	$this->RegisterTimer('OnVariableUpdate', 0, 'DBLC_Check($id)');
-    }
+    //if($this->ReadPropertyInteger('idLCNInstance')!=0){  
+    //	$this->RegisterTimer('OnVariableUpdate', 0, 'DBLC_Check($id)');
+   // }
   }
   protected function RegisterTimer($ident, $interval, $script) {
     $id = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
