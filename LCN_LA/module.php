@@ -7,7 +7,7 @@ class LCNLA extends IPSModule {
     $this->RegisterPropertyInteger('idLCNInstance', 0);
     $this->RegisterPropertyInteger('LaempchenNr', 0); 
   }
-  /*public function ApplyChanges() {
+  public function ApplyChanges() {
     parent::ApplyChanges();
     
     $status=$this->RegisterPropertyBoolean('Status', FALSE);
@@ -22,7 +22,7 @@ class LCNLA extends IPSModule {
     //if($this->ReadPropertyInteger('idSourceInstance')!=0){  
     //	$this->RegisterTimer('OnVariableUpdate', 0, 'DBLC_Check($id)');
     //}
-  }*/
+  }
  /* protected function RegisterTimer($ident, $interval, $script) {
     $id = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
     if ($id && IPS_GetEvent($id)['EventType'] <> 1) {
@@ -43,7 +43,7 @@ class LCNLA extends IPSModule {
   }*/
  
   public function CheckStatus() {
-    if(IPS_SemaphoreEnter('LCNLA', 1000)) {
+ /*   if(IPS_SemaphoreEnter('LCNLA', 1000)) {
 //ID und Wert von "Status" ermitteln
       $statusID=$this->ReadPropertyBoolean('Status');
       $status=GetValue($statusID);
@@ -67,7 +67,7 @@ class LCNLA extends IPSModule {
      } 
      else {
       IPS_LogMessage('LCNLA', 'Semaphore Timeout');
-    }
+    }*/
    }
 } 
 ?>
