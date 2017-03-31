@@ -44,6 +44,14 @@ class LCNLA extends IPSModule {
  
   public function Check() {
     if(IPS_SemaphoreEnter('LCNLA', 1000)) {
+        
+//ID und Wert von "Status" ermitteln
+      $statusID=$this->ReadPropertyBoolean('Status');
+      $status=GetValue($statusID);    
+        
+        
+        
+        
 //ID und Wert von "command" ermitteln
       $stringID=$this->ReadPropertyInteger('idLCNInstance');
       $string=GetValueString($stringID);
