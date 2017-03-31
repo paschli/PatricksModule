@@ -55,7 +55,7 @@ class LCNLA extends IPSModule {
       IPS_LogMessage('LCNLA',"ident=".$ident);
       IPS_LogMessage('LCNLA',"value=".$value);
 //Überprüfen Status und sende Befehl an LCN_Instanz
-      if($ident){
+      if($value){
         LCN_SetLamp($lcn_instID,$lampNo,'E');  
       }
       else{
