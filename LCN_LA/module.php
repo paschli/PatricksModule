@@ -43,8 +43,6 @@ class LCNLA extends IPSModule {
   }*/
  public function RequestAction($Status, $value) {
  
-     
-     
     Check();
     
  
