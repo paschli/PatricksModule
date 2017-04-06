@@ -1,0 +1,14 @@
+{
+  "elements": [
+    { "name": "idLCNInstance", "type": "SelectInstance", "caption": "Instanz" },
+    { "name": "switch_type", "type": "Select", "caption": "Element", 
+        "options":[
+            { "label": "LCN Ausgang", "value": 1 },
+            { "label": "LCN Relay", "value": 2 },
+            { "label": "LCN DI12", "value": 3 },
+            { "label": "PI Remote", "value": 4 }
+          ]
+        }
+  ]
+  
+}
