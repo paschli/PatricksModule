@@ -9,6 +9,10 @@
             { "label": "PI Remote", "value": 4 }
           ]
         }
+  ],
+   "actions": [
+    { "type": "Button", "label": "Test An", "onClick": "print_r(BTPC_Scan($id));" },
+    { "type": "Button", "label": "Test Aus", "onClick": "print_r(BTPC_Scan($id));" }
   ]
   
 }
