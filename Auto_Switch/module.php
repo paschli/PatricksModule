@@ -14,7 +14,8 @@ class AutSw extends IPSModule {
    // $katID = $this->RegisterVariableInteger('Status','Status','~Switch');//
    // $status=$this->RegisterPropertyBoolean('Status', FALSE);
     $this->RegisterPropertyInteger('idLCNInstance', 0); //Id der zu beobachtenden Variable
-    $this->RegisterPropertyInteger('switch_type', 1);	
+    $this->RegisterPropertyInteger('switch_type', 1);
+    $this->RegisterPropertyInteger('TurnOffTime', 300);
     //IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     
     // Aktiviert die Standardaktion der Statusvariable
