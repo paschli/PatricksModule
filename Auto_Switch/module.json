@@ -1,3 +1,11 @@
 {
-    "name": "schlis"
+  "id": "{E57B3208-C652-4B14-A2D5-FE9C95D085BA}",
+  "name": "AutSw",
+  "type": 3,
+  "vendor": "Patrick",
+  "aliases": [ "AuroSwitch" ],
+  "parentRequirements": [],
+  "childRequirements": [],
+  "implemented": [],
+  "prefix": "AuSw"
 }

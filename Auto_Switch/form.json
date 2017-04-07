@@ -8,10 +8,11 @@
             { "label": "LCN DI12", "value": 3 },
             { "label": "PI Remote", "value": 4 }
           ]
-        }
+        },
+    { "name": "TurnOffTime", "type": "IntervalBox", "caption": "Sekunden" }
   ],
    "actions": [
-    { "type": "Button", "label": "Test An", "onClick": "print_r(BTPC_Scan($id));" },
+    { "type": "Button", "label": "Test An", "onClick": "print_r(($id));" },
     { "type": "Button", "label": "Test Aus", "onClick": "print_r(BTPC_Scan($id));" }
   ]
   
