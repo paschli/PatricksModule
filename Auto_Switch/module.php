@@ -94,7 +94,7 @@ public function turn() {
         
      }
  
-        LCN_SwitchMode(55521 /*[Haus\Erdgeschoss\Küche\Licht_Küche]*/, 2);
+        LCN_SwitchMode($lcn_instID, 2);
         IPS_SemaphoreLeave('AutSw');
      else {
       IPS_LogMessage('AutoSwitch', 'Semaphore Timeout');
