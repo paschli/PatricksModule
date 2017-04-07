@@ -74,15 +74,17 @@ public function turn() {
     if(IPS_SemaphoreEnter('AutSw', 1000)) {
         
 //ID und Wert von "Status" ermitteln
-  /*         $statusID=$this->ReadPropertyBoolean('Status');
- $status=GetValue($statusID);    
+ //         $InstID=$this->ReadPropertyBoolean('Status');
+// $status=GetValue($statusID);    
 //ID der Instanz ermitteln   
       $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');	
 //Lämpchen Nr. ermitteln
-      $lampNo=$this->ReadPropertyInteger('LaempchenNr');
+//      $lampNo=$this->ReadPropertyInteger('LaempchenNr');
 //Auswertung 
       IPS_LogMessage('LCNLA',"Starte.....................");
 //Überprüfen Status und sende Befehl an LCN_Instanz
+    
+      
       if($status){
         LCN_SetLamp($lcn_instID,$lampNo,'E');  
       }
@@ -90,14 +92,10 @@ public function turn() {
         LCN_SetLamp($lcn_instID,$lampNo,'A');  
       }
         
-
-
-       IPS_SemaphoreLeave('LCNLA');
-     }* 
-*/ 
+     }
+ 
         LCN_SwitchMode(55521 /*[Haus\Erdgeschoss\Küche\Licht_Küche]*/, 2);
         IPS_SemaphoreLeave('AutSw');
-    }
      else {
       IPS_LogMessage('AutoSwitch', 'Semaphore Timeout');
     }
