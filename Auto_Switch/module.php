@@ -70,7 +70,7 @@ class AutSw extends IPSModule {
 }
   
 
-public function Check() {
+public function turn() {
     if(IPS_SemaphoreEnter('AutSw', 1000)) {
         
 //ID und Wert von "Status" ermitteln
