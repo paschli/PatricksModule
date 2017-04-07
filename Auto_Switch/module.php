@@ -2,7 +2,7 @@
 // 
 // 
 //
-class AuSw extends IPSModule {
+class AutSw extends IPSModule {
   public function Create() {
     parent::Create();
     $this->RegisterPropertyInteger('idLCNInstance', 0);
