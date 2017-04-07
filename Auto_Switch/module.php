@@ -7,6 +7,7 @@ class AutSw extends IPSModule {
     parent::Create();
     $this->RegisterPropertyInteger('idLCNInstance', 0);
     $this->RegisterPropertyInteger('switch_type', 1);
+    $this->RegisterPropertyInteger('TurnOffTime', 300);
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
