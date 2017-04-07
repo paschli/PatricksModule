@@ -12,8 +12,8 @@
     { "name": "TurnOffTime", "type": "IntervalBox", "caption": "Sekunden" }
   ],
    "actions": [
-    { "type": "Button", "label": "Test An", "onClick": "print_r(($id));" },
-    { "type": "Button", "label": "Test Aus", "onClick": "print_r(BTPC_Scan($id));" }
+    { "type": "Button", "label": "Test An", "onClick": "print_r(AuSw_turn($id,1));" },
+    { "type": "Button", "label": "Test Aus", "onClick": "print_r(AuSw_turn($id,0));" }
   ]
   
 }
