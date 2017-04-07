@@ -85,17 +85,17 @@ public function turn() {
 //Überprüfen Status und sende Befehl an LCN_Instanz
     
       
-      if($status){
+ /*     if($status){
         LCN_SetLamp($lcn_instID,$lampNo,'E');  
       }
       else{
         LCN_SetLamp($lcn_instID,$lampNo,'A');  
-      }
-        
+      }*/
+      LCN_SwitchMode($lcn_instID, 2);
+      IPS_SemaphoreLeave('AutSw');  
      }
  
-        LCN_SwitchMode($lcn_instID, 2);
-        IPS_SemaphoreLeave('AutSw');
+        
      else {
       IPS_LogMessage('AutoSwitch', 'Semaphore Timeout');
     }
