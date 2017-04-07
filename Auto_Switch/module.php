@@ -69,7 +69,7 @@ class AutSw extends IPSModule {
   
 
 public function Check() {
-    if(IPS_SemaphoreEnter('LCNLA', 1000)) {
+    if(IPS_SemaphoreEnter('AutSw', 1000)) {
         
 //ID und Wert von "Status" ermitteln
  /*     $statusID=$this->ReadPropertyBoolean('Status');
@@ -93,7 +93,7 @@ public function Check() {
        IPS_SemaphoreLeave('LCNLA');
      }* 
 */ 
-        IPS_SemaphoreLeave('LCNLA');
+        IPS_SemaphoreLeave('AutSw');
     }
      else {
       IPS_LogMessage('AutoSwitch', 'Semaphore Timeout');
