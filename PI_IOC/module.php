@@ -70,23 +70,7 @@ class PIIOC extends IPSModule {
 
 public function Check() {
     if(IPS_SemaphoreEnter('LCNLA', 1000)) {
-        
-//ID und Wert von "Status" ermitteln
-      $statusID=$this->ReadPropertyBoolean('Status');
-      $status=GetValue($statusID);    
-//ID der Instanz ermitteln   
-      $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');	
-//Lämpchen Nr. ermitteln
-      $lampNo=$this->ReadPropertyInteger('LaempchenNr');
-//Auswertung 
-      IPS_LogMessage('LCNLA',"Starte.....................");
-//Überprüfen Status und sende Befehl an LCN_Instanz
-      if($status){
-        LCN_SetLamp($lcn_instID,$lampNo,'E');  
-      }
-      else{
-        LCN_SetLamp($lcn_instID,$lampNo,'A');  
-      }
+      
         
 
 
