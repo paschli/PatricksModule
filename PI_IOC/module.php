@@ -2,7 +2,7 @@
 //Modul überwacht die letzte Aktualisierung bei einer Variable und startet ein 
 //Skript, falls die Zeit der letzten zur aktuellen Aktualisierung kleiner gleich 
 //einem Wert ist
-class LCNLA extends IPSModule {
+class PIIOC extends IPSModule {
   public function Create() {
     parent::Create();
     //$this->RegisterPropertyInteger('idLCNInstance', 0);
