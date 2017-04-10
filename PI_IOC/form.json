@@ -1,6 +1,6 @@
 {
   "elements": [
-    { "name": "IONr", "type": "Select", "caption": "Relais Nr.", 
+    { "name": "RelNr", "type": "Select", "caption": "Relais Nr.", 
         "options":[
             { "label": "Relais 1", "value": 1 },
             { "label": "Relais 2", "value": 2 },
