@@ -24,7 +24,7 @@ class AutSw extends IPSModule {
    //	$this->RegisterTimer('OnVariableUpdate', 0, 'DBLC_Check($id)');
    // }
   }
-  /*
+  
   protected function RegisterTimer($ident, $interval, $script) {
     $id = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
     if ($id && IPS_GetEvent($id)['EventType'] <> 1) {
@@ -42,7 +42,7 @@ class AutSw extends IPSModule {
     IPS_SetHidden($id, true);
     IPS_SetEventScript($id, "\$id = \$_IPS['TARGET'];\n$script;");
     if (!IPS_EventExists($id)) throw new Exception("Ident with name $ident is used for wrong object type");
-  }*/
+  }/**/
   
   
  public function RequestAction($ident, $value) {

@@ -3,7 +3,7 @@
   "name": "AutSw",
   "type": 3,
   "vendor": "Patrick",
-  "aliases": [ "AuroSwitch" ],
+  "aliases": [ "AutoSwitch" ],
   "parentRequirements": [],
   "childRequirements": [],
   "implemented": [],
