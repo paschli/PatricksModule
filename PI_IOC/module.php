@@ -57,11 +57,13 @@ class PIIOC extends IPSModule {
 //Überprüfen Status und sende Befehl an LCN_Instanz
       if($value){
         //LCN_SetLamp($lcn_instID,$lampNo,'E');
-        shell_exec("/usr/local/bin/gpio write ".$RelNo." 1");  
+        shell_exec("/usr/local/bin/gpio write ".$RelNo." 1"); 
+        IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelNo." 1");
       }
       else{
         //LCN_SetLamp($lcn_instID,$lampNo,'A');
         shell_exec("/usr/local/bin/gpio write ".$RelNo." 0");
+        IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelNo." 0");
       }
 //Neuen Wert in die Statusvariable schreiben
       SetValue($this->GetIDForIdent($ident), $value);
