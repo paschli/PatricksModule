@@ -1,0 +1,11 @@
+{
+  "id": "{1A02F26A-2F56-4CC8-80A4-E182924FF3C0}",
+  "name": "PIIOC",
+  "type": 3,
+  "vendor": "Patrick",
+  "aliases": [ "PI_IO_Control" ],
+  "parentRequirements": [],
+  "childRequirements": [],
+  "implemented": [],
+  "prefix": "PIIOC"
+}
