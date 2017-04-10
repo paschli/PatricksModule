@@ -6,14 +6,14 @@ class PIIOC extends IPSModule {
   public function Create() {
     parent::Create();
     //$this->RegisterPropertyInteger('idLCNInstance', 0);
-    $this->RegisterPropertyInteger('RelaisNr', 1);
+    $this->RegisterPropertyInteger('RelNr', 1);
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
     $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
     $status=$this->RegisterPropertyBoolean('Status', FALSE);
     //$this->RegisterPropertyInteger('idLCNInstance', 0); //Id der zu beobachtenden Variable
-    $this->RegisterPropertyInteger('RelaisNr', 0);	
+    $this->RegisterPropertyInteger('RelNr', 0);	
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     
     // Aktiviert die Standardaktion der Statusvariable
@@ -49,7 +49,7 @@ class PIIOC extends IPSModule {
 //ID der Instanz ermitteln   
       //$lcn_instID=$this->ReadPropertyInteger('idLCNInstance');	
 //Lämpchen Nr. ermitteln
-      $RelNo=$this->ReadPropertyInteger('RelaisNr');
+      $RelNo=$this->ReadPropertyInteger('RelNr');
 //Auswertung 
       //IPS_LogMessage('LCNLA',"Starte.....................");
       //IPS_LogMessage('LCNLA',"ident=".$ident);
