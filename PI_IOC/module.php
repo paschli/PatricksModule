@@ -24,11 +24,12 @@ class PIIOC extends IPSModule {
     
     
     if($this->ReadPropertyInteger('RelNr')!=0){ 
-        $Name="Relais-".$RelNr; 
+        $Name="Relais-".GetValue($RelNr); 
         IPS_SetName($instID, $Name);  
     //	$this->RegisterTimer('OnVariableUpdate', 0, 'DBLC_Check($id)');
     }
   }
+  
   /*
   protected function RegisterTimer($ident, $interval, $script) {
     $id = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
