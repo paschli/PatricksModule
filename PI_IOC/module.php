@@ -7,6 +7,7 @@ class PIIOC extends IPSModule {
     parent::Create();
     //$this->RegisterPropertyInteger('idLCNInstance', 0);
     $this->RegisterPropertyInteger('RelNr', 1);
+    $this->RegisterPropertyString('name', '');
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
@@ -17,6 +18,7 @@ class PIIOC extends IPSModule {
     
     //$this->RegisterPropertyInteger('idLCNInstance', 0); //Id der zu beobachtenden Variable
     $this->RegisterPropertyInteger('RelNr', 0);	
+    $this->RegisterPropertyString('name', '');
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     
     // Aktiviert die Standardaktion der Statusvariable
@@ -24,7 +26,7 @@ class PIIOC extends IPSModule {
     
     
     if($this->ReadPropertyInteger('RelNr')!=0){ 
-        $Name="Relais-".$this->ReadPropertyInteger('RelNr'); 
+        $Name="Relais-".$this->ReadPropertyInteger('RelNr').$this->ReadPropertyString('name'); 
         IPS_SetName($instID, $Name);  
     //	$this->RegisterTimer('OnVariableUpdate', 0, 'DBLC_Check($id)');
     }

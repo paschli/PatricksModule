@@ -12,7 +12,8 @@
             { "label": "Relais 8", "value": 8 }
             
           ]
-        }
+        },
+     { "type": "ValidationTextBox", "name": "name", "caption": "Namenszusatz" }
   ],
   "status":
     [
