@@ -12,12 +12,17 @@ class PIIOC extends IPSModule {
     parent::ApplyChanges();
     $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
     $status=$this->RegisterPropertyBoolean('Status', FALSE);
+    $instID=IPS_GetParent($statusID);
+    
+    
     //$this->RegisterPropertyInteger('idLCNInstance', 0); //Id der zu beobachtenden Variable
-    $this->RegisterPropertyInteger('RelNr', 0);	
+    $RelNr=$this->RegisterPropertyInteger('RelNr', 0);	
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     
     // Aktiviert die Standardaktion der Statusvariable
     $this->EnableAction("Status");
+    $Name="Relais-".$RelNr; 
+    IPS_SetName($instID, $Name);
     //if($this->ReadPropertyInteger('idLCNInstance')!=0){  
     //	$this->RegisterTimer('OnVariableUpdate', 0, 'DBLC_Check($id)');
    // }
