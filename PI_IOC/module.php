@@ -26,7 +26,7 @@ class PIIOC extends IPSModule {
     
     
     if($this->ReadPropertyInteger('RelNr')!=0){ 
-        $Name="Relais-".$this->ReadPropertyInteger('RelNr').$this->ReadPropertyString('name'); 
+        $Name="Relais-".$this->ReadPropertyInteger('RelNr')." (".$this->ReadPropertyString('name').")"; 
         IPS_SetName($instID, $Name);  
     //	$this->RegisterTimer('OnVariableUpdate', 0, 'DBLC_Check($id)');
     }
