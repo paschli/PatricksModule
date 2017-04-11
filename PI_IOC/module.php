@@ -21,11 +21,13 @@ class PIIOC extends IPSModule {
     
     // Aktiviert die Standardaktion der Statusvariable
     $this->EnableAction("Status");
-    $Name="Relais-".$RelNr; 
-    IPS_SetName($instID, $Name);
-    //if($this->ReadPropertyInteger('idLCNInstance')!=0){  
+    
+    
+    if($this->ReadPropertyInteger('RelNr')!=0){ 
+        $Name="Relais-".$RelNr; 
+        IPS_SetName($instID, $Name);  
     //	$this->RegisterTimer('OnVariableUpdate', 0, 'DBLC_Check($id)');
-   // }
+    }
   }
   /*
   protected function RegisterTimer($ident, $interval, $script) {
