@@ -16,7 +16,8 @@
             { "label": "Lämpchen 11", "value": 11 },
             { "label": "Lämpchen 12", "value": 12 }
           ]
-        }
+        },
+       { "type": "PasswordTextBox", "name": "Password", "caption": "Passwort" }
   ]
   
 }
