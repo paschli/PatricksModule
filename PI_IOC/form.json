@@ -12,7 +12,8 @@
             { "label": "Relais 8", "value": 8 }
             
           ]
-        }
+        },
+    { "type": "PasswordTextBox", "name": "Password", "caption": "Passwort" }
   ]
   
 }
