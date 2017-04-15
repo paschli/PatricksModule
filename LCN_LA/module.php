@@ -41,6 +41,10 @@ class LCNLA extends IPSModule {
     IPS_SetEventScript($id, "\$id = \$_IPS['TARGET'];\n$script;");
     if (!IPS_EventExists($id)) throw new Exception("Ident with name $ident is used for wrong object type");
   }*/
+ public function GetConfigurationForm() {
+	return '{ "actions": [ { "type": "Label", "label": "The current time is '.date("d.m.y H:i").'" } ] }';
+} 
+ 
  public function RequestAction($ident, $value) {
  
 //ID und Wert von "Status" ermitteln
