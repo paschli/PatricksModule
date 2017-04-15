@@ -13,6 +13,14 @@
             
           ]
         },
+     { "type": "ValidationTextBox", "name": "name", "caption": "Namenszusatz" }
+  ],
+  "status":
+    [
+        { "code": 101, "icon": "active", "caption": "Instance wird erstellt" },
+        { "code": 102, "icon": "active", "caption": "Instance erstellt" },
+        { "code": 104, "icon": "error", "caption": "Instance inaktiv" }
+    ]
     { "type": "PasswordTextBox", "name": "Password", "caption": "Passwort" }
   ]
   

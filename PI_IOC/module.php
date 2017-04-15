@@ -7,21 +7,31 @@ class PIIOC extends IPSModule {
     parent::Create();
     //$this->RegisterPropertyInteger('idLCNInstance', 0);
     $this->RegisterPropertyInteger('RelNr', 1);
+    $this->RegisterPropertyString('name', '');
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
     $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
     $status=$this->RegisterPropertyBoolean('Status', FALSE);
+    $instID=IPS_GetParent($statusID);
+    
+    
     //$this->RegisterPropertyInteger('idLCNInstance', 0); //Id der zu beobachtenden Variable
     $this->RegisterPropertyInteger('RelNr', 0);	
+    $this->RegisterPropertyString('name', '');
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     
     // Aktiviert die Standardaktion der Statusvariable
     $this->EnableAction("Status");
-    //if($this->ReadPropertyInteger('idLCNInstance')!=0){  
+    
+    
+    if($this->ReadPropertyInteger('RelNr')!=0){ 
+        $Name="Relais-".$this->ReadPropertyInteger('RelNr')." (".$this->ReadPropertyString('name').")"; 
+        IPS_SetName($instID, $Name);  
     //	$this->RegisterTimer('OnVariableUpdate', 0, 'DBLC_Check($id)');
-   // }
+    }
   }
+  
   /*
   protected function RegisterTimer($ident, $interval, $script) {
     $id = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
