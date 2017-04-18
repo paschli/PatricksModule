@@ -92,6 +92,7 @@ class Schalter extends IPSModule {
      $wahl=$this->ReadPropertyInteger('Auswahl');
      switch($wahl){
          case 0:  $elements_entry=$elements_entry1; break;
+         case 2:  $elements_entry=$elements_entry2; break;
          case 3:  $elements_entry=$elements_entry3; break;
      }
         
