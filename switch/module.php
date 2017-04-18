@@ -13,7 +13,7 @@ class Schalter extends IPSModule {
                     ]
                  }';
       
-      return ($start);
+      return $start;
       
 }   
     
