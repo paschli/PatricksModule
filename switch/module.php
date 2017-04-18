@@ -46,7 +46,8 @@ class Schalter extends IPSModule {
   }*/
  public function GetConfigurationForm() {
       $Instance='{"elements": [{ "name": "IDinstance", "type": "SelectInstance", "caption": "Instanz" }]}';
-      return $Instance;
+      $Label='{"action": [{"type": "Label", "label": "Bitte die zu steuernde Instanz wählen"}]}';
+      return $Instance.$Label;
       //"actions": [{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" } ] 
       //return $start;
       
