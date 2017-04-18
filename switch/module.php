@@ -89,6 +89,17 @@ class Schalter extends IPSModule {
             { "label": "Lämpchen 12", "value": 12 }
           ]
         }';
+     
+     $elements_entry4='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
+        "options":[
+            { "label": "LCN Ausgang", "value": 1 },
+            { "label": "LCN Relais", "value": 2 },
+            { "label": "LCN Lämpchen", "value": 3 },
+            { "label": "JSON Fernzugriff", "value": 4 }
+          ]},
+          { "type": "ValidationTextBox", "name": "IPAddress", "caption": "Host"},
+          { "type": "PasswordTextBox", "name": "Password", "caption": "Passwort" },
+          { "type": "ValidationTextBox", "name": "Ziel ID", "caption": "ID"}';
      $action_entry='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" }';
      $wahl=$this->ReadPropertyInteger('Auswahl');
      switch($wahl){
@@ -96,6 +107,7 @@ class Schalter extends IPSModule {
          case 1:  $elements_entry=$elements_entry2; break;
          case 2:  $elements_entry=$elements_entry2; break;
          case 3:  $elements_entry=$elements_entry3; break;
+         case 4:  $elements_entry=$elements_entry4; break;
      }
         
          
