@@ -9,7 +9,7 @@ class Schalter extends IPSModule {
     
   public function Create() {
     parent::Create();
-    $this->RegisterPropertyInteger('Auswahl', 0);
+    $this->RegisterPropertyInteger("Auswahl", 0);
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
