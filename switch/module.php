@@ -47,7 +47,7 @@ class Schalter extends IPSModule {
  public function GetConfigurationForm() {
      
      $status_entry=''; 
-     $elements_entry='{ "name": "InstanceType", "type": "Select", "caption": "Schalt-Typ", 
+     $elements_entry1='{ "name": "IDinstance", "type": "Select", "caption": "Schalt-Typ", 
         "options":[
             { "label": "LCN Ausgang", "value": 1 },
             { "label": "LCN Relais", "value": 2 },
@@ -55,9 +55,38 @@ class Schalter extends IPSModule {
             { "label": "JSON Fernzugriff", "value": 4 }
           ]
         }';
+     $elements_entry3='{ "name": "IDinstance", "type": "Select", "caption": "Schalt-Typ", 
+        "options":[
+            { "label": "LCN Ausgang", "value": 1 },
+            { "label": "LCN Relais", "value": 2 },
+            { "label": "LCN Lämpchen", "value": 3 },
+            { "label": "JSON Fernzugriff", "value": 4 }
+          ],
+          { "name": "LaempchenNr", "type": "Select", "caption": "Lämpchen Nr.", 
+        "options":[
+            { "label": "Lämpchen 1", "value": 1 },
+            { "label": "Lämpchen 2", "value": 2 },
+            { "label": "Lämpchen 3", "value": 3 },
+            { "label": "Lämpchen 4", "value": 4 },
+            { "label": "Lämpchen 5", "value": 5 },
+            { "label": "Lämpchen 6", "value": 6 },
+            { "label": "Lämpchen 7", "value": 7 },
+            { "label": "Lämpchen 8", "value": 8 },
+            { "label": "Lämpchen 9", "value": 9 },
+            { "label": "Lämpchen 10", "value": 10 },
+            { "label": "Lämpchen 11", "value": 11 },
+            { "label": "Lämpchen 12", "value": 12 }
+          ]
+        }
+        }';
      $action_entry='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" }';
      
-     
+     switch($this->ReadPropertyInteger(IDinstance)){
+         case 0:  $elements_entry=$elements_entry1; break;
+         case 3:  $elements_entry=$elements_entry3; break;
+     }
+        
+         
      $form='{ "status":['.$status_entry.'],"elements":['.$elements_entry.'],"actions":['.$action_entry.'],}';
      return $form;
       //"actions": [{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" } ] 
