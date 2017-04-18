@@ -4,18 +4,7 @@
 
 class Schalter extends IPSModule {
   
-  public function GetConfigurationForm() {
-      return'{ "actions": [ 
-                    { "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" } 
-                    ] 
-                  "elements": [ 
-                    "name": "IDinstance", "type": "SelectInstance", "caption": "Instanz" },
-                    ]
-                 }';
-      
-      //return $start;
-      
-}   
+  
     
     
   public function Create() {
@@ -55,7 +44,18 @@ class Schalter extends IPSModule {
     IPS_SetEventScript($id, "\$id = \$_IPS['TARGET'];\n$script;");
     if (!IPS_EventExists($id)) throw new Exception("Ident with name $ident is used for wrong object type");
   }*/
- 
+ public function GetConfigurationForm() {
+      return'{ "actions": [ 
+                    { "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" } 
+                    ] 
+                  "elements": [ 
+                    "name": "IDinstance", "type": "SelectInstance", "caption": "Instanz" },
+                    ]
+                 }';
+      
+      //return $start;
+      
+}   
  
  public function RequestAction($ident, $value) {
  
