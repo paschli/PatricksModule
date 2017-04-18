@@ -55,6 +55,15 @@ class Schalter extends IPSModule {
             { "label": "JSON Fernzugriff", "value": 4 }
           ]
         }';
+     $elements_entry2='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
+        "options":[
+            { "label": "LCN Ausgang", "value": 1 },
+            { "label": "LCN Relais", "value": 2 },
+            { "label": "LCN Lämpchen", "value": 3 },
+            { "label": "JSON Fernzugriff", "value": 4 }
+          ]},
+          { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" }';
+     
      $elements_entry3='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
         "options":[
             { "label": "LCN Ausgang", "value": 1 },
@@ -62,6 +71,7 @@ class Schalter extends IPSModule {
             { "label": "LCN Lämpchen", "value": 3 },
             { "label": "JSON Fernzugriff", "value": 4 }
           ]},
+          { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
           { "name": "LaempchenNr", "type": "Select", "caption": "Lämpchen Nr.", 
         "options":[
             { "label": "Lämpchen 1", "value": 1 },
