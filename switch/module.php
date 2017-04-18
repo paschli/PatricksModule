@@ -45,13 +45,29 @@ class Schalter extends IPSModule {
     if (!IPS_EventExists($id)) throw new Exception("Ident with name $ident is used for wrong object type");
   }*/
  public function GetConfigurationForm() {
+     
      $status_entry=''; 
-     $elements_entry='{ "name": "Open", "type": "CheckBox",  "caption": "Aktiv" }';
+     $elements_entry='{ "name": "LaempchenNr", "type": "Select", "caption": "Lämpchen Nr.", 
+        "options":[
+            { "label": "Lämpchen 1", "value": 1 },
+            { "label": "Lämpchen 2", "value": 2 },
+            { "label": "Lämpchen 3", "value": 3 },
+            { "label": "Lämpchen 4", "value": 4 },
+            { "label": "Lämpchen 5", "value": 5 },
+            { "label": "Lämpchen 6", "value": 6 },
+            { "label": "Lämpchen 7", "value": 7 },
+            { "label": "Lämpchen 8", "value": 8 },
+            { "label": "Lämpchen 9", "value": 9 },
+            { "label": "Lämpchen 10", "value": 10 },
+            { "label": "Lämpchen 11", "value": 11 },
+            { "label": "Lämpchen 12", "value": 12 }
+          ]
+        }';
      $action_entry='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" }';
+     
+     
      $form='{ "status":['.$status_entry.'],"elements":['.$elements_entry.'],"actions":['.$action_entry.'],}';
-      $Instance='{"elements": [{ "name": "IDinstance", "type": "SelectInstance", "caption": "Instanz" }]}';
-      $Label='{"action": [{"type": "Label", "label": "Bitte die zu steuernde Instanz wählen"}]}';
-      return $form;
+     return $form;
       //"actions": [{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" } ] 
       //return $start;
       
