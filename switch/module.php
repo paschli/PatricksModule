@@ -9,7 +9,7 @@ class Schalter extends IPSModule {
     
   public function Create() {
     parent::Create();
-    $this->RegisterPropertyInteger("Auswahl", 0);
+    $this->RegisterPropertyInteger('Auswahl', 0);
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
@@ -80,7 +80,7 @@ class Schalter extends IPSModule {
         }
         }';
      $action_entry='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" }';
-     $wahl=$this->ReadPropertyInteger(Auswahl);
+     $wahl=$this->ReadPropertyInteger('Auswahl');
      switch($wahl){
          case 0:  $elements_entry=$elements_entry1; break;
          case 3:  $elements_entry=$elements_entry3; break;
