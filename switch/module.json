@@ -1,0 +1,11 @@
+{
+  "id": "{E94B56C1-13A1-4DDF-A125-817C5DFFAC9B}",
+  "name": "Schalter",
+  "type": 3,
+  "vendor": "Patrick",
+  "aliases": [ "Schalter" ],
+  "parentRequirements": [],
+  "childRequirements": [],
+  "implemented": [],
+  "prefix": "Schalter"
+}
