@@ -80,8 +80,8 @@ class Schalter extends IPSModule {
         }
         }';
      $action_entry='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" }';
-     
-     switch($this->ReadPropertyInteger(IDinstance)){
+     $wahl=$this->ReadPropertyInteger(Auswahl);
+     switch($wahl){
          case 0:  $elements_entry=$elements_entry1; break;
          case 3:  $elements_entry=$elements_entry3; break;
      }
