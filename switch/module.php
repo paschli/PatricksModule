@@ -61,7 +61,7 @@ class Schalter extends IPSModule {
             { "label": "LCN Relais", "value": 2 },
             { "label": "LCN Lämpchen", "value": 3 },
             { "label": "JSON Fernzugriff", "value": 4 }
-          ],
+          ]},
           { "name": "LaempchenNr", "type": "Select", "caption": "Lämpchen Nr.", 
         "options":[
             { "label": "Lämpchen 1", "value": 1 },
@@ -77,7 +77,6 @@ class Schalter extends IPSModule {
             { "label": "Lämpchen 11", "value": 11 },
             { "label": "Lämpchen 12", "value": 12 }
           ]
-        }
         }';
      $action_entry='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" }';
      $wahl=$this->ReadPropertyInteger('Auswahl');
