@@ -49,7 +49,7 @@ class Schalter extends IPSModule {
                     { "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" } 
                     ] 
                   "elements": [ 
-                    "name": "IDinstance", "type": "SelectInstance", "caption": "Instanz" },
+                    { "name": "IDinstance", "type": "SelectInstance", "caption": "Instanz" },
                     ]
                  }';
       
