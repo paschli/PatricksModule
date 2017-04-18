@@ -107,7 +107,7 @@ class Schalter extends IPSModule {
          case 1:  $elements_entry=$elements_entry2; break;
          case 2:  $elements_entry=$elements_entry2; break;
          case 3:  $elements_entry=$elements_entry3; break;
-         case 4:  $elements_entry=$elements_entry4; break;
+         case 4:  $elements_entry=$elements_entry3; break;
      }
         
          
