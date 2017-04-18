@@ -45,9 +45,13 @@ class Schalter extends IPSModule {
     if (!IPS_EventExists($id)) throw new Exception("Ident with name $ident is used for wrong object type");
   }*/
  public function GetConfigurationForm() {
+     $status_entry=''; 
+     $elements_entry='{ "name": "Open", "type": "CheckBox",  "caption": "Aktiv" }';
+     $action_entry='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" }';
+     $form='{ "status":['.$status_entry.'],"elements":['.$elements_entry.'],"actions":['.$action_entry.'],}';
       $Instance='{"elements": [{ "name": "IDinstance", "type": "SelectInstance", "caption": "Instanz" }]}';
       $Label='{"action": [{"type": "Label", "label": "Bitte die zu steuernde Instanz wählen"}]}';
-      return $Instance.','.$Label;
+      return $form;
       //"actions": [{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" } ] 
       //return $start;
       
