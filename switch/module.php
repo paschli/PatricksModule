@@ -9,7 +9,12 @@ class Schalter extends IPSModule {
     
   public function Create() {
     parent::Create();
-    $this->RegisterPropertyInteger('Auswahl', 0);
+    $this->RegisterPropertyInteger('Auswahl', 0); //Id der zu beobachtenden Variable
+    $this->RegisterPropertyInteger('idLCNInstance', 0);
+    $this->RegisterPropertyInteger('LaempchenNr', 0);
+    $this->RegisterPropertyString('IPAddress', '');
+    $this->RegisterPropertyString('Password', '');
+    $this->RegisterPropertyString('ZielID', '');
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
@@ -19,8 +24,8 @@ class Schalter extends IPSModule {
     $this->RegisterPropertyInteger('idLCNInstance', 0);
     $this->RegisterPropertyInteger('LaempchenNr', 0);
     $this->RegisterPropertyString('IPAddress', '');
-    $this->RegisterPropertyInteger('Password', '');
-    $this->RegisterPropertyInteger('ZielID', '');
+    $this->RegisterPropertyString('Password', '');
+    $this->RegisterPropertyString('ZielID', '');
     
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     
