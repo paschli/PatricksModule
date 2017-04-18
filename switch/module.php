@@ -5,7 +5,7 @@
 class Schalter extends IPSModule {
   
   public function GetConfigurationForm() {
-      $start='{ "actions": [ 
+      return'{ "actions": [ 
                     { "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" } 
                     ] 
                   "elements": [ 
@@ -13,7 +13,7 @@ class Schalter extends IPSModule {
                     ]
                  }';
       
-      return $start;
+      //return $start;
       
 }   
     
