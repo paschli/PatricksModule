@@ -47,7 +47,7 @@ class Schalter extends IPSModule {
  public function GetConfigurationForm() {
      
      $status_entry=''; 
-     $elements_entry='{ "name": "LaempchenNr", "type": "Select", "caption": "Lämpchen Nr.", 
+     $elements_entry='{ "name": "InstanceType", "type": "Select", "caption": "Schalt-Typ", 
         "options":[
             { "label": "LCN Ausgang", "value": 1 },
             { "label": "LCN Relais", "value": 2 },
