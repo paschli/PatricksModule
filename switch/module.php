@@ -20,7 +20,7 @@ class Schalter extends IPSModule {
     
     // Aktiviert die Standardaktion der Statusvariable
     $this->EnableAction("Status");
-    $this->GetConfigurationForm();
+    //$this->GetConfigurationForm();
     //if($this->ReadPropertyInteger('idLCNInstance')!=0){  
     //	$this->RegisterTimer('OnVariableUpdate', 0, 'DBLC_Check($id)');
    // }
