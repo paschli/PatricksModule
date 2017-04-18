@@ -9,18 +9,18 @@ class Schalter extends IPSModule {
     
   public function Create() {
     parent::Create();
-    $this->RegisterPropertyInteger('IDinstance', 0);
+    $this->RegisterPropertyInteger('Auswahl', 0);
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
     $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
     $status=$this->RegisterPropertyBoolean('Status', FALSE);
-    $this->RegisterPropertyInteger('IDinstance', 0); //Id der zu beobachtenden Variable
+    $this->RegisterPropertyInteger('Auswahl', 0); //Id der zu beobachtenden Variable
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     
     // Aktiviert die Standardaktion der Statusvariable
     $this->EnableAction("Status");
-    //$this->GetConfigurationForm();
+    $this->GetConfigurationForm();
     //if($this->ReadPropertyInteger('idLCNInstance')!=0){  
     //	$this->RegisterTimer('OnVariableUpdate', 0, 'DBLC_Check($id)');
    // }
@@ -47,7 +47,7 @@ class Schalter extends IPSModule {
  public function GetConfigurationForm() {
      
      $status_entry=''; 
-     $elements_entry1='{ "name": "IDinstance", "type": "Select", "caption": "Schalt-Typ", 
+     $elements_entry1='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
         "options":[
             { "label": "LCN Ausgang", "value": 1 },
             { "label": "LCN Relais", "value": 2 },
@@ -55,7 +55,7 @@ class Schalter extends IPSModule {
             { "label": "JSON Fernzugriff", "value": 4 }
           ]
         }';
-     $elements_entry3='{ "name": "IDinstance", "type": "Select", "caption": "Schalt-Typ", 
+     $elements_entry3='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
         "options":[
             { "label": "LCN Ausgang", "value": 1 },
             { "label": "LCN Relais", "value": 2 },
