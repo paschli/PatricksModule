@@ -16,6 +16,12 @@ class Schalter extends IPSModule {
     $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
     $status=$this->RegisterPropertyBoolean('Status', FALSE);
     $this->RegisterPropertyInteger('Auswahl', 0); //Id der zu beobachtenden Variable
+    $this->RegisterPropertyInteger('idLCNInstance', 0);
+    $this->RegisterPropertyInteger('LaempchenNr', 0);
+    $this->RegisterPropertyString('IPAddress', '');
+    $this->RegisterPropertyInteger('Password', '');
+    $this->RegisterPropertyInteger('ZielID', '');
+    
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     
     // Aktiviert die Standardaktion der Statusvariable
@@ -113,8 +119,6 @@ class Schalter extends IPSModule {
          
      $form='{ "status":['.$status_entry.'],"elements":['.$elements_entry.'],"actions":['.$action_entry.'],}';
      return $form;
-      //"actions": [{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" } ] 
-      //return $start;
       
 }   
  
