@@ -77,7 +77,7 @@ class Schalter extends IPSModule {
             { "label": "JSON Fernzugriff", "value": 4 }
           ]},
           { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
-          { "type": "NumberSpinner", "name": "Rampe", "caption": "Sekunden" }
+          { "type": "NumberSpinner", "name": "Rampe", "caption": "Sekunden" },
           { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
      $elements_entry2='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
         "options":[
