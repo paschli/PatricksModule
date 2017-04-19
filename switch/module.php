@@ -173,14 +173,13 @@ class Schalter extends IPSModule {
       SetValue($this->GetIDForIdent($ident), $value);
 }
 
-public function ToggleVal() {
-    
-      if(GetValue($this->GetIDForIdent("Status")))
-          $value=0;
-      else
-          $value=1;
-      $this->SetVal($value);
-      SetValue($this->GetIDForIdent("Status"), $value);
+public function SetOn() {
+      $this->SetVal(True);
+      SetValue($this->GetIDForIdent("Status"), True);
+      }
+public function SetOff() {
+      $this->SetVal(False);
+      SetValue($this->GetIDForIdent("Status"), False);
       }
      
 
@@ -190,7 +189,7 @@ public function SetVal(Bool $value) {
       switch($typ){
           case 0: break;
           case 1: $instID=$this->ReadPropertyInteger('idLCNInstance');
-              $dim_time= 4*$this->ReadPropertyInteger('Rampe');
+              $dim_time= $this->ReadPropertyInteger('Rampe');
               if($value)
                   $value_dim=100;
               else
