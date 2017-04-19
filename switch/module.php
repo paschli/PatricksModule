@@ -130,8 +130,8 @@ class Schalter extends IPSModule {
      
      $action_entry='';
      $action_entry1='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" },
-          { "type": "Button", "label": "An", "onClick": "Schalter_Set(true);" },
-          { "type": "Button", "label": "Aus", "onClick": "print_r(Schalter_Set(false));" }';
+          { "type": "Button", "label": "An", "onClick": "Schalter_SetVal(1);" },
+          { "type": "Button", "label": "Aus", "onClick": "print_r(Schalter_SetVal(0));" }';
      
      $wahl=$this->ReadPropertyInteger('Auswahl');
      switch($wahl){
