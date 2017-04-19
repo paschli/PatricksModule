@@ -130,8 +130,8 @@ class Schalter extends IPSModule {
      
      $action_entry='';
      $action_entry1='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" },
-          { "type": "Button", "label": "An", "onClick": "Schalter_SetVal(1);" },
-          { "type": "Button", "label": "Aus", "onClick": "print_r(Schalter_SetVal(0));" }';
+          { "type": "Button", "label": "An", "onClick": "Schalter_SetVal(true);" },
+          { "type": "Button", "label": "Aus", "onClick": "print_r(Schalter_SetVal(false));" }';
      
      $wahl=$this->ReadPropertyInteger('Auswahl');
      switch($wahl){
@@ -174,10 +174,9 @@ class Schalter extends IPSModule {
 }
   
 
-public function SetVal() {
+public function SetVal($value) {
     if(IPS_SemaphoreEnter('Switch', 1000)) {
       $typ= $this->ReadPropertyInteger('Auswahl');
-      $value=0;
       switch($typ){
           case 0: break;
           case 1: $instID=$this->ReadPropertyInteger('idLCNInstance');
