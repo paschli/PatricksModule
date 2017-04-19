@@ -12,6 +12,7 @@ class Schalter extends IPSModule {
     $this->RegisterPropertyInteger('Auswahl', 0); //Id der zu beobachtenden Variable
     $this->RegisterPropertyInteger('idLCNInstance', 0);
     $this->RegisterPropertyInteger('LaempchenNr', 0);
+    $this->RegisterPropertyInteger('Rampe', 2);
     $this->RegisterPropertyString('IPAddress', '');
     $this->RegisterPropertyString('Password', '');
     $this->RegisterPropertyString('ZielID', '');
@@ -24,10 +25,11 @@ class Schalter extends IPSModule {
     $this->RegisterPropertyInteger('Auswahl', 0); //Id der zu beobachtenden Variable
     $this->RegisterPropertyInteger('idLCNInstance', 0);
     $this->RegisterPropertyInteger('LaempchenNr', 0);
+    $this->RegisterPropertyInteger('Rampe', 2);
     $this->RegisterPropertyString('IPAddress', '');
     $this->RegisterPropertyString('Password', '');
     $this->RegisterPropertyString('ZielID', '');
-    
+    $this->RegisterPropertyString('Name','');
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     
     // Aktiviert die Standardaktion der Statusvariable
@@ -59,7 +61,7 @@ class Schalter extends IPSModule {
  public function GetConfigurationForm() {
      
      $status_entry=''; 
-     $elements_entry1='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
+     $elements_entry0='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
         "options":[
             { "label": "LCN Ausgang", "value": 1 },
             { "label": "LCN Relais", "value": 2 },
@@ -67,6 +69,16 @@ class Schalter extends IPSModule {
             { "label": "JSON Fernzugriff", "value": 4 }
           ]
         }';
+     $elements_entry1='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
+        "options":[
+            { "label": "LCN Ausgang", "value": 1 },
+            { "label": "LCN Relais", "value": 2 },
+            { "label": "LCN Lämpchen", "value": 3 },
+            { "label": "JSON Fernzugriff", "value": 4 }
+          ]},
+          { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
+          { "type": "NumberSpinner", "name": "Rampe", "caption": "Sekunden" }
+          { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
      $elements_entry2='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
         "options":[
             { "label": "LCN Ausgang", "value": 1 },
@@ -123,8 +135,8 @@ class Schalter extends IPSModule {
      
      $wahl=$this->ReadPropertyInteger('Auswahl');
      switch($wahl){
-         case 0:  $elements_entry=$elements_entry1; break;
-         case 1:  $elements_entry=$elements_entry2; break;
+         case 0:  $elements_entry=$elements_entry0; break;
+         case 1:  $elements_entry=$elements_entry1; break;
          case 2:  $elements_entry=$elements_entry2; break;
          case 3:  $elements_entry=$elements_entry3; break;
          case 4:  $elements_entry=$elements_entry4; break;
@@ -162,9 +174,24 @@ class Schalter extends IPSModule {
 }
   
 
-public function Check() {
-    if(IPS_SemaphoreEnter('LCNLA', 1000)) {
-        
+public function Set(boolean $value) {
+    if(IPS_SemaphoreEnter('Switch', 1000)) {
+      $typ= $this->ReadPropertyInteger('Auswahl');
+      
+      switch($typ){
+          case 0: break;
+          case 1: $instID=$this->ReadPropertyInteger('idLCNInstance');
+              if($value)
+                  $value_dim=100;
+              else
+                  $value_dim=0;
+              LCN_SetIntensity($instID, $value_dim, 2);
+              break;
+          case 2: break;
+          case 3: break;
+          case 4: break;
+          default: break;
+      }
 //ID und Wert von "Status" ermitteln
       $statusID=$this->ReadPropertyBoolean('Status');
       $status=GetValue($statusID);    
@@ -184,10 +211,10 @@ public function Check() {
         
 
 
-       IPS_SemaphoreLeave('LCNLA');
+       IPS_SemaphoreLeave('Switch');
      } 
      else {
-      IPS_LogMessage('LCNLA', 'Semaphore Timeout');
+      IPS_LogMessage('Switch', 'Semaphore Timeout');
     }
    }
 } 
