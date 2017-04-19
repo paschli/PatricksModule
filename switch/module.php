@@ -130,7 +130,7 @@ class Schalter extends IPSModule {
      
      $action_entry='';
      $action_entry1='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" },
-          { "type": "Button", "label": "An", "onClick": "$this->SetVal(1);" },
+          { "type": "Button", "label": "An", "onClick": "Schalter_ToggleVal($id);" },
           { "type": "Button", "label": "Aus", "onClick": "Schalter_SetVal($id,0);" }';
      
      $wahl=$this->ReadPropertyInteger('Auswahl');
@@ -172,7 +172,16 @@ class Schalter extends IPSModule {
 //Neuen Wert in die Statusvariable schreiben
       SetValue($this->GetIDForIdent($ident), $value);
 }
-  
+
+public function ToggleVal() {
+    
+      if(GetValue($this->GetIDForIdent("Status")))
+          $value=0;
+      else
+          $value=1;
+      $this->SetVal($value);
+      }
+     
 
 public function SetVal(Bool $value) {
     if(IPS_SemaphoreEnter('Switch', 1000)) {
