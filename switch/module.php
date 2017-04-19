@@ -15,6 +15,7 @@ class Schalter extends IPSModule {
     $this->RegisterPropertyString('IPAddress', '');
     $this->RegisterPropertyString('Password', '');
     $this->RegisterPropertyString('ZielID', '');
+    $this->RegisterPropertyString('Name','');
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
@@ -73,7 +74,8 @@ class Schalter extends IPSModule {
             { "label": "LCN Lämpchen", "value": 3 },
             { "label": "JSON Fernzugriff", "value": 4 }
           ]},
-          { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" }';
+          { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
+          { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
           
      
      $elements_entry3='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
@@ -99,7 +101,8 @@ class Schalter extends IPSModule {
             { "label": "Lämpchen 11", "value": 11 },
             { "label": "Lämpchen 12", "value": 12 }
           ]
-        }';
+        },
+        { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
      
      $elements_entry4='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
         "options":[
@@ -110,7 +113,8 @@ class Schalter extends IPSModule {
           ]},
           { "type": "ValidationTextBox", "name": "IPAddress", "caption": "Host"},
           { "type": "PasswordTextBox", "name": "Password", "caption": "Passwort" },
-          { "type": "ValidationTextBox", "name": "ZielID", "caption": "Ziel ID"}';
+          { "type": "ValidationTextBox", "name": "ZielID", "caption": "Ziel ID"},
+          { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
      $action_entry='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" }';
      $wahl=$this->ReadPropertyInteger('Auswahl');
      switch($wahl){
