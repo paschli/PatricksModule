@@ -193,21 +193,21 @@ public function Set($value) {
           default: break;
       }
 //ID und Wert von "Status" ermitteln
-      $statusID=$this->ReadPropertyBoolean('Status');
-      $status=GetValue($statusID);    
+      //$statusID=$this->ReadPropertyBoolean('Status');
+      //$status=GetValue($statusID);    
 //ID der Instanz ermitteln   
-      $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');	
+      //$lcn_instID=$this->ReadPropertyInteger('idLCNInstance');	
 //Lämpchen Nr. ermitteln
-      $lampNo=$this->ReadPropertyInteger('LaempchenNr');
+      //$lampNo=$this->ReadPropertyInteger('LaempchenNr');
 //Auswertung 
-      IPS_LogMessage('LCNLA',"Starte.....................");
+      //IPS_LogMessage('LCNLA',"Starte.....................");
 //Überprüfen Status und sende Befehl an LCN_Instanz
-      if($status){
-        LCN_SetLamp($lcn_instID,$lampNo,'E');  
-      }
-      else{
-        LCN_SetLamp($lcn_instID,$lampNo,'A');  
-      }
+      //if($status){
+      //  LCN_SetLamp($lcn_instID,$lampNo,'E');  
+      //}
+      //else{
+      //  LCN_SetLamp($lcn_instID,$lampNo,'A');  
+     // }
         
 
 
