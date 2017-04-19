@@ -116,8 +116,10 @@ class Schalter extends IPSModule {
           { "type": "ValidationTextBox", "name": "ZielID", "caption": "Ziel ID"},
           { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
      
-     $action_entry='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" },
-          { "type": "Button", "label": "An", "onClick": "echo $id;" }';
+     $action_entry='';
+     $action_entry1='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" },
+          { "type": "Button", "label": "An", "onClick": "echo $id;" },
+          { "type": "Button", "label": "Aus", "onClick": "echo $id;" }';
      
      $wahl=$this->ReadPropertyInteger('Auswahl');
      switch($wahl){
@@ -127,7 +129,8 @@ class Schalter extends IPSModule {
          case 3:  $elements_entry=$elements_entry3; break;
          case 4:  $elements_entry=$elements_entry4; break;
      }
-        
+     if($wahl>0)
+       $action_entry=$action_entry1;  
          
      $form='{ "status":['.$status_entry.'],"elements":['.$elements_entry.'],"actions":['.$action_entry.'],}';
      return $form;
