@@ -195,7 +195,7 @@ public function SetVal(Bool $value) {
                   $value_dim=100;
               else
                   $value_dim=0;
-              LCN_SetIntensity($instID, $value_dim, 2);
+              LCN_SetIntensity($instID, $value_dim, $dim_time);
               break;
           case 2: break;
           case 3: break;
