@@ -116,7 +116,7 @@ class Schalter extends IPSModule {
           { "type": "ValidationTextBox", "name": "ZielID", "caption": "Ziel ID"},
           { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
      
-     $action_entry='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" }
+     $action_entry='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" },
           { "type": "Button", "label": "An", "onClick": "echo $id;" }';
      
      $wahl=$this->ReadPropertyInteger('Auswahl');
