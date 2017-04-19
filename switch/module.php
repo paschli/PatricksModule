@@ -174,10 +174,10 @@ class Schalter extends IPSModule {
 }
   
 
-public function Set($value) {
+public function SetVal() {
     if(IPS_SemaphoreEnter('Switch', 1000)) {
       $typ= $this->ReadPropertyInteger('Auswahl');
-      
+      $value=0;
       switch($typ){
           case 0: break;
           case 1: $instID=$this->ReadPropertyInteger('idLCNInstance');
