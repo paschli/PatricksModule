@@ -190,7 +190,7 @@ public function SetVal(Bool $value) {
       switch($typ){
           case 0: break;
           case 1: $instID=$this->ReadPropertyInteger('idLCNInstance');
-              $dim_time= $this->ReadPropertyInteger('Rampe');
+              $dim_time= 4*$this->ReadPropertyInteger('Rampe');
               if($value)
                   $value_dim=100;
               else
