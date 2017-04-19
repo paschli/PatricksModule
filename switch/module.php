@@ -129,7 +129,7 @@ class Schalter extends IPSModule {
          case 3:  $elements_entry=$elements_entry3; break;
          case 4:  $elements_entry=$elements_entry4; break;
      }
-     if($wahl>0)
+     if($this->ReadPropertyInteger('idLCNInstance')>0)
        $action_entry=$action_entry1;  
          
      $form='{ "status":['.$status_entry.'],"elements":['.$elements_entry.'],"actions":['.$action_entry.'],}';
