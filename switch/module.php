@@ -180,7 +180,7 @@ public function ToggleVal() {
       else
           $value=1;
       $this->SetVal($value);
-      SetValue($this->GetIDForIdent($ident), $value);
+      SetValue($this->GetIDForIdent("Status"), $value);
       }
      
 
