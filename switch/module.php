@@ -198,9 +198,11 @@ public function Set(Bool $value) {
               else {
                   LCN_SetIntensity($instID, 0, $dim_time);
               }
+              SetValue($this->GetIDForIdent("Status"), $value);
               break;
           case 2: $instID=$this->ReadPropertyInteger('idLCNInstance');
               LCN_SwitchRelay($instID, $value);
+              SetValue($this->GetIDForIdent("Status"), $value);
               break;
           case 3: $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
               $lampNo=$this->ReadPropertyInteger('LaempchenNr');
@@ -210,11 +212,12 @@ public function Set(Bool $value) {
               else{
                 LCN_SetLamp($lcn_instID,$lampNo,'A');  
               }
+              SetValue($this->GetIDForIdent("Status"), $value);
               break;
           case 4: break;
           default: break;
       }
-      SetValue($this->GetIDForIdent("Status"), $value);
+      
 //ID und Wert von "Status" ermitteln
       //$statusID=$this->ReadPropertyBoolean('Status');
       //$status=GetValue($statusID);    
