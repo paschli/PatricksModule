@@ -15,7 +15,7 @@ class Schalter extends IPSModule {
     $this->RegisterPropertyInteger('Rampe', 2);
     $this->RegisterPropertyString('IPAddress', '');
     $this->RegisterPropertyString('Password', '');
-    $this->RegisterPropertyString('ZielID', '');
+    $this->RegisterPropertyInteger('ZielID', '');
     $this->RegisterPropertyString('Name','');
   }
   public function ApplyChanges() {
@@ -28,7 +28,7 @@ class Schalter extends IPSModule {
     $this->RegisterPropertyInteger('Rampe', 2);
     $this->RegisterPropertyString('IPAddress', '');
     $this->RegisterPropertyString('Password', '');
-    $this->RegisterPropertyString('ZielID', '');
+    $this->RegisterPropertyInteger('ZielID', '');
     $this->RegisterPropertyString('Name','');
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     
@@ -125,7 +125,7 @@ class Schalter extends IPSModule {
           ]},
           { "type": "ValidationTextBox", "name": "IPAddress", "caption": "Host"},
           { "type": "PasswordTextBox", "name": "Password", "caption": "Passwort" },
-          { "type": "ValidationTextBox", "name": "ZielID", "caption": "Ziel ID"},
+          { "type": "NumberSpinner", "name": "ZielID", "caption": "Ziel ID"},
           { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
      
      $action_entry='';
@@ -217,7 +217,7 @@ public function Set(Bool $value) {
           case 4: 
             $password= $this->ReadPropertyString('Password'); 
             $IPAddr= $this->ReadPropertyString('IPAddress');
-            $TargetID=(integer) $this->ReadPropertyString('ZielID');
+            $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
             $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
             IPS_LogMessage("Schalter_Set",$mes);
             $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
