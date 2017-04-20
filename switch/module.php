@@ -215,9 +215,9 @@ public function Set(Bool $value) {
             SetValue($this->GetIDForIdent("Status"), $value);
             break;
           case 4: 
-            $password= $this->GetPropertyString('Password'); 
-            $IPAddr= $this->GetPropertyString('IPAddress');
-            $TargetID= $this->GetValueString('ZielID');
+            $password= $this->ReadPropertyString('Password'); 
+            $IPAddr= $this->ReadPropertyString('IPAddress');
+            $TargetID= $this->ReadValueString('ZielID');
             $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
             if($value){
                 //IPS_LogMessage(Modul,"Value = True => Relais An");
