@@ -155,20 +155,21 @@ class Schalter extends IPSModule {
       //$statusID=$this->ReadPropertyBoolean('Status');
       //$status=GetValue($statusID);    
 //ID der Instanz ermitteln   
-      $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');	
+      //$lcn_instID=$this->ReadPropertyInteger('idLCNInstance');	
 //Lämpchen Nr. ermitteln
-      $lampNo=$this->ReadPropertyInteger('LaempchenNr');
+      //$lampNo=$this->ReadPropertyInteger('LaempchenNr');
 //Auswertung 
       //IPS_LogMessage('LCNLA',"Starte.....................");
       //IPS_LogMessage('LCNLA',"ident=".$ident);
       //IPS_LogMessage('LCNLA',"value=".$value);
 //Überprüfen Status und sende Befehl an LCN_Instanz
-      if($value){
-        LCN_SetLamp($lcn_instID,$lampNo,'E');  
-      }
-      else{
-        LCN_SetLamp($lcn_instID,$lampNo,'A');  
-      }
+      //if($value){
+      //  LCN_SetLamp($lcn_instID,$lampNo,'E');  
+      //}
+      //else{
+      //  LCN_SetLamp($lcn_instID,$lampNo,'A');  
+     // }
+      $this->Set($value);
 //Neuen Wert in die Statusvariable schreiben
       SetValue($this->GetIDForIdent($ident), $value);
 }
