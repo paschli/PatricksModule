@@ -214,6 +214,7 @@ public function Set(Bool $value) {
           case 4: break;
           default: break;
       }
+      SetValue($this->GetIDForIdent("Status"), $value);
 //ID und Wert von "Status" ermitteln
       //$statusID=$this->ReadPropertyBoolean('Status');
       //$status=GetValue($statusID);    
