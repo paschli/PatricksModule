@@ -174,15 +174,15 @@ class Schalter extends IPSModule {
 }
 
 public function SetOn() {
-      $this->SetVal(True);
+      $this->Set(True);
       SetValue($this->GetIDForIdent("Status"), True);
       }
 public function SetOff() {
-      $this->SetVal(False);
+      $this->Set(False);
       SetValue($this->GetIDForIdent("Status"), False);
       }
      
-public function SetVal(Bool $value) {
+public function Set(Bool $value) {
     if(IPS_SemaphoreEnter('Switch', 1000)) {
       $value_dim=0;
       $typ= $this->ReadPropertyInteger('Auswahl');
