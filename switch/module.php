@@ -196,7 +196,9 @@ public function SetVal(Bool $value) {
                   $value_dim=0;
               LCN_SetIntensity($instID, $value_dim, $dim_time);
               break;
-          case 2: break;
+          case 2: $instID=$this->ReadPropertyInteger('idLCNInstance');
+              LCN_SwitchRelay($instID, $value);
+              break;
           case 3: break;
           case 4: break;
           default: break;
