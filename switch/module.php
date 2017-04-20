@@ -185,15 +185,15 @@ public function SetOff() {
 
 public function SetVal(Bool $value) {
     if(IPS_SemaphoreEnter('Switch', 1000)) {
+      $value_dim=0;
       $typ= $this->ReadPropertyInteger('Auswahl');
+      
       switch($typ){
           case 0: break;
           case 1: $instID=$this->ReadPropertyInteger('idLCNInstance');
               $dim_time= $this->ReadPropertyInteger('Rampe');
               if($value)
                   $value_dim=100;
-              else
-                  $value_dim=0;
               LCN_SetIntensity($instID, $value_dim, $dim_time);
               break;
           case 2: $instID=$this->ReadPropertyInteger('idLCNInstance');
