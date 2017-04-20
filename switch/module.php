@@ -176,11 +176,11 @@ class Schalter extends IPSModule {
 
 public function SetOn() {
       $this->Set(True);
-      SetValue($this->GetIDForIdent("Status"), True);
+      //SetValue($this->GetIDForIdent("Status"), True);
       }
 public function SetOff() {
       $this->Set(False);
-      SetValue($this->GetIDForIdent("Status"), False);
+      //SetValue($this->GetIDForIdent("Status"), False);
       }
      
 public function Set(Bool $value) {
@@ -191,30 +191,46 @@ public function Set(Bool $value) {
       switch($typ){
           case 0: break;
           case 1: $instID=$this->ReadPropertyInteger('idLCNInstance');
-              $dim_time= $this->ReadPropertyInteger('Rampe');
-              if($value){
-                  LCN_SetIntensity($instID, 100, $dim_time);
-              }
-              else {
-                  LCN_SetIntensity($instID, 0, $dim_time);
-              }
-              SetValue($this->GetIDForIdent("Status"), $value);
-              break;
+            $dim_time= $this->ReadPropertyInteger('Rampe');
+            if($value){
+                LCN_SetIntensity($instID, 100, $dim_time);
+            }
+            else {
+                LCN_SetIntensity($instID, 0, $dim_time);
+            }
+            SetValue($this->GetIDForIdent("Status"), $value);
+            break;
           case 2: $instID=$this->ReadPropertyInteger('idLCNInstance');
-              LCN_SwitchRelay($instID, $value);
-              SetValue($this->GetIDForIdent("Status"), $value);
-              break;
+            LCN_SwitchRelay($instID, $value);
+            SetValue($this->GetIDForIdent("Status"), $value);
+            break;
           case 3: $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
-              $lampNo=$this->ReadPropertyInteger('LaempchenNr');
-              if($value){
-                LCN_SetLamp($lcn_instID,$lampNo,'E');  
-              }
-              else{
-                LCN_SetLamp($lcn_instID,$lampNo,'A');  
-              }
-              SetValue($this->GetIDForIdent("Status"), $value);
-              break;
-          case 4: break;
+            $lampNo=$this->ReadPropertyInteger('LaempchenNr');
+            if($value){
+              LCN_SetLamp($lcn_instID,$lampNo,'E');  
+            }
+            else{
+              LCN_SetLamp($lcn_instID,$lampNo,'A');  
+            }
+            SetValue($this->GetIDForIdent("Status"), $value);
+            break;
+          case 4: 
+            $password= $this->GetPropertyString('Password'); 
+            $IPAddr= $this->GetPropertyString('IPAddress');
+            $TargetID= $this->GetValueString('ZielID');
+            $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
+            if($value){
+                //IPS_LogMessage(Modul,"Value = True => Relais An");
+                $rpc->SetValue($TargetID, true);
+            }           
+            else{
+                //IPS_LogMessage(Modul,"Value = False => Relais Aus");
+                $rpc->SetValue($TargetID, false);
+            }
+            $result=(bool)$rpc->GetValue($TargetID);
+            SetValue($this->GetIDForIdent("Status"), $result);
+            break;
+            
           default: break;
       }
       
