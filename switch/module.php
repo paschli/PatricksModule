@@ -182,7 +182,6 @@ public function SetOff() {
       SetValue($this->GetIDForIdent("Status"), False);
       }
      
-
 public function SetVal(Bool $value) {
     if(IPS_SemaphoreEnter('Switch', 1000)) {
       $value_dim=0;
