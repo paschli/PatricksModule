@@ -201,7 +201,15 @@ public function Set(Bool $value) {
           case 2: $instID=$this->ReadPropertyInteger('idLCNInstance');
               LCN_SwitchRelay($instID, $value);
               break;
-          case 3: break;
+          case 3: $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
+              $lampNo=$this->ReadPropertyInteger('LaempchenNr');
+              if($value){
+                LCN_SetLamp($lcn_instID,$lampNo,'E');  
+              }
+              else{
+                LCN_SetLamp($lcn_instID,$lampNo,'A');  
+              }
+              break;
           case 4: break;
           default: break;
       }
