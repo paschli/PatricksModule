@@ -218,6 +218,7 @@ public function Set(Bool $value) {
             $password= $this->ReadPropertyString('Password'); 
             $IPAddr= $this->ReadPropertyString('IPAddress');
             $TargetID= $this->ReadPropertyString('ZielID');
+            echo ("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
             $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
             if($value){
                 //IPS_LogMessage(Modul,"Value = True => Relais An");
