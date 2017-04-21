@@ -165,6 +165,15 @@ public function checkVerb() {
       IPS_LogMessage("Schalter_Check","Aufruf:".$mes."Target ID".$TargetID);
       $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
       $result=(string)$rpc->GetValue($TargetID);
+      try {
+          $rpc->IPS_GetKernelDir();
+        } 
+      catch (JSONRPCException $e) {
+          echo 'RPC Problem: ',  $e->getMessage(), "\n";
+        } 
+      catch (Exception $e) {
+          echo 'Server Problem: ',  $e->getMessage(), "\n";
+        }
       //if($result)
       //    $this->RegisterPropertyInteger('State',1);
       }
