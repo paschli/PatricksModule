@@ -158,7 +158,7 @@ public function SetOff() {
       }
 
 public function checkJS() {
-      $password= $this->ReadPropertyString('Password'); 
+      /*$password= $this->ReadPropertyString('Password'); 
       $IPAddr= $this->ReadPropertyString('IPAddress');
       $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
       $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
@@ -166,7 +166,7 @@ public function checkJS() {
       $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
       $result=@$rpc->GetValueFormatted($TargetID);
       if($result)
-          $this->RegisterPropertyInteger('State',1);
+          $this->RegisterPropertyInteger('State',1);*/
       }
       
 public function Set(Bool $value) {
