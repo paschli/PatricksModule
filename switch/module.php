@@ -164,7 +164,7 @@ public function checkVerb() {
       $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
       IPS_LogMessage("Schalter_Check","Aufruf:".$mes."Target ID".$TargetID);
       $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
-      $result=@$rpc->GetValueFormatted($TargetID);
+      $result=$rpc->GetValueFormatted($TargetID);
       if($result)
           $this->RegisterPropertyInteger('State',1);
       }
