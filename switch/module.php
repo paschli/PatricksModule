@@ -31,6 +31,7 @@ class Schalter extends IPSModule {
     $this->RegisterPropertyString('Password', '');
     $this->RegisterPropertyInteger('ZielID', 0);
     $this->RegisterPropertyString('Name','');
+    $this->RegisterPropertyInteger('State', 0); //Status der Instanz
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     $instID= IPS_GetParent($statusID);
     if($this->ReadPropertyString('Name')!='')
