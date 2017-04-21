@@ -29,14 +29,14 @@ class Schalter extends IPSModule {
     $this->RegisterPropertyInteger('Rampe', 2);
     $this->RegisterPropertyString('IPAddress', '');
     $this->RegisterPropertyString('Password', '');
-    $this->RegisterPropertyInteger('ZielID', '');
+    $this->RegisterPropertyInteger('ZielID', 0);
     $this->RegisterPropertyString('Name','');
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     $instID= IPS_GetParent($statusID);
     if($this->ReadPropertyString('Name')!='')
         IPS_SetName($instID, $this->ReadPropertyString('Name'));
-    if(($this->ReadPropertyString('IPAdress')!='')&&($this->ReadPropertyString('Password')!='')&&
-            ($this->ReadPropertyString('ZielID')!=''))
+    if(($this->ReadPropertyString('IPAddress')!='')&&($this->ReadPropertyString('Password')!='')&&
+            ($this->ReadPropertyInteger('ZielID')!=0))
         $this->checkVerb();
     // Aktiviert die Standardaktion der Statusvariable
     $this->EnableAction("Status");
