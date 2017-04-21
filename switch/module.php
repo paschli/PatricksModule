@@ -35,9 +35,9 @@ class Schalter extends IPSModule {
     $instID= IPS_GetParent($statusID);
     if($this->ReadPropertyString('Name')!='')
         IPS_SetName($instID, $this->ReadPropertyString('Name'));
-    if(($this->ReadPropertyString('IPAdresse')!='')&&($this->ReadPropertyString('Password')!='')&&
-            ($this->ReadPropertyString('ZielID')!=''))
-        $this->checkJS();
+//    if(($this->ReadPropertyString('IPAdresse')!='')&&($this->ReadPropertyString('Password')!='')&&
+//            ($this->ReadPropertyString('ZielID')!=''))
+//        $this->checkJS();
     // Aktiviert die Standardaktion der Statusvariable
     $this->EnableAction("Status");
     $this->GetConfigurationForm();
@@ -156,9 +156,9 @@ public function SetOff() {
       $this->Set(False);
       //SetValue($this->GetIDForIdent("Status"), False);
       }
-
-public function checkJS() {
-      /*$password= $this->ReadPropertyString('Password'); 
+/*
+public function check() {
+      $password= $this->ReadPropertyString('Password'); 
       $IPAddr= $this->ReadPropertyString('IPAddress');
       $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
       $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
@@ -166,8 +166,8 @@ public function checkJS() {
       $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
       $result=@$rpc->GetValueFormatted($TargetID);
       if($result)
-          $this->RegisterPropertyInteger('State',1);*/
-      }
+          $this->RegisterPropertyInteger('State',1);
+      }*/
       
 public function Set(Bool $value) {
     if(IPS_SemaphoreEnter('Switch', 1000)) {
