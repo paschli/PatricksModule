@@ -35,7 +35,7 @@ class Schalter extends IPSModule {
     $instID= IPS_GetParent($statusID);
     if($this->ReadPropertyString('Name')!='')
         IPS_SetName($instID, $this->ReadPropertyString('Name'));
-    if(($this->ReadPropertyString('IPAdresse')!='')&&($this->ReadPropertyString('Password')!='')&&
+    if(($this->ReadPropertyString('IPAdress')!='')&&($this->ReadPropertyString('Password')!='')&&
             ($this->ReadPropertyString('ZielID')!=''))
         $this->checkVerb();
     // Aktiviert die Standardaktion der Statusvariable
