@@ -42,7 +42,11 @@ class Schalter extends IPSModule {
   
  public function GetConfigurationForm() {
      
-     $status_entry=''; 
+     $status_entry='{ "code": 101, "icon": "inactive", "caption": "Instanz wird erstellt" },
+             { "code": 102, "icon": "active", "caption": "Instanz aktiv" },
+             { "code": 200, "icon": "error", "caption": "Instanz fehlerhaft" }'; 
+     
+     
      $elements_entry0='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
         "options":[
             { "label": "LCN Ausgang", "value": 1 },
@@ -114,6 +118,8 @@ class Schalter extends IPSModule {
      $action_entry1='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" },
           { "type": "Button", "label": "An", "onClick": "Schalter_SetOn($id);" },
           { "type": "Button", "label": "Aus", "onClick": "Schalter_SetOff($id);" }';
+     
+     
      
      $wahl=$this->ReadPropertyInteger('Auswahl');
      switch($wahl){
