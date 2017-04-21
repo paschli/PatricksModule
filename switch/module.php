@@ -175,6 +175,7 @@ public function checkVerb() {
       catch (Exception $e) {
           echo 'Server Problem: ',  $e->getMessage(), "\n";
         }
+        $this->RegisterPropertyInteger('State',1);
       //if($result)
       //    $this->RegisterPropertyInteger('State',1);
       }
