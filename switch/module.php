@@ -36,9 +36,9 @@ class Schalter extends IPSModule {
     $instID= IPS_GetParent($statusID);
     if($this->ReadPropertyString('Name')!='')
         IPS_SetName($instID, $this->ReadPropertyString('Name'));
-    if(($this->ReadPropertyString('IPAddress')!='')&&($this->ReadPropertyString('Password')!='')&&
-            ($this->ReadPropertyInteger('ZielID')!=0))
-        $this->checkVerb();
+    //if(($this->ReadPropertyString('IPAddress')!='')&&($this->ReadPropertyString('Password')!='')&&
+    //        ($this->ReadPropertyInteger('ZielID')!=0))
+    //    $this->checkVerb();
     // Aktiviert die Standardaktion der Statusvariable
     $this->EnableAction("Status");
     $this->GetConfigurationForm();
@@ -137,7 +137,8 @@ class Schalter extends IPSModule {
      
      if($this->ReadPropertyInteger('idLCNInstance')>0)
          $action_entry=$action_entry1;  
-     if($this->ReadPropertyInteger('State')>0)
+     if(($this->ReadPropertyString('IPAddress')!='')&&($this->ReadPropertyString('Password')!='')&&
+            ($this->ReadPropertyInteger('ZielID')!=0))
          $action_entry=$action_entry1; 
      
      $form='{ "status":['.$status_entry.'],"elements":['.$elements_entry.'],"actions":['.$action_entry.'],}';
@@ -178,7 +179,7 @@ public function checkVerb() {
       catch (Exception $e) {
           echo 'Server Problem: ',  $e->getMessage(), "\n";
         }
-        SetValueInteger($this->GetIDForIdent("State"), 1);
+         $this->RegisterPropertyInteger('State',1);
       //if($result)
       //    $this->RegisterPropertyInteger('State',1);
       }
