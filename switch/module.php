@@ -31,8 +31,9 @@ class Schalter extends IPSModule {
     $this->RegisterPropertyInteger('ZielID', '');
     $this->RegisterPropertyString('Name','');
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
+    $instID= IPS_GetParent($statusID);
     if($this->ReadPropertyString('Name')!='')
-        IPS_SetName($id, $this->ReadPropertyString('Name'));
+        IPS_SetName($instID, $this->ReadPropertyString('Name'));
     // Aktiviert die Standardaktion der Statusvariable
     $this->EnableAction("Status");
     $this->GetConfigurationForm();
