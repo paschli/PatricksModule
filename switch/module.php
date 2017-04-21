@@ -35,9 +35,9 @@ class Schalter extends IPSModule {
     $instID= IPS_GetParent($statusID);
     if($this->ReadPropertyString('Name')!='')
         IPS_SetName($instID, $this->ReadPropertyString('Name'));
-//    if(($this->ReadPropertyString('IPAdresse')!='')&&($this->ReadPropertyString('Password')!='')&&
-//            ($this->ReadPropertyString('ZielID')!=''))
-//        $this->checkJS();
+    if(($this->ReadPropertyString('IPAdresse')!='')&&($this->ReadPropertyString('Password')!='')&&
+            ($this->ReadPropertyString('ZielID')!=''))
+        $this->checkVerb();
     // Aktiviert die Standardaktion der Statusvariable
     $this->EnableAction("Status");
     $this->GetConfigurationForm();
@@ -156,8 +156,8 @@ public function SetOff() {
       $this->Set(False);
       //SetValue($this->GetIDForIdent("Status"), False);
       }
-/*
-public function check() {
+
+public function checkVerb() {
       $password= $this->ReadPropertyString('Password'); 
       $IPAddr= $this->ReadPropertyString('IPAddress');
       $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
@@ -167,7 +167,7 @@ public function check() {
       $result=@$rpc->GetValueFormatted($TargetID);
       if($result)
           $this->RegisterPropertyInteger('State',1);
-      }*/
+      }
       
 public function Set(Bool $value) {
     if(IPS_SemaphoreEnter('Switch', 1000)) {
