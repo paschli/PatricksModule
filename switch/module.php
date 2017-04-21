@@ -17,6 +17,7 @@ class Schalter extends IPSModule {
     $this->RegisterPropertyString('Password', '');// Passwort für JSON-Verbindung
     $this->RegisterPropertyInteger('ZielID', '');// ID des zu schaltenden entfernten Objekts
     $this->RegisterPropertyString('Name','');//Otionaler Name für die erstellte Instanz
+    $this->RegisterPropertyInteger('State', 0); //Status der Instanz
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
@@ -34,6 +35,9 @@ class Schalter extends IPSModule {
     $instID= IPS_GetParent($statusID);
     if($this->ReadPropertyString('Name')!='')
         IPS_SetName($instID, $this->ReadPropertyString('Name'));
+    if(($this->ReadPropertyString('IPAdresse')!='')&&($this->ReadPropertyString('Password')!='')&&
+            $this->ReadPropertyString('ZielID')!='')
+        $this->check ();
     // Aktiviert die Standardaktion der Statusvariable
     $this->EnableAction("Status");
     $this->GetConfigurationForm();
@@ -129,6 +133,7 @@ class Schalter extends IPSModule {
          case 3:  $elements_entry=$elements_entry3; break;
          case 4:  $elements_entry=$elements_entry4; break;
      }
+     
      if($this->ReadPropertyInteger('idLCNInstance')>0)
        $action_entry=$action_entry1;  
          
@@ -138,25 +143,6 @@ class Schalter extends IPSModule {
 }   
  
  public function RequestAction($ident, $value) {
- 
-//ID und Wert von "Status" ermitteln
-      //$statusID=$this->ReadPropertyBoolean('Status');
-      //$status=GetValue($statusID);    
-//ID der Instanz ermitteln   
-      //$lcn_instID=$this->ReadPropertyInteger('idLCNInstance');	
-//Lämpchen Nr. ermitteln
-      //$lampNo=$this->ReadPropertyInteger('LaempchenNr');
-//Auswertung 
-      //IPS_LogMessage('LCNLA',"Starte.....................");
-      //IPS_LogMessage('LCNLA',"ident=".$ident);
-      //IPS_LogMessage('LCNLA',"value=".$value);
-//Überprüfen Status und sende Befehl an LCN_Instanz
-      //if($value){
-      //  LCN_SetLamp($lcn_instID,$lampNo,'E');  
-      //}
-      //else{
-      //  LCN_SetLamp($lcn_instID,$lampNo,'A');  
-     // }
       $this->Set($value);
 //Neuen Wert in die Statusvariable schreiben
       SetValue($this->GetIDForIdent($ident), $value);
@@ -170,7 +156,19 @@ public function SetOff() {
       $this->Set(False);
       //SetValue($this->GetIDForIdent("Status"), False);
       }
-     
+
+public function check() {
+      $password= $this->ReadPropertyString('Password'); 
+      $IPAddr= $this->ReadPropertyString('IPAddress');
+      $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
+      $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
+      IPS_LogMessage("Schalter_Check","Aufruf:".$mes."Target ID".$TargetID);
+      $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
+      $result=@$rpc->GetValueFormatted($TargetID);
+      if($result)
+          $this->RegisterPropertyInteger('State',1);
+      }
+      
 public function Set(Bool $value) {
     if(IPS_SemaphoreEnter('Switch', 1000)) {
       $value_dim=0;
