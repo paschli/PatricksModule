@@ -13,7 +13,7 @@ class ONEClick extends IPSModule {
     
     $this->RegisterPropertyInteger('ONEClickTime', 1);
     $this->RegisterPropertyInteger('idSourceInstance', 0); //Id der zu beobachtenden Variable	  
-    $ClickDetectId = $this->RegisterVariableBoolean('ClickDetect', 'DoppelKlickErkannt','', 1); //Boolean anlegen, der bei erkennung gesetzt wird 
+    $ClickDetectId = $this->RegisterVariableBoolean('ClickDetect', 'KlickErkannt','', 1); //Boolean anlegen, der bei erkennung gesetzt wird 
     $lastUpdID = $this->RegisterVariableInteger('LASTUPD','last_updated','~UnixTimestamp',3);//Hilfsvariable anlegen
     
 //Inhalt für Skript erzeugen, das bei Erkennung ausgeführt wird 
