@@ -29,10 +29,10 @@ class DBLClick extends IPSModule {
     IPS_SetIcon($this->GetIDForIdent('LASTUPD'), 'Clock');
     
     if($this->ReadPropertyInteger('idSourceInstance')!=0){  
-    	$this->RegisterTimer('OnVariableUpdate', 0, 'DBLC_Check($id)');
+    	$this->RegisterEVENT('OnVariableUpdate', 0, 'DBLC_Check($id)');
     }
   }
-  protected function RegisterTimer($ident, $interval, $script) {
+  protected function RegisterEVENT($ident, $interval, $script) {
     $id = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
     if ($id && IPS_GetEvent($id)['EventType'] <> 1) {
       IPS_DeleteEvent($id);
