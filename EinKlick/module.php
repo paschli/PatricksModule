@@ -6,15 +6,12 @@ class ONEClick extends IPSModule {
   public function Create() {
     parent::Create();
     $this->RegisterPropertyInteger('idSourceInstance', 0);
-    $this->RegisterPropertyInteger('ONEClickTime', 1);
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
     
-    $this->RegisterPropertyInteger('ONEClickTime', 1);
     $this->RegisterPropertyInteger('idSourceInstance', 0); //Id der zu beobachtenden Variable	  
     $ClickDetectId = $this->RegisterVariableBoolean('ClickDetect', 'KlickErkannt','', 1); //Boolean anlegen, der bei erkennung gesetzt wird 
-    $lastUpdID = $this->RegisterVariableInteger('LASTUPD','last_updated','~UnixTimestamp',3);//Hilfsvariable anlegen
     
 //Inhalt für Skript erzeugen, das bei Erkennung ausgeführt wird 
 /*  $stringInhalt="<?\n IPS_LogMessage('DBLClick_Script','Starte User_Script.....................'); \n SetValueBoolean($DBLClickDetectId, FALSE); \n//Start your code here\n\n?>"; */
@@ -25,10 +22,9 @@ class ONEClick extends IPSModule {
 //    $nameId = $this->RegisterVariableString('NAME', 'Name_Device', '', 2);
 //    IPS_SetIcon($this->GetIDForIdent('DBLClickDetect'), 'Motion');
 //    IPS_SetIcon($this->GetIDForIdent('SCRIPT'), 'Keyboard');
-    IPS_SetIcon($this->GetIDForIdent('LASTUPD'), 'Clock');
     
     if($this->ReadPropertyInteger('idSourceInstance')!=0){  
-    	$this->RegisterTimer('OnVariableUpdate', 0, 'DBLC_Check($id)');
+    	$this->RegisterTimer('OnVariableUpdate', 0, 'ONEC_Check($id)');
     }
   }
   protected function RegisterTimer($ident, $interval, $script) {

@@ -1,7 +1,6 @@
 {
   "elements": [
-    { "name": "idSourceInstance", "type": "SelectVariable", "caption": "Variable" },
-    { "name": "ONEClickTime", "type": "IntervalBox", "caption": "Sekunden" }
+    { "name": "idSourceInstance", "type": "SelectVariable", "caption": "Variable" }
   ]
   
 }
