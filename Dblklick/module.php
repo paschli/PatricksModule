@@ -13,7 +13,8 @@ class DBLClick extends IPSModule {
     
     $this->RegisterPropertyInteger('DBLClickTime', 1);
     $this->RegisterPropertyInteger('idSourceInstance', 0); //Id der zu beobachtenden Variable	  
-    $DBLClickDetectId = $this->RegisterVariableBoolean('DBLClickDetect', 'DoppelKlickErkannt','', 1); //Boolean anlegen, der bei erkennung gesetzt wird 
+    $DBLClickDetectId = $this->RegisterVariableBoolean('DBLClickDetect', 'DoppelKlickErkannt','', 1); //Boolean anlegen, der bei erkennung gesetzt wird
+    $this->RegisterVariableBoolean('ClickDetect', 'KlickErkannt','', 1); //Boolean anlegen, der bei erkennung gesetzt wird
     $lastUpdID = $this->RegisterVariableInteger('LASTUPD','last_updated','~UnixTimestamp',3);//Hilfsvariable anlegen
     
 //Inhalt für Skript erzeugen, das bei Erkennung ausgeführt wird 
@@ -91,6 +92,7 @@ class DBLClick extends IPSModule {
 //Ermitteln ob doppelter Tastendruck in Zeit "DBLCLickTime" vorliegt
 //ID der Bool-Variable für Doppelklick
       $DBLClickDetectID=$this->GetIDForIdent('DBLClickDetect');
+      $ClickDetectID=$this->GetIDForIdent('ClickDetect');
       $instancethisID= IPS_GetParent($DBLClickDetectID);
 //Eigenschaften der "command" Variable ermitteln 
       $stringInfo= IPS_GetVariable($stringID);
@@ -118,7 +120,6 @@ class DBLClick extends IPSModule {
 //Falls Skript noch nicht vorhanden
         if(!$scriptID){
             $stringInhalt="<?\n IPS_LogMessage('DBLClick_Script'.'$source_taste','Starte User_Script.....................'); \n SetValueBoolean($DBLClickDetectID, FALSE); \n SetValueInteger($lastUpdID,GetValueInteger($lastUpdID)-20);\n//Start your code here\n\n?>";
-            
             $scriptID= IPS_CreateScript(0);
             IPS_SetParent($scriptID, $instancethisID);
             IPS_SetName($scriptID, "Taste_".$source_taste);
@@ -128,8 +129,20 @@ class DBLClick extends IPSModule {
         IPS_RunScript($scriptID);
       }
       else{
-	//SetValueBoolean($DBLClickDetectID, false);
-        IPS_LogMessage('DBLClick-'.$inst_name,"Doppelklick nicht erkannt");
+	SetValueBoolean($ClickDetectID, true);
+        IPS_LogMessage('DBLClick',"Einfaschklick erkannt");
+//Skript für erkannte Taste ermitteln oder erstellen
+        $scriptID=@IPS_GetScriptIDByName("ONEC_Taste_".$source_taste, $instancethisID);
+//Falls Skript noch nicht vorhanden
+        if(!$scriptID){
+            $stringInhalt="<?\n IPS_LogMessage('DBLClick_Script'.'$source_taste','Starte User_Script.....................'); \n SetValueBoolean($ClickDetectID, FALSE); \n//Start your code here\n\n?>";
+            $scriptID= IPS_CreateScript(0);
+            IPS_SetParent($scriptID, $instancethisID);
+            IPS_SetName($scriptID, "ONEC_Taste_".$source_taste);
+            IPS_SetScriptContent($scriptID, $stringInhalt);   
+        }
+            
+        IPS_RunScript($scriptID);
       }
       IPS_SemaphoreLeave('DBLClick');
      } 
