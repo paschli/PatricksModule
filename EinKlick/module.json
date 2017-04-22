@@ -1,0 +1,11 @@
+{
+  "id": "{2A42F8AA-743F-4B5F-BA34-44988FFF6A7D}",
+  "name": "OneClick",
+  "type": 3,
+  "vendor": "Patrick",
+  "aliases": [ "EinKlick" ],
+  "parentRequirements": [],
+  "childRequirements": [],
+  "implemented": [],
+  "prefix": "ONEC"
+}
