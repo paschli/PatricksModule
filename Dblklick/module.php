@@ -15,7 +15,7 @@ class DBLClick extends IPSModule {
     
     $this->RegisterPropertyInteger('DBLClickTime', 1);
     $this->RegisterPropertyInteger('idSourceInstance', 0); //Id der zu beobachtenden Variable
-    $this->RegisterPropertyBoolean('OneClick', FALSE);
+    $this->RegisterPropertyBoolean('Klick', FALSE);
     $DBLClickDetectId = $this->RegisterVariableBoolean('DBLClickDetect', 'DoppelKlickErkannt','', 1); //Boolean anlegen, der bei erkennung gesetzt wird 
     $lastUpdID = $this->RegisterVariableInteger('LASTUPD','last_updated','~UnixTimestamp',3);//Hilfsvariable anlegen
     
