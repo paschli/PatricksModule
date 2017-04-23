@@ -164,7 +164,8 @@ class DBLClick extends IPSModule {
 //Skript für erkannte Taste ermitteln oder erstellen     
 //Nur die ersten Zeichen prüfen, um erweiterte Bennenung zu zulassen
         $script_Name="Taste_".$source_taste;
-        $scriptID= $this->Script_IDbyName($instancethisID, $script_Name);  
+        $scriptID= $this->Script_IDbyName($instancethisID, $script_Name); 
+        IPS_LogMessage('DBLClick-'.$inst_name,"Skript mit ID=".$scriptID." wird gestartet!");
 //Falls Actions-Skript noch nicht vorhanden
         if(!$scriptID){
 //Script erstellen
