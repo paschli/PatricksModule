@@ -119,7 +119,7 @@ class DBLClick extends IPSModule {
           $child_Name_8=substr($child_Name, 0, 8);
           IPS_LogMessage('DBLClick_IDbyName',"Child_8 =".$child_Name_8." zu Name=".$name);
           if(strstr($child_Name_8, $name)===FALSE){
-             $scriptID=-1; 
+             $scriptID=0; 
           }
           else{
               $scriptID=$child;
