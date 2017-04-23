@@ -81,12 +81,14 @@ class DBLClick extends IPSModule {
   }
   
   protected function Script_Create($DBLClickDetectID,$lastUpdID,$source_taste,$instancethisID) {
+      IPS_LogMessage('DBLClick_ScriptCreate',"Skript erstellen!");
       if($this->ReadPropertyBoolean('CheckOneCLick')){
           $string_OneClick="define('OneClick', 1);";
       }
       else{
           $string_OneClick="define('OneClick', 0);";
-      }      
+      } 
+      
 //Script Inhalt bei einerOne-Klick_Aktion
       $stringInhalt=
                 $string_OneClick
@@ -103,7 +105,9 @@ class DBLClick extends IPSModule {
       $scriptID= IPS_CreateScript(0);
       IPS_SetParent($scriptID, $instancethisID);
       IPS_SetName($scriptID, "Taste_".$source_taste);
-      IPS_SetScriptContent($scriptID, $stringInhalt);     
+      IPS_SetScriptContent($scriptID, $stringInhalt); 
+      IPS_LogMessage('DBLClick_ScriptCreate',"Skript erstellt mit ID=".$scriptID);
+      return($scriptID);
   }
   
   protected function Script_IDbyName($instThisID,$name) {
@@ -169,13 +173,17 @@ class DBLClick extends IPSModule {
 //Nur die ersten Zeichen prüfen, um erweiterte Bennenung zu zulassen
         $script_Name="Taste_".$source_taste;
         $scriptID= $this->Script_IDbyName($instancethisID, $script_Name); 
-        IPS_LogMessage('DBLClick-'.$inst_name,"Skript ID=".$scriptID." gefunden");
+        
 //Falls Actions-Skript noch nicht vorhanden
         if(!$scriptID){
 //Script erstellen
-             $this->Script_Create($DBLClickDetectID,$lastUpdID,$source_taste,$instancethisID);   
+            IPS_LogMessage('DBLClick-'.$inst_name,"Skript nicht gefunden!");
+            $scriptID=$this->Script_Create($DBLClickDetectID,$lastUpdID,$source_taste,$instancethisID);   
         }
-          
+        else {
+            IPS_LogMessage('DBLClick-'.$inst_name,"Skript ID=".$scriptID." gefunden");
+            
+        }  
 //letzte Tastenbedienung speichern
       SetValueInteger($lastUpdID, $AktuelleZeit);
 //Debugausgaben
