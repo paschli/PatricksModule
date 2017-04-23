@@ -98,12 +98,13 @@ class DBLClick extends IPSModule {
               . " if(GetValueBoolean($DBLClickDetectID)){\n "
               . "   SetValueBoolean($DBLClickDetectID, FALSE); \n "
               . "   SetValueInteger($lastUpdID,GetValueInteger($lastUpdID)-20);\n"
+              . "//Start your code here for DoubleClick\n"
               . "   }\n"
               . " else if(OneClick){\n "
               . "//Start your code here for OneClick\n\n"
               . "\n\n"
               . "   }\n \n "
-              . "//Start your code here for DoubleClick\n\n?>";
+              . "\n?>";
       $scriptID= IPS_CreateScript(0);
       IPS_SetParent($scriptID, $instancethisID);
       IPS_SetName($scriptID, "Taste_".$source_taste);
