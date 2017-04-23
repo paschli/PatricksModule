@@ -7,7 +7,7 @@ class DBLClick extends IPSModule {
     parent::Create();
     $this->RegisterPropertyInteger('idSourceInstance', 0);
     $this->RegisterPropertyInteger('DBLClickTime', 1);
-    $this->RegisterPropertyBoolean('OneCLick', FALSE);
+    $this->RegisterPropertyBoolean('Klick', FALSE);
     
   }
   public function ApplyChanges() {
