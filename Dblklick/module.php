@@ -7,7 +7,7 @@ class DBLClick extends IPSModule {
     parent::Create();
     $this->RegisterPropertyInteger('idSourceInstance', 0);
     $this->RegisterPropertyInteger('DBLClickTime', 1);
-    $this->RegisterPropertyBoolean('Check_OneCLick', FALSE);
+    $this->RegisterPropertyBoolean('CheckOneCLick', FALSE);
     
   }
   public function ApplyChanges() {
@@ -15,7 +15,7 @@ class DBLClick extends IPSModule {
     
     $this->RegisterPropertyInteger('DBLClickTime', 1);
     $this->RegisterPropertyInteger('idSourceInstance', 0); //Id der zu beobachtenden Variable
-    $this->RegisterPropertyBoolean('Check_OneClick', FALSE);
+    $this->RegisterPropertyBoolean('CheckOneClick', FALSE);
     $DBLClickDetectId = $this->RegisterVariableBoolean('DBLClickDetect', 'DoppelKlickErkannt','', 1); //Boolean anlegen, der bei erkennung gesetzt wird 
     $lastUpdID = $this->RegisterVariableInteger('LASTUPD','last_updated','~UnixTimestamp',3);//Hilfsvariable anlegen
     
@@ -81,7 +81,7 @@ class DBLClick extends IPSModule {
   }
   
   protected function Script_Create($DBLClickDetectID,$lastUpdID,$source_taste,$instancethisID) {
-      if($this->ReadPropertyBoolean('Check_OneCLick')){
+      if($this->ReadPropertyBoolean('CheckOneCLick')){
           $string_OneClick="define('OneClick', 1);";
       }
       else{
@@ -185,7 +185,7 @@ class DBLClick extends IPSModule {
       }
       else{
 // Prüfen, ob ein Aktion bei Einfachklick gewünscht ist (bei Lichtschaltern)
-	if($this->ReadPropertyBoolean('Check_OneCLick')){
+	if($this->ReadPropertyBoolean('CheckOneCLick')){
             IPS_LogMessage('DBLClick',"Einfachklick-Aktion starten");
             IPS_RunScript($scriptID);
         }
