@@ -111,7 +111,9 @@ class DBLClick extends IPSModule {
       
       foreach ($children as $child) {
           $child_Name= IPS_GetName($child);
+          IPS_LogMessage('DBLClick-'.$inst_name,"Child =".$child_Name);
           $child_Name_8=substr($child_Name, 0, 7);
+          IPS_LogMessage('DBLClick-'.$inst_name,"Child_8 =".$child_Name." zu Name=".$name);
           if(strstr($child_Name_8, $name)===FALSE){
              $scriptID=-1; 
           }
@@ -119,6 +121,7 @@ class DBLClick extends IPSModule {
               $scriptID=$child;
           }
       }
+      IPS_LogMessage('DBLClick-'.$inst_name,"Child =".$child_Name);
       return($scriptID);
   }
   
@@ -165,7 +168,7 @@ class DBLClick extends IPSModule {
 //Nur die ersten Zeichen prüfen, um erweiterte Bennenung zu zulassen
         $script_Name="Taste_".$source_taste;
         $scriptID= $this->Script_IDbyName($instancethisID, $script_Name); 
-        IPS_LogMessage('DBLClick-'.$inst_name,"Skript mit ID=".$scriptID." wird gestartet!");
+        IPS_LogMessage('DBLClick-'.$inst_name,"Skript ID=".$scriptID." gefunden");
 //Falls Actions-Skript noch nicht vorhanden
         if(!$scriptID){
 //Script erstellen
