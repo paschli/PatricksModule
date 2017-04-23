@@ -53,7 +53,7 @@ class DBLClick extends IPSModule {
     if (!IPS_EventExists($id)) throw new Exception("Ident with name $ident is used for wrong object type");
   }
  
-  public function Button_Decode($stringID) {
+  protected function Button_Decode($stringID) {
 //Wert von "command" ermitteln
       $string=GetValueString($stringID);
 //Test, ob Event ein kurzer Tastendruck war
@@ -80,7 +80,7 @@ class DBLClick extends IPSModule {
       return ($Taste);
   }
   
-  public function Script_Create($DBLClickDetectID,$lastUpdID,$source_taste,$instancethisID) {
+  protected function Script_Create($DBLClickDetectID,$lastUpdID,$source_taste,$instancethisID) {
       if($this->ReadPropertyBoolean('Check_OneCLick')){
           $string_OneClick="define('OneClick', 1);";
       }
@@ -106,7 +106,7 @@ class DBLClick extends IPSModule {
       IPS_SetScriptContent($scriptID, $stringInhalt);     
   }
   
-  public function Script_IDbyName($instThisID,$name) {
+  protected function Script_IDbyName($instThisID,$name) {
       $children=IPS_GetChildrenIDs($instThisID);
       
       foreach ($children as $child) {
@@ -134,7 +134,7 @@ class DBLClick extends IPSModule {
       $inst_name=$inst_info['ObjectName'];
 //Auswertung 
       IPS_LogMessage('DBLClick-'.$inst_name,"Starte Check.....................");
-      $source_taste=Button_Decode($stringID);
+      $source_taste= $this->Button_Decode($stringID);
       if($source_taste==-1){
           IPS_LogMessage('DBLClick',"Update war kein Einfach-klick -> Exit");
           IPS_SemaphoreLeave('DBLClick');
