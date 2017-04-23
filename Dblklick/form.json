@@ -1,7 +1,8 @@
 {
   "elements": [
     { "name": "idSourceInstance", "type": "SelectVariable", "caption": "Variable" },
-    { "name": "DBLClickTime", "type": "IntervalBox", "caption": "Sekunden" }
+    { "name": "DBLClickTime", "type": "IntervalBox", "caption": "Sekunden" },
+    { "type": "CheckBox", "name": "Check_OneClick", "caption": "Lichtschalter?" }
   ]
   
 }
