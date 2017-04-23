@@ -164,11 +164,11 @@ class DBLClick extends IPSModule {
 //Skript für erkannte Taste ermitteln oder erstellen     
 //Nur die ersten Zeichen prüfen, um erweiterte Bennenung zu zulassen
         $script_Name="Taste_".$source_taste;
-        $scriptID=Script_IDbyName($instancethisID, $script_Name);  
+        $scriptID= $this->Script_IDbyName($instancethisID, $script_Name);  
 //Falls Actions-Skript noch nicht vorhanden
         if(!$scriptID){
 //Script erstellen
-            Script_Create($DBLClickDetectID,$lastUpdID,$source_taste,$instancethisID);   
+             $this->Script_Create($DBLClickDetectID,$lastUpdID,$source_taste,$instancethisID);   
         }
           
 //letzte Tastenbedienung speichern
