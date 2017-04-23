@@ -91,8 +91,9 @@ class DBLClick extends IPSModule {
       
 //Script Inhalt bei einerOne-Klick_Aktion
       $stringInhalt=
-                $string_OneClick
-              . "<?\n IPS_LogMessage('DBLClick_Script'.'$source_taste','Starte User_Script.....................'); \n" 
+              "<?\n "
+              . $string_OneClick
+              . "\n IPS_LogMessage('DBLClick_Script'.'$source_taste','Starte User_Script.....................'); \n" 
               . "if(GetValueBoolean($DBLClickDetectID)){"
               . "   SetValueBoolean($DBLClickDetectID, FALSE); \n "
               . "   SetValueInteger($lastUpdID,GetValueInteger($lastUpdID)-20);\n"
