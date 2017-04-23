@@ -80,9 +80,10 @@ class DBLClick extends IPSModule {
       return ($Taste);
   }
   
-  protected function Script_Create($DBLClickDetectID,$lastUpdID,$source_taste,$instancethisID) {
+  protected function Script_Create($DBLClickDetectID,$lastUpdID,$source_taste,$instancethisID,$OneClick) {
       IPS_LogMessage('DBLClick_ScriptCreate',"Skript erstellen!");
-      if($this->ReadPropertyBoolean('CheckOneCLick')){
+      //if($this->ReadPropertyBoolean('CheckOneCLick'))
+        if($OneClick){
           $string_OneClick="define('OneClick', 1);";
       }
       else{
@@ -91,7 +92,7 @@ class DBLClick extends IPSModule {
       
 //Script Inhalt bei einerOne-Klick_Aktion
       $stringInhalt=
-              "<?\n "
+              "<?\n"
               . $string_OneClick
               . "\n IPS_LogMessage('DBLClick_Script'.'$source_taste','Starte User_Script.....................'); \n" 
               . " if(GetValueBoolean($DBLClickDetectID)){\n "
@@ -179,7 +180,8 @@ class DBLClick extends IPSModule {
         if(!$scriptID){
 //Script erstellen
             IPS_LogMessage('DBLClick-'.$inst_name,"Skript nicht gefunden!");
-            $scriptID=$this->Script_Create($DBLClickDetectID,$lastUpdID,$source_taste,$instancethisID);   
+            $scriptID=$this->Script_Create($DBLClickDetectID,$lastUpdID,$source_taste,$instancethisID, 
+                    $this->ReadPropertyBoolean('CheckOneClick'));   
         }
         else {
             IPS_LogMessage('DBLClick-'.$inst_name,"Skript ID=".$scriptID." gefunden");
