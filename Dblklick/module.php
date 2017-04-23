@@ -122,7 +122,7 @@ class DBLClick extends IPSModule {
               break;
           }
       }
-      IPS_LogMessage('DBLClick_IDbyName',"Child =".$child_Name);
+      IPS_LogMessage('DBLClick_IDbyName',"gefunden ID =".$scriptID."(".$child_Name.")");
       return($scriptID);
   }
   
