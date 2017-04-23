@@ -181,7 +181,7 @@ class DBLClick extends IPSModule {
 //Script erstellen
             IPS_LogMessage('DBLClick-'.$inst_name,"Skript nicht gefunden!");
             $scriptID=$this->Script_Create($DBLClickDetectID,$lastUpdID,$source_taste,$instancethisID, 
-                    $this->ReadPropertyBoolean('CheckOneClick'));   
+                    TRUE);   
         }
         else {
             IPS_LogMessage('DBLClick-'.$inst_name,"Skript ID=".$scriptID." gefunden");
@@ -201,7 +201,8 @@ class DBLClick extends IPSModule {
       }
       else{
 // Prüfen, ob ein Aktion bei Einfachklick gewünscht ist (bei Lichtschaltern)
-	if($this->ReadPropertyBoolean('CheckOneCLick')){
+//	if($this->ReadPropertyBoolean('CheckOneCLick')){
+        if(1){
             IPS_LogMessage('DBLClick',"Einfachklick-Aktion starten");
             IPS_RunScript($scriptID);
         }
