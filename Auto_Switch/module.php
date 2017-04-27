@@ -198,10 +198,7 @@ class AutSw extends IPSModule {
      }
         
      if($name=='Auto Off'){
-        $par= IPS_GetParent(($this->GetIDForIdent($ident)));
-        $LaufZeitID= IPS_GetVariableIDByName("Laufzeit",$par);
-        $this->AutoOff($LaufZeitID,$value); 
-        $this->Set($value);
+        SetValueBoolean(IPS_GetObjectIDByIdent($ident, $CatID),$value);
      } 
      else if($name=='Timer'){
         $this->Set($value);
