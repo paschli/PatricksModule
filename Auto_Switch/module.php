@@ -44,8 +44,7 @@ class AutSw extends IPSModule {
     //    $this->checkVerb();
     // Aktiviert die Standardaktion der Statusvariable
     $this->EnableAction("AutoOff");
-    $this->EnableAction("Timer");
-    $this->EnableAction("Status");
+    
     $CatID = @IPS_GetCategoryIDByName('Konfig', $instID);
     if(!$CatID){    
         $CatID = IPS_CreateCategory();       // Kategorie anlegen
@@ -68,6 +67,8 @@ class AutSw extends IPSModule {
         $autoff=$this->RegisterPropertyBoolean('Timer', FALSE);
         IPS_SetParent($autoffID,$CatID );
         IPS_SetParent($timerID,$CatID );
+        $this->EnableAction("Timer");
+        $this->EnableAction("Status");
     }
     $this->GetConfigurationForm();
     
