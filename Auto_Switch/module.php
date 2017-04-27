@@ -204,7 +204,7 @@ class AutSw extends IPSModule {
      }
      else if($name=='Status'){
         $this->Set($value);
-        if($this->ReadProbertyBoolean('AutoOff')){
+        if($this->ReadPropertyBoolean('AutoOff')){
             IPS_SetHidden($ID, TRUE);
         }
         else {
