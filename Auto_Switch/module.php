@@ -66,6 +66,10 @@ class AutSw extends IPSModule {
  //       $this->EnableAction("Timer");
  //       $this->EnableAction("AutoOff");
     }
+    else{
+       $this->EnableAction("Timer");
+       $this->EnableAction("AutoOff"); 
+    }
     $this->GetConfigurationForm();
     
   }
