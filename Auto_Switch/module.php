@@ -37,7 +37,7 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyString('Name','');
     $this->RegisterPropertyInteger('AutoOffCatID', 0); //Status der Instanz
 //    $this->RegisterPropertyInteger('State', 0); //Status der Instanz
-    IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
+    //IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     $instID= IPS_GetParent($statusID);
     if($this->ReadPropertyString('Name')!='')
         IPS_SetName($instID, $this->ReadPropertyString('Name'));
@@ -250,11 +250,11 @@ public function Set(Bool $value) {
             else {
                 LCN_SetIntensity($instID, 0, $dim_time);
             }
-            SetValue($this->GetIDForIdent("Status"), $value);
+            //SetValue($this->GetIDForIdent("Status"), $value);
             break;
           case 2: $instID=$this->ReadPropertyInteger('idLCNInstance');
             LCN_SwitchRelay($instID, $value);
-            SetValue($this->GetIDForIdent("Status"), $value);
+            //SetValue($this->GetIDForIdent("Status"), $value);
             break;
           case 3: $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
             $lampNo=$this->ReadPropertyInteger('LaempchenNr');
@@ -264,7 +264,7 @@ public function Set(Bool $value) {
             else{
               LCN_SetLamp($lcn_instID,$lampNo,'A');  
             }
-            SetValue($this->GetIDForIdent("Status"), $value);
+            //SetValue($this->GetIDForIdent("Status"), $value);
             break;
           case 4: 
             $password= $this->ReadPropertyString('Password'); 
@@ -283,7 +283,7 @@ public function Set(Bool $value) {
                 $rpc->SetValue($TargetID, false);
             }
             $result=(bool)$rpc->GetValue($TargetID);
-            SetValue($this->GetIDForIdent("Status"), $result);
+            //SetValue($this->GetIDForIdent("Status"), $result);
             break;
           case 5: $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
             if($value){
@@ -292,7 +292,7 @@ public function Set(Bool $value) {
             else{
                 Schalter_Set($lcn_instID,FALSE);  
             }
-            SetValue($this->GetIDForIdent("Status"), $value);
+            //SetValue($this->GetIDForIdent("Status"), $value);
             break;  
           default: break;
       }
