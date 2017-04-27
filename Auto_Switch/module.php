@@ -17,15 +17,17 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyString('Password', '');// Passwort für JSON-Verbindung
     $this->RegisterPropertyInteger('ZielID', '');// ID des zu schaltenden entfernten Objekts
     $this->RegisterPropertyString('Name','');//Otionaler Name für die erstellte Instanz
- //   $this->RegisterPropertyInteger('State', 0); //Status der Instanz
+    $this->RegisterPropertyInteger('State', 0); //Status der Instanz
     $this->RegisterPropertyInteger('AutoOffCatID', 0); //Status der Instanz
     
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
-    $statusID = $this->RegisterVariableBoolean('AutoOff','Auto Off','~Switch');//
+    $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
+    $this->RegisterPropertyBoolean('Status', FALSE);
+    $this->RegisterVariableBoolean('AutoOff','Auto Off','~Switch');//
     $autoff=$this->RegisterPropertyBoolean('AutoOff', FALSE);
-    $statusID = $this->RegisterVariableBoolean('Timer','Timer','~Switch');//
+    $this->RegisterVariableBoolean('Timer','Timer','~Switch');//
     $autoff=$this->RegisterPropertyBoolean('Timer', FALSE);
     $this->RegisterPropertyInteger('Auswahl', 0); //Id der zu beobachtenden Variable
     $this->RegisterPropertyInteger('idLCNInstance', 0);
@@ -36,7 +38,7 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyInteger('ZielID', 0);
     $this->RegisterPropertyString('Name','');
     $this->RegisterPropertyInteger('AutoOffCatID', 0); //Status der Instanz
-//    $this->RegisterPropertyInteger('State', 0); //Status der Instanz
+    $this->RegisterPropertyInteger('State', 0); //Status der Instanz
     //IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     $instID= IPS_GetParent($statusID);
     if($this->ReadPropertyString('Name')!='')
@@ -177,15 +179,23 @@ class AutSw extends IPSModule {
  
  public function RequestAction($ident, $value) {
      SetValue($this->GetIDForIdent($ident), $value);
-     echo(IPS_GetName($this->GetIDForIdent($ident)));
-
-     if(IPS_GetName($this->GetIDForIdent($ident))=='Auto Off'){
+     $name=IPS_GetName($this->GetIDForIdent($ident));
+     if($name=='Auto Off'){
         $par= IPS_GetParent(($this->GetIDForIdent($ident)));
         $LaufZeitID= IPS_GetVariableIDByName("Laufzeit",$par);
         $this->AutoOff($LaufZeitID,$value);    
      } 
-     else if(IPS_GetName($this->GetIDForIdent($ident))=='Timer'){
+     else if($name=='Timer'){
         $this->Set($value);
+     }
+     else if($name=='Status'){
+        $this->Set($value);
+        if($this->ReadProbertyBoolean('AutoOff')){
+            IPS_SetHidden($ID, TRUE);
+        }
+        else {
+            IPS_SetHidden($ID, FALSE);
+        }
      }
      
 //Neuen Wert in die Statusvariable schreiben
@@ -232,12 +242,7 @@ public function check_Var($VarName) {
 public function AutoOff($ID, Bool $switch) {
     //$AutoOffInd=$this->check_Var('Laufzeit'); 
     
-    if($switch){
-        IPS_SetHidden($ID, FALSE);        
-    }
-    else{
-        IPS_SetHidden($ID, TRUE); 
-    }
+    
               
 }
       
@@ -256,11 +261,11 @@ public function Set(Bool $value) {
             else {
                 LCN_SetIntensity($instID, 0, $dim_time);
             }
-            //SetValue($this->GetIDForIdent("Status"), $value);
+            SetValue($this->GetIDForIdent("Status"), $value);
             break;
           case 2: $instID=$this->ReadPropertyInteger('idLCNInstance');
             LCN_SwitchRelay($instID, $value);
-            //SetValue($this->GetIDForIdent("Status"), $value);
+            SetValue($this->GetIDForIdent("Status"), $value);
             break;
           case 3: $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
             $lampNo=$this->ReadPropertyInteger('LaempchenNr');
@@ -270,7 +275,7 @@ public function Set(Bool $value) {
             else{
               LCN_SetLamp($lcn_instID,$lampNo,'A');  
             }
-            //SetValue($this->GetIDForIdent("Status"), $value);
+            SetValue($this->GetIDForIdent("Status"), $value);
             break;
           case 4: 
             $password= $this->ReadPropertyString('Password'); 
@@ -289,7 +294,7 @@ public function Set(Bool $value) {
                 $rpc->SetValue($TargetID, false);
             }
             $result=(bool)$rpc->GetValue($TargetID);
-            //SetValue($this->GetIDForIdent("Status"), $result);
+            SetValue($this->GetIDForIdent("Status"), $result);
             break;
           case 5: $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
             if($value){
@@ -298,7 +303,7 @@ public function Set(Bool $value) {
             else{
                 Schalter_Set($lcn_instID,FALSE);  
             }
-            //SetValue($this->GetIDForIdent("Status"), $value);
+            SetValue($this->GetIDForIdent("Status"), $value);
             break;  
           default: break;
       }
