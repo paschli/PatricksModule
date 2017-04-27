@@ -65,11 +65,11 @@ class AutSw extends IPSModule {
         IPS_SetPosition($VarID, 10);
         IPS_SetIcon($VarID, 'Hourglass');
         IPS_SetParent($VarID,$instID );
-        $autoffID=$this->RegisterVariableBoolean('AutoOff','Auto Off','~Switch');//
+        $this->RegisterVariableBoolean('AutoOff','Auto Off','~Switch');//
         $this->RegisterPropertyBoolean('AutoOff', FALSE);
         $timerID=$this->RegisterVariableBoolean('Timer','Timer','~Switch');//
         $this->RegisterPropertyBoolean('Timer', FALSE);
-        IPS_SetParent($autoffID,$CatID );
+        //IPS_SetParent($autoffID,$CatID );
         IPS_SetParent($timerID,$CatID );
         $this->EnableAction("Timer");
         $this->EnableAction("AutoOff");
