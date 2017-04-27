@@ -191,6 +191,7 @@ class AutSw extends IPSModule {
      $par= IPS_GetParent(($this->GetIDForIdent('Status')));
      $name=@IPS_GetName($this->GetIDForIdent($ident));
      echo($name);
+     echo($ident);
      if(!$name){
          $CatID =IPS_GetCategoryIDByName('Konfig', $par);
          echo($CatID);
