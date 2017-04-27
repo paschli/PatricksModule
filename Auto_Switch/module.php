@@ -35,6 +35,7 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyString('Password', '');
     $this->RegisterPropertyInteger('ZielID', 0);
     $this->RegisterPropertyString('Name','');
+    $this->RegisterPropertyInteger('AutoOffCatID', 0); //Status der Instanz
 //    $this->RegisterPropertyInteger('State', 0); //Status der Instanz
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     $instID= IPS_GetParent($statusID);
@@ -46,7 +47,7 @@ class AutSw extends IPSModule {
     // Aktiviert die Standardaktion der Statusvariable
     $this->EnableAction("AutoOff");
     $this->EnableAction("Timer");
-    $CatID = ReadPropertyInteger('AutoOffCatID');
+    $CatID = $this->ReadPropertyInteger('AutoOffCatID');
     if(!$CatID){    
         $CatID = IPS_CreateCategory();       // Kategorie anlegen
         $this->RegisterPropertyInteger('CatID_AutoOff',$CatID);//ID merken
