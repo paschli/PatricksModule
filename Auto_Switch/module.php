@@ -27,11 +27,6 @@ class AutSw extends IPSModule {
     parent::ApplyChanges();
     $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
     $this->RegisterPropertyBoolean('Status', FALSE);
-//    $autoffID=$this->RegisterVariableBoolean('AutoOff','Auto Off','~Switch');//
-//    $this->RegisterPropertyBoolean('AutoOff', FALSE);
-//    $timerID=$this->RegisterVariableBoolean('Timer','Timer','~Switch');//
-//    $this->RegisterPropertyBoolean('Timer', FALSE);
-    
     $this->RegisterPropertyInteger('Auswahl', 0); //Id der zu beobachtenden Variable
     $this->RegisterPropertyInteger('idLCNInstance', 0);
     $this->RegisterPropertyInteger('LaempchenNr', 0);
@@ -206,7 +201,7 @@ class AutSw extends IPSModule {
      }
      else if($name=='Status'){
         $this->Set($value);
-        $IDLaufz= $this->GetIDForIdent('Laufzeit');
+        $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
         if($this->ReadPropertyBoolean('AutoOff')){
             IPS_SetHidden($IDLaufz, TRUE);
         }
