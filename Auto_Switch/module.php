@@ -2,7 +2,7 @@
 //Modul schaltet einen Ausgang (LCN-Ausgang, LCN-Lämpchen, LCN-Relais, entfernte Variable (JSON Zugriff) 
 
 
-class AutoSwitch extends IPSModule {
+class AutSw extends IPSModule {
   
   
     
