@@ -178,7 +178,7 @@ class AutSw extends IPSModule {
  public function RequestAction($ident, $value) {
      SetValue($this->GetIDForIdent($ident), $value);
      if(IPS_GetName($this->GetIDForIdent($ident))=='AutoOff'){
-        $this->AutoOff($value);    
+        $this->AutoOff(($this->GetIDForIdent($ident)),$value);    
      } 
      else if(IPS_GetName($this->GetIDForIdent($ident))=='Timer'){
         $this->Set($value);
@@ -225,13 +225,14 @@ public function check_Var($VarName) {
     return(VarID);
 }      
       
-public function AutoOff(Bool $switch) {
-    $AutoOffInd=$this->check_Var('Laufzeit');      
+public function AutoOff($ID, Bool $switch) {
+    //$AutoOffInd=$this->check_Var('Laufzeit'); 
+    
     if($switch){
-               
+        IPS_SetHidden($ID, FALSE);        
     }
     else{
-              
+        IPS_SetHidden($ID, TRUE); 
     }
               
 }
