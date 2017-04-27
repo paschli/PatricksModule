@@ -204,10 +204,10 @@ class AutSw extends IPSModule {
         $par= IPS_GetParent(($this->GetIDForIdent($ident)));
         $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
         if($value){
-            IPS_SetHidden($IDLaufz, TRUE);
+            IPS_SetHidden($IDLaufz, FALSE);
         }
         else {
-            IPS_SetHidden($IDLaufz, FALSE);
+            IPS_SetHidden($IDLaufz, TRUE);
         }
      }
      
