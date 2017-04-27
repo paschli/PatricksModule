@@ -18,13 +18,14 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyInteger('ZielID', '');// ID des zu schaltenden entfernten Objekts
     $this->RegisterPropertyString('Name','');//Otionaler Name für die erstellte Instanz
     $this->RegisterPropertyInteger('State', 0); //Status der Instanz
-    $this->RegisterPropertyInteger('AutoOffCatID', 0); //Status der Instanz
+ //   $this->RegisterPropertyInteger('AutoOffCatID', 0); //Status der Instanz
     
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
     $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
     $this->RegisterPropertyBoolean('Status', FALSE);
+    
     $this->RegisterPropertyInteger('Auswahl', 0); //Id der zu beobachtenden Variable
     $this->RegisterPropertyInteger('idLCNInstance', 0);
     $this->RegisterPropertyInteger('LaempchenNr', 0);
@@ -33,7 +34,7 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyString('Password', '');
     $this->RegisterPropertyInteger('ZielID', 0);
     $this->RegisterPropertyString('Name','');
-    $this->RegisterPropertyInteger('AutoOffCatID', 0); //Status der Instanz
+ //   $this->RegisterPropertyInteger('AutoOffCatID', 0); //Status der Instanz
     $this->RegisterPropertyInteger('State', 0); //Status der Instanz
     //IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     $instID= IPS_GetParent($statusID);
@@ -64,12 +65,12 @@ class AutSw extends IPSModule {
         $autoff=$this->RegisterPropertyBoolean('Timer', FALSE);
         IPS_SetParent($autoffID,$CatID );
         IPS_SetParent($timerID,$CatID );
- //       $this->EnableAction("Timer");
+        $this->EnableAction("Timer");
  //       $this->EnableAction("AutoOff");
     }
     $this->EnableAction("Status");
-    $this->EnableAction("Timer");
-    $this->EnableAction("AutoOff");
+//    $this->EnableAction("Timer");
+//    $this->EnableAction("AutoOff");
     $this->GetConfigurationForm();
     
   }
