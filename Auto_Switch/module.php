@@ -49,6 +49,7 @@ class AutSw extends IPSModule {
     // Aktiviert die Standardaktion der Statusvariable
     $this->EnableAction("AutoOff");
     $this->EnableAction("Timer");
+    $this->EnableAction("Status");
     $CatID = @IPS_GetCategoryIDByName('Konfig', $instID);
     if(!$CatID){    
         $CatID = IPS_CreateCategory();       // Kategorie anlegen
