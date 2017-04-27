@@ -200,6 +200,7 @@ class AutSw extends IPSModule {
      }
      echo($ident); 
      if($ident=='AutoOff'){
+        $CatID =IPS_GetCategoryIDByName('Konfig', $par); 
         SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value);
         echo"AutoOff";
      } 
