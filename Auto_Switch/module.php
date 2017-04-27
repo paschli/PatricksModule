@@ -25,9 +25,9 @@ class AutSw extends IPSModule {
     parent::ApplyChanges();
     $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
     $this->RegisterPropertyBoolean('Status', FALSE);
-    $this->RegisterVariableBoolean('AutoOff','Auto Off','~Switch');//
+    $autoffID=$this->RegisterVariableBoolean('AutoOff','Auto Off','~Switch');//
     $autoff=$this->RegisterPropertyBoolean('AutoOff', FALSE);
-    $this->RegisterVariableBoolean('Timer','Timer','~Switch');//
+    $timerID=$this->RegisterVariableBoolean('Timer','Timer','~Switch');//
     $autoff=$this->RegisterPropertyBoolean('Timer', FALSE);
     $this->RegisterPropertyInteger('Auswahl', 0); //Id der zu beobachtenden Variable
     $this->RegisterPropertyInteger('idLCNInstance', 0);
@@ -49,11 +49,11 @@ class AutSw extends IPSModule {
     // Aktiviert die Standardaktion der Statusvariable
     $this->EnableAction("AutoOff");
     $this->EnableAction("Timer");
-    $CatID = @IPS_GetCategoryIDByName('AutoOff', $instID);
+    $CatID = @IPS_GetCategoryIDByName('Konfig', $instID);
     if(!$CatID){    
         $CatID = IPS_CreateCategory();       // Kategorie anlegen
         $this->RegisterPropertyInteger('CatID_AutoOff',$CatID);//ID merken
-        IPS_SetName($CatID, "AutoOff"); // Kategorie benennen
+        IPS_SetName($CatID, "Konfig"); // Kategorie benennen
         IPS_SetParent($CatID,$instID ); // Kategorie einsortieren unter dem Objekt 
         $VarID= IPS_CreateVariable(1);
         IPS_SetName($VarID, "Set Laufzeit"); // Variable benennen
@@ -65,6 +65,8 @@ class AutSw extends IPSModule {
         IPS_SetPosition($VarID, 10);
         IPS_SetIcon($VarID, 'Hourglass');
         IPS_SetParent($VarID,$instID );
+        IPS_SetParent($autoffID,$CatID );
+        IPS_SetParent($timerID,$CatID );
     }
     $this->GetConfigurationForm();
     
