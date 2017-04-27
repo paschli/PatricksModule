@@ -253,14 +253,14 @@ public function check_Var($VarName) {
     return(VarID);
 }      
       
-public function AutoOff($ID, Bool $switch) {
+public function AutoOff($ID, bool $switch) {
     //$AutoOffInd=$this->check_Var('Laufzeit'); 
     
     
               
 }
       
-public function Set(Bool $value) {
+public function Set(bool $value) {
     if(IPS_SemaphoreEnter('AutoSwitch_Set', 1000)) {
       $value_dim=0;
       $typ= $this->ReadPropertyInteger('Auswahl');
