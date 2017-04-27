@@ -312,10 +312,10 @@ public function Set(Bool $value) {
             break;
           case 5: $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
             if($value){
-                Schalter_Set($lcn_instID,TRUE);  
+                Schalter_Set($lcn_instID,1);  
             }
             else{
-                Schalter_Set($lcn_instID,FALSE);  
+                Schalter_Set($lcn_instID,0);  
             }
             SetValue($this->GetIDForIdent("Status"), $value);
             break;  
