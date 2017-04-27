@@ -165,8 +165,8 @@ class AutSw extends IPSModule {
      
      $action_entry='';
      $action_entry1='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" },
-          { "type": "Button", "label": "An", "onClick": "Schalter_SetOn($id);" },
-          { "type": "Button", "label": "Aus", "onClick": "Schalter_SetOff($id);" }';
+          { "type": "Button", "label": "An", "onClick": "AutSw_SetOn($id);" },
+          { "type": "Button", "label": "Aus", "onClick": "AutSw_SetOff($id);" }';
      
      
      
