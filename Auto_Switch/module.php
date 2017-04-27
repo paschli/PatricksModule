@@ -312,9 +312,11 @@ public function Set(Bool $value) {
             break;
           case 5: $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
             if($value){
+                IPS_LogMessage("AutoSwitch_Set","Aufruf AN Schalter_Set ID=".$lcn_instID);
                 Schalter_Set($lcn_instID,1);  
             }
             else{
+                IPS_LogMessage("AutoSwitch_Set","Aufruf AUS Schalter_Set ID=".$lcn_instID);
                 Schalter_Set($lcn_instID,0);  
             }
             SetValue($this->GetIDForIdent("Status"), $value);
