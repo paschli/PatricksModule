@@ -198,8 +198,8 @@ class AutSw extends IPSModule {
          }
          
      }
-     echo($name); 
-     if($ident=='Auto Off'){
+     echo($ident); 
+     if($ident=='AutoOff'){
         SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value);
         echo"AutoOff";
      } 
