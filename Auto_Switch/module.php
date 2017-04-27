@@ -187,10 +187,8 @@ class AutSw extends IPSModule {
 }   
  
  public function RequestAction($ident, $value) {
-     SetValue($this->GetIDForIdent($ident), $value);
+     //SetValue($this->GetIDForIdent($ident), $value);
      $name=IPS_GetName($this->GetIDForIdent($ident));
-     
-     
      if($name=='Auto Off'){
         $par= IPS_GetParent(($this->GetIDForIdent($ident)));
         $LaufZeitID= IPS_GetVariableIDByName("Laufzeit",$par);
