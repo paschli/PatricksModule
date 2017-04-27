@@ -199,6 +199,7 @@ class AutSw extends IPSModule {
         
      if($name=='Auto Off'){
         SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value);
+        echo"AutoOff";
      } 
      else if($name=='Timer'){
         $this->Set($value);
