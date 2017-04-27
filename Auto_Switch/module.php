@@ -177,10 +177,10 @@ class AutSw extends IPSModule {
  
  public function RequestAction($ident, $value) {
      SetValue($this->GetIDForIdent($ident), $value);
-     if(IPS_GetName($ident)=='AutoOff'){
+     if(IPS_GetName($this->GetIDForIdent($ident))=='AutoOff'){
         $this->AutoOff($value);    
      } 
-     else if(IPS_GetName($ident)=='Timer'){
+     else if(IPS_GetName($this->GetIDForIdent($ident))=='Timer'){
         $this->Set($value);
      }
      
