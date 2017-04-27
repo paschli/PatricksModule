@@ -57,11 +57,12 @@ class AutSw extends IPSModule {
         IPS_SetName($VarID, "Set Laufzeit"); // Variable benennen
         IPS_SetPosition($VarID, 5);
         IPS_SetIcon($VarID, 'Hourglass');
-        IPS_SetParent($VarID,$instID );
+        IPS_SetParent($VarID,$CatID );
         $VarID= IPS_CreateVariable(1);
         IPS_SetName($VarID, "Laufzeit"); // Variable benennen
         IPS_SetPosition($VarID, 10);
         IPS_SetIcon($VarID, 'Hourglass');
+        IPS_SetParent($VarID,$instID );
     }
     $this->GetConfigurationForm();
     
