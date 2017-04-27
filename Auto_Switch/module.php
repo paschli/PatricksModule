@@ -201,6 +201,7 @@ class AutSw extends IPSModule {
      }
      else if($name=='Status'){
         $this->Set($value);
+        $par= IPS_GetParent(($this->GetIDForIdent($ident)));
         $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
         if($this->ReadPropertyBoolean('AutoOff')){
             IPS_SetHidden($IDLaufz, TRUE);
