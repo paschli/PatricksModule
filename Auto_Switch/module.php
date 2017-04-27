@@ -17,7 +17,7 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyString('Password', '');// Passwort für JSON-Verbindung
     $this->RegisterPropertyInteger('ZielID', '');// ID des zu schaltenden entfernten Objekts
     $this->RegisterPropertyString('Name','');//Otionaler Name für die erstellte Instanz
-    $this->RegisterPropertyInteger('State', 0); //Status der Instanz
+ //   $this->RegisterPropertyInteger('State', 0); //Status der Instanz
     $this->RegisterPropertyInteger('AutoOffCatID', 0); //Status der Instanz
     
   }
@@ -35,7 +35,7 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyString('Password', '');
     $this->RegisterPropertyInteger('ZielID', 0);
     $this->RegisterPropertyString('Name','');
-    $this->RegisterPropertyInteger('State', 0); //Status der Instanz
+//    $this->RegisterPropertyInteger('State', 0); //Status der Instanz
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     $instID= IPS_GetParent($statusID);
     if($this->ReadPropertyString('Name')!='')
