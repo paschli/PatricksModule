@@ -37,10 +37,11 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyInteger('State', 0); //Status der Instanz
     //IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     $instID= IPS_GetParent($statusID);
+    
     if($this->ReadPropertyString('Name')!='')
         IPS_SetName($instID, $this->ReadPropertyString('Name'));
     
-    $this->EnableAction("Status");
+    
     $CatID = @IPS_GetCategoryIDByName('Konfig', $instID);
     if(!$CatID){    
         $CatID = IPS_CreateCategory();       // Kategorie anlegen
@@ -66,10 +67,9 @@ class AutSw extends IPSModule {
  //       $this->EnableAction("Timer");
  //       $this->EnableAction("AutoOff");
     }
-    else{
-       $this->EnableAction("Timer");
-       $this->EnableAction("AutoOff"); 
-    }
+    $this->EnableAction("Status");
+    $this->EnableAction("Timer");
+    $this->EnableAction("AutoOff");
     $this->GetConfigurationForm();
     
   }
