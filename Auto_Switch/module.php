@@ -191,9 +191,9 @@ class AutSw extends IPSModule {
      $par= IPS_GetParent(($this->GetIDForIdent('Status')));
      $name=@IPS_GetName($this->GetIDForIdent($ident));
      if(!$name){
-         $CatID = @IPS_GetCategoryIDByName('Konfig', $par);
+         $CatID =IPS_GetCategoryIDByName('Konfig', $par);
          if($CatID){
-            $name=@IPS_GetName(IPS_GetObjectIDByIdent($ident, $CatID)); 
+            $name=IPS_GetName(IPS_GetObjectIDByIdent($ident, $CatID)); 
          }
      }
         
@@ -207,9 +207,12 @@ class AutSw extends IPSModule {
      }
      else if($name=='Status'){
         $this->Set($value);
-        
+        $CatID =IPS_GetCategoryIDByName('Konfig', $par);
+        if($CatID){
+            $AutoOffID=IPS_GetObjectIDByIdent('AutoOff', $CatID); 
+         }
         $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
-        if($value){
+        if($value && GetValueBoolean($AutoOffID)){
             IPS_SetHidden($IDLaufz, FALSE);
         }
         else {
