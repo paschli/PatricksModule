@@ -18,11 +18,15 @@ class AutoSwitch extends IPSModule {
     $this->RegisterPropertyInteger('ZielID', '');// ID des zu schaltenden entfernten Objekts
     $this->RegisterPropertyString('Name','');//Otionaler Name für die erstellte Instanz
     $this->RegisterPropertyInteger('State', 0); //Status der Instanz
+    $this->RegisterPropertyInteger('AutoOffCatID', 0); //Status der Instanz
+    
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
-    $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
-    $status=$this->RegisterPropertyBoolean('Status', FALSE);
+    $statusID = $this->RegisterVariableBoolean('AutoOff','Auto Off','~Switch');//
+    $autoff=$this->RegisterPropertyBoolean('AutoOff', FALSE);
+    $statusID = $this->RegisterVariableBoolean('Timer','Timer','~Switch');//
+    $autoff=$this->RegisterPropertyBoolean('Timer', FALSE);
     $this->RegisterPropertyInteger('Auswahl', 0); //Id der zu beobachtenden Variable
     $this->RegisterPropertyInteger('idLCNInstance', 0);
     $this->RegisterPropertyInteger('LaempchenNr', 0);
@@ -40,7 +44,24 @@ class AutoSwitch extends IPSModule {
     //        ($this->ReadPropertyInteger('ZielID')!=0))
     //    $this->checkVerb();
     // Aktiviert die Standardaktion der Statusvariable
-    $this->EnableAction("Status");
+    $this->EnableAction("AutoOff");
+    $this->EnableAction("Timer");
+    $CatID = ReadPropertyInteger('AutoOffCatID');
+    if(!$CatID){    
+        $CatID = IPS_CreateCategory();       // Kategorie anlegen
+        $this->RegisterPropertyInteger('CatID_AutoOff',$CatID);//ID merken
+        IPS_SetName($CatID, "AutoOff"); // Kategorie benennen
+        IPS_SetParent($CatID,$instID ); // Kategorie einsortieren unter dem Objekt 
+        $VarID= IPS_CreateVariable(1);
+        IPS_SetName($VarID, "Set Laufzeit"); // Variable benennen
+        IPS_SetPosition($VarID, 5);
+        IPS_SetIcon($VarID, 'Hourglass');
+        IPS_SetParent($VarID,$instID );
+        $VarID= IPS_CreateVariable(1);
+        IPS_SetName($VarID, "Laufzeit"); // Variable benennen
+        IPS_SetPosition($VarID, 10);
+        IPS_SetIcon($VarID, 'Hourglass');
+    }
     $this->GetConfigurationForm();
     
   }
@@ -138,6 +159,7 @@ class AutoSwitch extends IPSModule {
          case 2:  $elements_entry=$elements_entry2; break;
          case 3:  $elements_entry=$elements_entry3; break;
          case 4:  $elements_entry=$elements_entry4; break;
+         case 5:  $elements_entry=$elements_entry2; break;
      }
      
      if($this->ReadPropertyInteger('idLCNInstance')>0)
@@ -152,9 +174,16 @@ class AutoSwitch extends IPSModule {
 }   
  
  public function RequestAction($ident, $value) {
-      $this->Set($value);
+     SetValue($this->GetIDForIdent($ident), $value);
+     if(IPS_GetName($ident)=='AutoOff'){
+        $this->AutoOff($value);    
+     } 
+     else if(IPS_GetName($ident)=='Timer'){
+        $this->Set($value);
+     }
+     
 //Neuen Wert in die Statusvariable schreiben
-      SetValue($this->GetIDForIdent($ident), $value);
+      
 }
 
 public function SetOn() {
@@ -171,7 +200,7 @@ public function checkVerb() {
       $IPAddr= $this->ReadPropertyString('IPAddress');
       $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
       $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
-      IPS_LogMessage("Schalter_Check","Aufruf:".$mes."Target ID".$TargetID);
+      IPS_LogMessage("AutoSwitch_Check","Aufruf:".$mes."Target ID".$TargetID);
       $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
       //$result=(string)$rpc->GetValue($TargetID);
       try {
@@ -187,10 +216,26 @@ public function checkVerb() {
          $this->RegisterPropertyInteger('State',1);
       //if($result)
       //    $this->RegisterPropertyInteger('State',1);
-      }
+}
+
+public function check_Var($VarName) {
+    
+    return(VarID);
+}      
+      
+public function AutoOff(Bool $switch) {
+    $AutoOffInd=$this->check_Var('Laufzeit');      
+    if($switch){
+               
+    }
+    else{
+              
+    }
+              
+}
       
 public function Set(Bool $value) {
-    if(IPS_SemaphoreEnter('Switch', 1000)) {
+    if(IPS_SemaphoreEnter('AutoSwitch_Set', 1000)) {
       $value_dim=0;
       $typ= $this->ReadPropertyInteger('Auswahl');
       
@@ -225,8 +270,8 @@ public function Set(Bool $value) {
             $IPAddr= $this->ReadPropertyString('IPAddress');
             $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
             $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
-            IPS_LogMessage("Schalter_Set","Aufruf".$mes);
-            IPS_LogMessage("Schalter_Set","Target ID".$TargetID);
+            IPS_LogMessage("AutoSwitch_Set","Aufruf".$mes);
+            IPS_LogMessage("AutoSwitch_Set","Target ID".$TargetID);
             $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
             if($value){
                 //IPS_LogMessage(Modul,"Value = True => Relais An");
@@ -239,14 +284,22 @@ public function Set(Bool $value) {
             $result=(bool)$rpc->GetValue($TargetID);
             SetValue($this->GetIDForIdent("Status"), $result);
             break;
-            
+          case 5: $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
+            if($value){
+                Schalter_Set($lcn_instID,TRUE);  
+            }
+            else{
+                Schalter_Set($lcn_instID,FALSE);  
+            }
+            SetValue($this->GetIDForIdent("Status"), $value);
+            break;  
           default: break;
       }
 
-       IPS_SemaphoreLeave('Switch');
+       IPS_SemaphoreLeave('AutoSwitch_Set');
      } 
      else {
-      IPS_LogMessage('Switch', 'Semaphore Timeout');
+      IPS_LogMessage('AutoSwitch', 'Semaphore Timeout');
     }
    }
 } 
