@@ -39,10 +39,6 @@ class AutSw extends IPSModule {
     $instID= IPS_GetParent($statusID);
     if($this->ReadPropertyString('Name')!='')
         IPS_SetName($instID, $this->ReadPropertyString('Name'));
-    //if(($this->ReadPropertyString('IPAddress')!='')&&($this->ReadPropertyString('Password')!='')&&
-    //        ($this->ReadPropertyInteger('ZielID')!=0))
-    //    $this->checkVerb();
-    // Aktiviert die Standardaktion der Statusvariable
     
     $this->EnableAction("Status");
     $CatID = @IPS_GetCategoryIDByName('Konfig', $instID);
@@ -184,7 +180,7 @@ class AutSw extends IPSModule {
  public function RequestAction($ident, $value) {
      SetValue($this->GetIDForIdent($ident), $value);
      $name=IPS_GetName($this->GetIDForIdent($ident));
-     if($name=='Auto Off'){
+ /*    if($name=='Auto Off'){
         $par= IPS_GetParent(($this->GetIDForIdent($ident)));
         $LaufZeitID= IPS_GetVariableIDByName("Laufzeit",$par);
         $this->AutoOff($LaufZeitID,$value);    
@@ -192,7 +188,7 @@ class AutSw extends IPSModule {
      else if($name=='Timer'){
         $this->Set($value);
      }
-     else if($name=='Status'){
+     else */if($name=='Status'){
         $this->Set($value);
         if($this->ReadProbertyBoolean('AutoOff')){
             IPS_SetHidden($ID, TRUE);
