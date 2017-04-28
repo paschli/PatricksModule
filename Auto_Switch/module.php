@@ -50,6 +50,7 @@ class AutSw extends IPSModule {
         $this->RegisterPropertyInteger('CatID_AutoOff',$CatID);//ID merken
         IPS_SetName($CatID, "Konfig"); // Kategorie benennen
         IPS_SetParent($CatID,$instID ); // Kategorie einsortieren unter dem Objekt 
+        IPS_SetIcon($CatID, 'Gear');
         $VarID= IPS_CreateVariable(1);
         IPS_SetName($VarID, "Set Laufzeit"); // Variable benennen
         IPS_SetPosition($VarID, 5);
