@@ -63,6 +63,7 @@ class AutSw extends IPSModule {
         IPS_SetHidden($SkriptID, True);
         IPS_SetScriptContent($SkriptID, '<?SetValue($_IPS["VARIABLE"],$_IPS["VALUE"]); ?>');
         IPS_SetVariableCustomAction($VarID, $SkriptID);
+        IPS_SetVariableCustomProfile($VarID, 'Zeit_4h');
         $VarID= IPS_CreateVariable(1);
         IPS_SetName($VarID, "Laufzeit"); // Variable benennen
         IPS_SetPosition($VarID, 10);
