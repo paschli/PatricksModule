@@ -55,6 +55,7 @@ class AutSw extends IPSModule {
         IPS_SetPosition($VarID, 5);
         IPS_SetIcon($VarID, 'Hourglass');
         IPS_SetParent($VarID,$CatID );
+        IPS_SetIdent($VarID,'SetLaufzeit');
         $VarID= IPS_CreateVariable(1);
         IPS_SetName($VarID, "Laufzeit"); // Variable benennen
         IPS_SetPosition($VarID, 10);
@@ -195,11 +196,16 @@ class AutSw extends IPSModule {
          echo($CatID);
          if($CatID){
             $name=IPS_GetName(IPS_GetObjectIDByIdent($ident, $CatID)); 
-         }
-         
+         }   
      }
+     
      if($ident=='AutoOff'){
         SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value);
+        $LaufzeitID= IPS_GetObjectIDByIdent('SetLaufzeit', $CatID);
+        $Laufzeit= GetValueInteger($LaufzeitID);
+        $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
+        SetValueInteger($IDLaufz, $Laufzeit);
+        //$this->AutoOff($LaufzeitID, $switch);
      } 
      else if($ident=='Timer'){
         $this->Set($value);
@@ -208,6 +214,7 @@ class AutSw extends IPSModule {
         $AutoOffID=IPS_GetObjectIDByIdent('AutoOff', $CatID);
         $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
         if($value && GetValueBoolean($AutoOffID)){
+            $this->RegisterTimer('AutoOffTimer', 60, 'AutSw_AutoOff($id)');
             IPS_SetHidden($IDLaufz, FALSE);
         }
         else {
@@ -223,11 +230,9 @@ class AutSw extends IPSModule {
 
 public function SetOn() {
       $this->Set(True);
-      //SetValue($this->GetIDForIdent("Status"), True);
       }
 public function SetOff() {
       $this->Set(False);
-      //SetValue($this->GetIDForIdent("Status"), False);
       }
 
 public function checkVerb() {
@@ -237,7 +242,6 @@ public function checkVerb() {
       $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
       IPS_LogMessage("AutoSwitch_Check","Aufruf:".$mes."Target ID".$TargetID);
       $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
-      //$result=(string)$rpc->GetValue($TargetID);
       try {
           //$rpc->IPS_GetKernelDir();
           $rpc->GetValue($TargetID);
@@ -249,22 +253,50 @@ public function checkVerb() {
           echo 'Server Problem: ',  $e->getMessage(), "\n";
         }
          $this->RegisterPropertyInteger('State',1);
-      //if($result)
-      //    $this->RegisterPropertyInteger('State',1);
+}     
+      
+public function AutoOff() {
+    $par= IPS_GetParent(($this->GetIDForIdent('Status')));
+    $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
+    $Lauzeit= GetValueInteger($IDLaufz);
+    $Lauzeit--;
+    if($Lauzeit)
+        SetValueInteger ($IDLaufz, $Lauzeit);
+    else{
+        $timerID= IPS_GetObjectIDByIdent('AutoOffTimer', $par);
+        IPS_DeleteEvent($timerID);
+        $this->Set(FALSE);
+    }              
 }
 
-public function check_Var($VarName) {
+protected function RegisterTimer($ident, $interval, $script) {
+    $id = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
     
-    return(VarID);
-}      
-      
-public function AutoOff($ID, bool $switch) {
-    //$AutoOffInd=$this->check_Var('Laufzeit'); 
+    if ($id && IPS_GetEvent($id)['EventType'] <> 1) {
+      IPS_DeleteEvent($id);
+      $id = 0;
+    }
+    if (!$id) {
+      $id = IPS_CreateEvent(1);
+      IPS_SetParent($id, $this->InstanceID);
+      IPS_SetIdent($id, $ident);
+    }
     
-    
-              
-}
-      
+    IPS_SetName($id, $ident);
+    IPS_SetHidden($id, true);
+    IPS_SetEventScript($id, $script);
+    if (!IPS_EventExists($id)) throw new Exception("Ident with name $ident is used for wrong object type");
+    if (!($interval > 0)) {
+        IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, 1);
+        IPS_SetEventActive($id, false);
+    } 
+    else {
+        IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $interval);
+        IPS_SetEventActive($id, true);
+    }
+  }
+
+
 public function Set(bool $value) {
     if(IPS_SemaphoreEnter('AutoSwitch_Set', 1000)) {
       $value_dim=0;
