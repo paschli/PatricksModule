@@ -278,7 +278,7 @@ public function AutoOff() {
         SetValueInteger ($IDLaufz, $Lauzeit);
         IPS_SetHidden($IDLaufz, TRUE);
         $timerID= IPS_GetObjectIDByIdent('AutoOffTimer', $par);
-        IPS_DeleteEvent($timerID);
+        IPS_SetEventActive($imerID, TRUE);
         $this->Set(FALSE);
     }              
 }
