@@ -208,8 +208,9 @@ class AutSw extends IPSModule {
             SetValueInteger($IDLaufz, $Laufzeit);
         }
         else{
-            $timerID= IPS_GetObjectIDByIdent('AutoOffTimer', $par);
-            IPS_DeleteEvent($timerID);
+            $timerID= @IPS_GetObjectIDByIdent('AutoOffTimer', $par);
+            if(!$timerID)
+                IPS_DeleteEvent($timerID);
         }
         //$this->AutoOff($LaufzeitID, $switch);
      } 
