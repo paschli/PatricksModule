@@ -56,6 +56,13 @@ class AutSw extends IPSModule {
         IPS_SetIcon($VarID, 'Hourglass');
         IPS_SetParent($VarID,$CatID );
         IPS_SetIdent($VarID,'SetLaufzeit');
+        $SkriptID=IPS_CreateScript(0);
+        IPS_SetName($SkriptID,'control');
+        IPS_SetPosition($SkriptID, 5);
+        IPS_SetParent($SkriptID,$VarID);
+        IPS_SetHidden($SkriptID, True);
+        IPS_SetScriptContent($SkriptID, "<?SetValue($_IPS['VARIABLE'], $_IPS['VALUE']); ?>");
+        IPS_SetVariableCustomAction($VarID, $SkriptID);
         $VarID= IPS_CreateVariable(1);
         IPS_SetName($VarID, "Laufzeit"); // Variable benennen
         IPS_SetPosition($VarID, 10);
