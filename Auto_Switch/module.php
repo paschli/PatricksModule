@@ -220,12 +220,15 @@ class AutSw extends IPSModule {
         $this->Set($value);
      }
      else if($ident=='Status'){
+        $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
+        $Laufzeit= GetValueInteger($LaufzeitID);
         $AutoOffID=IPS_GetObjectIDByIdent('AutoOff', $CatID);
         $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
         if($value && GetValueBoolean($AutoOffID)){
             $TimerID=@$this->GetIDForIdent('AutoOffTimer');
             if($TimerID)
                 IPS_SetEventActive($TimerID, TRUE);
+            SetValueInteger($IDLaufz, $Laufzeit);
             IPS_SetHidden($IDLaufz, FALSE);
         }
         else {
