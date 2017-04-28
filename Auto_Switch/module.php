@@ -37,7 +37,7 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyString('Name','');
  //   $this->RegisterPropertyInteger('AutoOffCatID', 0); //Status der Instanz
     $this->RegisterPropertyInteger('State', 0); //Status der Instanz
-    IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
+    IPS_SetIcon($this->GetIDForIdent('Status'), 'Light');
     $instID= IPS_GetParent($statusID);
     
     if($this->ReadPropertyString('Name')!='')
