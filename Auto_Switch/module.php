@@ -187,9 +187,9 @@ class AutSw extends IPSModule {
 }   
  
  public function RequestAction($ident, $value) {
-     //SetValue($this->GetIDForIdent($ident), $value);
      $par= IPS_GetParent(($this->GetIDForIdent('Status')));
      $name=@IPS_GetName($this->GetIDForIdent($ident));
+     $CatID =IPS_GetCategoryIDByName('Konfig', $par);
      if(!$name){
          $CatID =IPS_GetCategoryIDByName('Konfig', $par);
          echo($CatID);
@@ -198,21 +198,14 @@ class AutSw extends IPSModule {
          }
          
      }
-     echo($ident); 
      if($ident=='AutoOff'){
-        $CatID =IPS_GetCategoryIDByName('Konfig', $par); 
         SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value);
-        echo"AutoOff";
      } 
-     else if($name=='Timer'){
+     else if($ident=='Timer'){
         $this->Set($value);
      }
-     else if($name=='Status'){
-        $this->Set($value);
-        $CatID =IPS_GetCategoryIDByName('Konfig', $par);
-        if($CatID){
-            $AutoOffID=IPS_GetObjectIDByIdent('AutoOff', $CatID); 
-         }
+     else if($ident=='Status'){
+        $AutoOffID=IPS_GetObjectIDByIdent('AutoOff', $CatID);
         $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
         if($value && GetValueBoolean($AutoOffID)){
             IPS_SetHidden($IDLaufz, FALSE);
@@ -220,6 +213,8 @@ class AutSw extends IPSModule {
         else {
             IPS_SetHidden($IDLaufz, TRUE);
         }
+        $this->Set($value);
+        
      }
      
 //Neuen Wert in die Statusvariable schreiben
