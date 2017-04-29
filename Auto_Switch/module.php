@@ -335,6 +335,7 @@ protected function RegisterTimer($ident, $interval, $script) {
     if($TimerID)
         IPS_SetEventActive($TimerID, TRUE);
     SetValueInteger($IDLaufz, $Laufzeit);
+    IPS_SetHidden($IDLaufz, FALSE);
     $this->Set(TRUE);
   }
   
