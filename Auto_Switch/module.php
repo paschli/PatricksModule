@@ -46,38 +46,44 @@ class AutSw extends IPSModule {
     
     $CatID = @IPS_GetCategoryIDByName('Konfig', $instID);
     if(!$CatID){    
+//Kategorie erstellen        
         $CatID = IPS_CreateCategory();       // Kategorie anlegen
         $this->RegisterPropertyInteger('CatID_AutoOff',$CatID);//ID merken
         IPS_SetName($CatID, "Konfig"); // Kategorie benennen
         IPS_SetParent($CatID,$instID ); // Kategorie einsortieren unter dem Objekt 
         IPS_SetIcon($CatID, 'Gear');
+//Laufzeit Auswahl erstellen
         $VarID= IPS_CreateVariable(1);
         IPS_SetName($VarID, "Set Laufzeit"); // Variable benennen
-        IPS_SetPosition($VarID, 5);
+        IPS_SetPosition($VarID, 10);
         IPS_SetIcon($VarID, 'Hourglass');
         IPS_SetParent($VarID,$CatID );
         IPS_SetIdent($VarID,'SetLaufzeit');
         $SkriptID=IPS_CreateScript(0);
         IPS_SetName($SkriptID,'control');
-        IPS_SetPosition($SkriptID, 5);
+        //IPS_SetPosition($SkriptID, 5);
         IPS_SetParent($SkriptID,$VarID);
         IPS_SetHidden($SkriptID, True);
         IPS_SetScriptContent($SkriptID, '<?SetValue($_IPS["VARIABLE"],$_IPS["VALUE"]); ?>');
         IPS_SetVariableCustomAction($VarID, $SkriptID);
         IPS_SetVariableCustomProfile($VarID, 'Time_4h');
+//Laufzeit Anzeige erstellen
         $VarID= IPS_CreateVariable(1);
         IPS_SetName($VarID, "Laufzeit"); // Variable benennen
         IPS_SetPosition($VarID, 10);
         IPS_SetIcon($VarID, 'Hourglass');
         IPS_SetParent($VarID,$instID );
         IPS_SetHidden($VarID, True);
-        $this->RegisterVariableBoolean('AutoOff','Auto Off','~Switch');//
+//Wahlschalter erstellen
+        $ID=$this->RegisterVariableBoolean('AutoOff','Auto Off','~Switch');//
         $this->RegisterPropertyBoolean('AutoOff', FALSE);
-        $this->RegisterVariableBoolean('Timer','Timer','~Switch');//
+        IPS_SetPosition($ID, 10);
+        $ID=$this->RegisterVariableBoolean('Timer','Timer','~Switch');//
         $this->RegisterPropertyBoolean('Timer', FALSE);
+        IPS_SetPosition($ID, 30);
         $autoffID= $this->GetIDForIdent('AutoOff');
         $timerID= $this->GetIDForIdent('Timer');
-        
+//Aktionen        
         $this->EnableAction("Timer");
         $this->EnableAction("AutoOff");
         IPS_SetParent($autoffID,$CatID );
