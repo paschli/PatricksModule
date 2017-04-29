@@ -328,7 +328,16 @@ protected function RegisterTimer($ident, $interval, $script) {
     }
   }
 
-
+  public function Set_Timer($Laufzeit) {
+    $par= IPS_GetParent(($this->GetIDForIdent('Status')));
+    $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
+    $TimerID=@$this->GetIDForIdent('AutoOffTimer');
+    if($TimerID)
+        IPS_SetEventActive($TimerID, TRUE);
+    SetValueInteger($IDLaufz, $Laufzeit);
+    $this->Set(TRUE);
+  }
+  
 public function Set(bool $value) {
     if(IPS_SemaphoreEnter('AutoSwitch_Set', 1000)) {
       $value_dim=0;
