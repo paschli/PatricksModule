@@ -88,6 +88,9 @@ class AutSw extends IPSModule {
         $this->EnableAction("AutoOff");
         IPS_SetParent($autoffID,$CatID );
         IPS_SetParent($timerID,$CatID );
+        $this->RegisterTimer('AutoOffTimer', 60, "\$id = \$_IPS['TARGET'];\n".'AutSw_AutoOff($id);');
+        $TimerID=$this->GetIDForIdent('AutoOffTimer');
+        IPS_SetEventActive($TimerID, false);
     }
     $this->EnableAction("Status");
 //    $this->EnableAction("Timer");
@@ -221,9 +224,9 @@ class AutSw extends IPSModule {
             $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
             $Laufzeit= GetValueInteger($LaufzeitID);
             $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
-            $this->RegisterTimer('AutoOffTimer', 60, "\$id = \$_IPS['TARGET'];\n".'AutSw_AutoOff($id);');
-            $TimerID=$this->GetIDForIdent('AutoOffTimer');
-            IPS_SetEventActive($TimerID, false);
+//           $this->RegisterTimer('AutoOffTimer', 60, "\$id = \$_IPS['TARGET'];\n".'AutSw_AutoOff($id);');
+//           $TimerID=$this->GetIDForIdent('AutoOffTimer');
+//            IPS_SetEventActive($TimerID, false);
             SetValueInteger($IDLaufz, $Laufzeit);
         }
         else{
