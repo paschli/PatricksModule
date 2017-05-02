@@ -91,6 +91,36 @@ class AutSw extends IPSModule {
         $this->RegisterTimer('AutoOffTimer', 60, "\$id = \$_IPS['TARGET'];\n".'AutSw_AutoOff($id);');
         $TimerID=$this->GetIDForIdent('AutoOffTimer');
         IPS_SetEventActive($TimerID, false);
+//Aktion, falls zu schaltendes Objekt von anderen Instanzen oder Schaltern geschaltet wird
+        $typ= $this->ReadPropertyInteger('Auswahl');
+        switch($typ){
+            case 0: //falls Instanz nicht gewählt wurde
+                break;
+            case 1: //falls Instanz LCN Ausgang
+                $ZielID= $this->ReadPropertyInteger('idLCNInstance');
+                $ID_Relais_Children=IPS_GetChildrenIds($ZielID);
+                for($i=0;$i<=count($ID_Relais_Children)-1;$i++)
+                {
+                    if(IPS_GetName($ID_Relais_Children[$i])=="Status"){
+                        $test_variable=$ID_Relais_Children[$i];
+                        $variable_value= GetValueBoolean($test_variable);
+                        IPS_LogMessage("AutoSwitch_ApplyChanges","Variable = ".$ID_Relais_Children[$i]." Typ = ".$test_variable['VariableType']);
+                        $this->RegisterEvent('Watcher', $test_variable, "\$id = IPS_GetParent(\$_IPS['SELF']);\n".'AutSw_RequestAction("Status", IPS_GetValueInteger($_IPS["TARGET"]))');
+                    }
+                
+                }
+                break;
+            case 2: //falls Instanz LCN Relais
+                break;
+            case 3: //falls Instanz LCN Lämpchen
+                break;
+            case 4: //falls Instanz Fernzugriff
+                break;
+            case 5: //falls Instanz Switch-Modul
+                break;
+            default:
+                break;
+        }
     }
     $this->EnableAction("Status");
 //    $this->EnableAction("Timer");
@@ -224,9 +254,6 @@ class AutSw extends IPSModule {
             $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
             $Laufzeit= GetValueInteger($LaufzeitID);
             $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
-//           $this->RegisterTimer('AutoOffTimer', 60, "\$id = \$_IPS['TARGET'];\n".'AutSw_AutoOff($id);');
-//           $TimerID=$this->GetIDForIdent('AutoOffTimer');
-//            IPS_SetEventActive($TimerID, false);
             SetValueInteger($IDLaufz, $Laufzeit);
         }
         else{
@@ -331,6 +358,26 @@ protected function RegisterTimer($ident, $interval, $script) {
     }
   }
 
+  protected function RegisterEvent($ident,$ZielID, $script) {
+    $id = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
+    if ($id && IPS_GetEvent($id)['EventType'] <> 0) {
+      IPS_DeleteEvent($id);
+      $id = 0;
+    }
+    if (!$id) {
+      $id = IPS_CreateEvent(0);
+      IPS_SetEventTrigger($id, 0, $ZielID); //Bei Update von der gewählten Variable 
+      IPS_SetEventActive($id, true);             //Ereignis aktivieren
+      IPS_SetParent($id, $this->InstanceID);
+      IPS_SetIdent($id, $ident);
+    }
+    IPS_SetName($id, $ident);
+    IPS_SetHidden($id, true);
+    IPS_SetEventScript($id, $script;);
+    if (!IPS_EventExists($id)) throw new Exception("Ident with name $ident is used for wrong object type");
+  }
+  
+  
   public function Set_Timer($Laufzeit) {
     $par= IPS_GetParent(($this->GetIDForIdent('Status')));
     $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
