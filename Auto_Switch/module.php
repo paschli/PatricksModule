@@ -247,7 +247,10 @@ class AutSw extends IPSModule {
      return $form;
       
 }   
- 
+public function EventTrigger($ident, $value) {
+    $this->RequestAction($ident, $value);
+    
+}
  public function RequestAction($ident, $value) {
      $par= IPS_GetParent(($this->GetIDForIdent('Status')));
      $name=@IPS_GetName($this->GetIDForIdent($ident));
