@@ -47,9 +47,9 @@ class AutSw extends IPSModule {
     $CatID = @IPS_GetCategoryIDByName('Konfig', $instID);
     if(!$CatID){    
 //Kategorie erstellen 
-        $CatID=CreateCategorie($instID);    
+        $CatID= $this->CreateCategorie($instID);    
 //Auswahlvariable für Laufzeit erstellen
-        CreateVar('SetLaufzeit','Set Laufzeit',$CatID,10);
+        $this->CreateVar('SetLaufzeit','Set Laufzeit',$CatID,10);
 //Laufzeit Anzeige erstellen
         $VarID= IPS_CreateVariable(1);
         IPS_SetName($VarID, "Laufzeit"); // Variable benennen
