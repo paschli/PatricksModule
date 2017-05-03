@@ -373,7 +373,7 @@ protected function RegisterTimer($ident, $interval, $script) {
     }
     IPS_SetName($id, $ident);
     IPS_SetHidden($id, true);
-    IPS_SetEventScript($id, $script;);
+    IPS_SetEventScript($id, $script);
     if (!IPS_EventExists($id)) throw new Exception("Ident with name $ident is used for wrong object type");
   }
   
