@@ -248,6 +248,7 @@ class AutSw extends IPSModule {
       
 }   
 public function EventTrigger($ident, $value) {
+    IPS_LogMessage("AutoSwitch_EventTrigger","Ident: ".$ident." Value: ".$value);
     $this->RequestAction($ident, $value);
     
 }
