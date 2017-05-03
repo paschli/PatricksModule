@@ -250,7 +250,7 @@ class AutSw extends IPSModule {
 public function EventTrigger($ident, $value) {
     IPS_LogMessage("AutoSwitch_EventTrigger","Ident: ".$ident." Value: ".$value);
  //   $this->RequestAction('Status', $value);
-    $par= IPS_GetParent(($this->GetIDForIdent('Status')));
+ /*   $par= IPS_GetParent(($this->GetIDForIdent('Status')));
     $CatID =IPS_GetCategoryIDByName('Konfig', $par);
     $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
     $Laufzeit= GetValueInteger($LaufzeitID);
@@ -267,7 +267,7 @@ public function EventTrigger($ident, $value) {
         IPS_SetHidden($IDLaufz, TRUE);
     }
     $this->Set($value);
-        
+ */       
 }
  public function RequestAction($ident, $value) {
      $par= IPS_GetParent(($this->GetIDForIdent('Status')));
