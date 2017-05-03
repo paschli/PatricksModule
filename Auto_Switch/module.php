@@ -91,10 +91,10 @@ class AutSw extends IPSModule {
         $this->RegisterTimer('AutoOffTimer', 60, "\$id = \$_IPS['TARGET'];\n".'AutSw_AutoOff($id);');
         $TimerID=$this->GetIDForIdent('AutoOffTimer');
         IPS_SetEventActive($TimerID, false);
-//Aktion, falls zu schaltendes Objekt von anderen Instanzen oder Schaltern geschaltet wird
-        $typ= $this->ReadPropertyInteger('Auswahl');
-        
+
     }
+//Aktion, falls zu schaltendes Objekt von anderen Instanzen oder Schaltern geschaltet wird
+    $typ= $this->ReadPropertyInteger('Auswahl');
     switch($typ){
             case 0: //falls Instanz nicht gewählt wurde
                 break;
