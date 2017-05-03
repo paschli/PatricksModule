@@ -46,27 +46,10 @@ class AutSw extends IPSModule {
     
     $CatID = @IPS_GetCategoryIDByName('Konfig', $instID);
     if(!$CatID){    
-//Kategorie erstellen        
-        $CatID = IPS_CreateCategory();       // Kategorie anlegen
-        $this->RegisterPropertyInteger('CatID_AutoOff',$CatID);//ID merken
-        IPS_SetName($CatID, "Konfig"); // Kategorie benennen
-        IPS_SetParent($CatID,$instID ); // Kategorie einsortieren unter dem Objekt 
-        IPS_SetIcon($CatID, 'Gear');
-//Laufzeit Auswahl erstellen
-        $VarID= IPS_CreateVariable(1);
-        IPS_SetName($VarID, "Set Laufzeit"); // Variable benennen
-        IPS_SetPosition($VarID, 10);
-        IPS_SetIcon($VarID, 'Hourglass');
-        IPS_SetParent($VarID,$CatID );
-        IPS_SetIdent($VarID,'SetLaufzeit');
-        $SkriptID=IPS_CreateScript(0);
-        IPS_SetName($SkriptID,'control');
-        //IPS_SetPosition($SkriptID, 5);
-        IPS_SetParent($SkriptID,$VarID);
-        IPS_SetHidden($SkriptID, True);
-        IPS_SetScriptContent($SkriptID, '<?SetValue($_IPS["VARIABLE"],$_IPS["VALUE"]); ?>');
-        IPS_SetVariableCustomAction($VarID, $SkriptID);
-        IPS_SetVariableCustomProfile($VarID, 'Time_4h');
+//Kategorie erstellen 
+        $CatID=CreateCategorie($instID);    
+//Auswahlvariable für Laufzeit erstellen
+        CreateVar('SetLaufzeit','Set Laufzeit',$CatID,10);
 //Laufzeit Anzeige erstellen
         $VarID= IPS_CreateVariable(1);
         IPS_SetName($VarID, "Laufzeit"); // Variable benennen
@@ -246,7 +229,8 @@ class AutSw extends IPSModule {
      $form='{ "status":['.$status_entry.'],"elements":['.$elements_entry.'],"actions":['.$action_entry.'],}';
      return $form;
       
-}   
+} 
+
 public function EventTrigger($par, $value) {
     IPS_LogMessage("AutoSwitch_EventTrigger","Ident: ".$par." Value: ".$value);
     $CatID =IPS_GetCategoryIDByName('Konfig', $par);
@@ -492,5 +476,29 @@ public function Set(bool $value) {
       IPS_LogMessage('AutoSwitch', 'Semaphore Timeout');
     }
    }
+
+private function CreateCategorie($instID) {
+    $CatID = IPS_CreateCategory();       // Kategorie anlegen
+    IPS_SetName($CatID, "Konfig"); // Kategorie benennen
+    IPS_SetParent($CatID,$instID ); // Kategorie einsortieren unter dem Objekt 
+    IPS_SetIcon($CatID, 'Gear'); //Icon setzen
+    return($CatID);
+   }
+   private function CreateVar($ident,$name,$CatID,$pos){
+    $VarID= IPS_CreateVariable(1);
+    IPS_SetName($VarID, $name); // Variable benennen
+    IPS_SetPosition($VarID, $pos);
+    IPS_SetIcon($VarID, 'Hourglass');
+    IPS_SetParent($VarID,$CatID );
+    IPS_SetIdent($VarID,$ident);
+    $SkriptID=IPS_CreateScript(0);
+    IPS_SetName($SkriptID,'control');
+    IPS_SetParent($SkriptID,$VarID);
+    IPS_SetHidden($SkriptID, True);
+    IPS_SetScriptContent($SkriptID, '<?SetValue($_IPS["VARIABLE"],$_IPS["VALUE"]); ?>');
+    IPS_SetVariableCustomAction($VarID, $SkriptID);
+    IPS_SetVariableCustomProfile($VarID, 'Time_4h');   
+   }   
+
 } 
 ?>
