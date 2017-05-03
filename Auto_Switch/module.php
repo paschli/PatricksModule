@@ -118,7 +118,7 @@ class AutSw extends IPSModule {
             case 4: //falls Instanz Fernzugriff
                 break;
             case 5: //falls Instanz Switch-Modul
-                if(IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID))
+                if(@!IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID))
                 $ZielID= $this->ReadPropertyInteger('idLCNInstance');
                 $ID_Relais_Children=IPS_GetChildrenIds($ZielID);
                 for($i=0;$i<=count($ID_Relais_Children)-1;$i++){
