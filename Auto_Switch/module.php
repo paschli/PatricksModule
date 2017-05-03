@@ -93,7 +93,9 @@ class AutSw extends IPSModule {
         IPS_SetEventActive($TimerID, false);
 //Aktion, falls zu schaltendes Objekt von anderen Instanzen oder Schaltern geschaltet wird
         $typ= $this->ReadPropertyInteger('Auswahl');
-        switch($typ){
+        
+    }
+    switch($typ){
             case 0: //falls Instanz nicht gewählt wurde
                 break;
             case 1: //falls Instanz LCN Ausgang
@@ -104,7 +106,7 @@ class AutSw extends IPSModule {
                         $test_variable=$ID_Relais_Children[$i];
                         $variable_value= GetValueBoolean($test_variable);
                         IPS_LogMessage("AutoSwitch_ApplyChanges","Variable = ".$ID_Relais_Children[$i]." Typ = ".$test_variable['VariableType']);
-                        $this->RegisterEvent('Watcher', $test_variable, "\$id = IPS_GetParent(\$_IPS['SELF']);\n".'AutSw_RequestAction("Status", IPS_GetValueInteger($_IPS["TARGET"]))');
+                        $this->RegisterEvent('WatchEvent', $test_variable, "\$id = IPS_GetParent(\$_IPS['SELF']);\n".'AutSw_RequestAction("Status", IPS_GetValueInteger($_IPS["TARGET"]))');
                     }
                 
                 }
@@ -116,6 +118,7 @@ class AutSw extends IPSModule {
             case 4: //falls Instanz Fernzugriff
                 break;
             case 5: //falls Instanz Switch-Modul
+                if(IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID))
                 $ZielID= $this->ReadPropertyInteger('idLCNInstance');
                 $ID_Relais_Children=IPS_GetChildrenIds($ZielID);
                 for($i=0;$i<=count($ID_Relais_Children)-1;$i++){
@@ -123,7 +126,7 @@ class AutSw extends IPSModule {
                         $test_variable=$ID_Relais_Children[$i];
                         $variable_value= GetValueBoolean($test_variable);
                         IPS_LogMessage("AutoSwitch_ApplyChanges","Variable = ".$ID_Relais_Children[$i]." Typ = ".$test_variable['VariableType']);
-                        $this->RegisterEvent('Watcher', $test_variable, "\$id = IPS_GetParent(\$_IPS['SELF']);\n".'AutSw_RequestAction("Status", IPS_GetValueInteger($_IPS["TARGET"]))');
+                        $this->RegisterEvent('WatchEvent', $test_variable, "\$id = IPS_GetParent(\$_IPS['SELF']);\n".'AutSw_RequestAction("Status", IPS_GetValueInteger($_IPS["TARGET"]))');
                     }
                 
                 }
@@ -131,7 +134,6 @@ class AutSw extends IPSModule {
             default:
                 break;
         }
-    }
     $this->EnableAction("Status");
 //    $this->EnableAction("Timer");
 //    $this->EnableAction("AutoOff");
