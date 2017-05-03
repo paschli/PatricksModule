@@ -99,8 +99,7 @@ class AutSw extends IPSModule {
             case 1: //falls Instanz LCN Ausgang
                 $ZielID= $this->ReadPropertyInteger('idLCNInstance');
                 $ID_Relais_Children=IPS_GetChildrenIds($ZielID);
-                for($i=0;$i<=count($ID_Relais_Children)-1;$i++)
-                {
+                for($i=0;$i<=count($ID_Relais_Children)-1;$i++){
                     if(IPS_GetName($ID_Relais_Children[$i])=="Status"){
                         $test_variable=$ID_Relais_Children[$i];
                         $variable_value= GetValueBoolean($test_variable);
@@ -117,6 +116,17 @@ class AutSw extends IPSModule {
             case 4: //falls Instanz Fernzugriff
                 break;
             case 5: //falls Instanz Switch-Modul
+                $ZielID= $this->ReadPropertyInteger('idLCNInstance');
+                $ID_Relais_Children=IPS_GetChildrenIds($ZielID);
+                for($i=0;$i<=count($ID_Relais_Children)-1;$i++){
+                    if(IPS_GetName($ID_Relais_Children[$i])=="Status"){
+                        $test_variable=$ID_Relais_Children[$i];
+                        $variable_value= GetValueBoolean($test_variable);
+                        IPS_LogMessage("AutoSwitch_ApplyChanges","Variable = ".$ID_Relais_Children[$i]." Typ = ".$test_variable['VariableType']);
+                        $this->RegisterEvent('Watcher', $test_variable, "\$id = IPS_GetParent(\$_IPS['SELF']);\n".'AutSw_RequestAction("Status", IPS_GetValueInteger($_IPS["TARGET"]))');
+                    }
+                
+                }
                 break;
             default:
                 break;
@@ -342,6 +352,7 @@ protected function RegisterTimer($ident, $interval, $script) {
       $id = IPS_CreateEvent(1);
       IPS_SetParent($id, $this->InstanceID);
       IPS_SetIdent($id, $ident);
+      IPS_LogMessage("AutoSwitch_RegisterTimer","Timer ".$id." erstellt");
     }
     
     IPS_SetName($id, $ident);
@@ -370,6 +381,7 @@ protected function RegisterTimer($ident, $interval, $script) {
       IPS_SetEventActive($id, true);             //Ereignis aktivieren
       IPS_SetParent($id, $this->InstanceID);
       IPS_SetIdent($id, $ident);
+      IPS_LogMessage("AutoSwitch_RegisterEvent","Event ".$id." erstellt");
     }
     IPS_SetName($id, $ident);
     IPS_SetHidden($id, true);
