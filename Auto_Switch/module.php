@@ -126,7 +126,7 @@ class AutSw extends IPSModule {
                             $test_variable=$ID_Relais_Children[$i];
                             $variable_value= GetValueBoolean($test_variable);
                             IPS_LogMessage("AutoSwitch_ApplyChanges","Variable = ".$ID_Relais_Children[$i]." Typ = ".$test_variable['VariableType']);
-                            $this->RegisterEvent('WatchEvent', $test_variable, "\$id = IPS_GetParent(\$_IPS['SELF']);\n".'AutSw_RequestAction("Status", IPS_GetValueInteger($_IPS["TARGET"]));');
+                            $this->RegisterEvent('WatchEvent', $test_variable, "\$id = IPS_GetParent(\$_IPS['SELF']);\n".'AutSw_RequestAction("Status", GetValueInteger($_IPS["TARGET"]));');
                         }
                     }
                 }
