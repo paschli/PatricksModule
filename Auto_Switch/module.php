@@ -400,7 +400,7 @@ protected function RegisterTimer($ident, $interval, $script) {
     }
     if (!$id) {
       $id = IPS_CreateEvent(0);
-      IPS_SetEventTrigger($id, 0, $ZielID); //Bei Update von der gewählten Variable 
+      IPS_SetEventTrigger($id, 1, $ZielID); //Bei Update von der gewählten Variable 
       IPS_SetEventActive($id, true);             //Ereignis aktivieren
       IPS_SetParent($id, $this->InstanceID);
       IPS_SetIdent($id, $ident);
