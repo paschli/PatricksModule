@@ -118,17 +118,17 @@ class AutSw extends IPSModule {
             case 4: //falls Instanz Fernzugriff
                 break;
             case 5: //falls Instanz Switch-Modul
-                if(@!IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID))
-                $ZielID= $this->ReadPropertyInteger('idLCNInstance');
-                $ID_Relais_Children=IPS_GetChildrenIds($ZielID);
-                for($i=0;$i<=count($ID_Relais_Children)-1;$i++){
-                    if(IPS_GetName($ID_Relais_Children[$i])=="Status"){
-                        $test_variable=$ID_Relais_Children[$i];
-                        $variable_value= GetValueBoolean($test_variable);
-                        IPS_LogMessage("AutoSwitch_ApplyChanges","Variable = ".$ID_Relais_Children[$i]." Typ = ".$test_variable['VariableType']);
-                        $this->RegisterEvent('WatchEvent', $test_variable, "\$id = IPS_GetParent(\$_IPS['SELF']);\n".'AutSw_RequestAction("Status", IPS_GetValueInteger($_IPS["TARGET"]))');
+                if(@!IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID)){
+                    $ZielID= $this->ReadPropertyInteger('idLCNInstance');
+                    $ID_Relais_Children=IPS_GetChildrenIds($ZielID);
+                    for($i=0;$i<=count($ID_Relais_Children)-1;$i++){
+                        if(IPS_GetName($ID_Relais_Children[$i])=="Status"){
+                            $test_variable=$ID_Relais_Children[$i];
+                            $variable_value= GetValueBoolean($test_variable);
+                            IPS_LogMessage("AutoSwitch_ApplyChanges","Variable = ".$ID_Relais_Children[$i]." Typ = ".$test_variable['VariableType']);
+                            $this->RegisterEvent('WatchEvent', $test_variable, "\$id = IPS_GetParent(\$_IPS['SELF']);\n".'AutSw_RequestAction("Status", IPS_GetValueInteger($_IPS["TARGET"]))');
+                        }
                     }
-                
                 }
                 break;
             default:
