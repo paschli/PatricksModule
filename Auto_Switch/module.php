@@ -106,7 +106,7 @@ class AutSw extends IPSModule {
                         $test_variable=$ID_Relais_Children[$i];
                         $variable_value= GetValueBoolean($test_variable);
                         IPS_LogMessage("AutoSwitch_ApplyChanges","Variable = ".$ID_Relais_Children[$i]." Typ = ".$test_variable['VariableType']);
-                        $this->RegisterEvent('WatchEvent', $test_variable, "\$id = IPS_GetParent(\$_IPS['SELF']);\n".'AutSw_EventTrigger("Status", IPS_GetEvent($_IPS["SELF"])["TriggerVariableID"]);');
+                        $this->RegisterEvent('WatchEvent', $test_variable, "\$id = IPS_GetParent(\$_IPS['SELF']);\n".'AutSw_EventTrigger($id,"Status", IPS_GetEvent($_IPS["SELF"])["TriggerVariableID"]);');
                     }
                 
                 }
@@ -254,15 +254,15 @@ public function EventTrigger($ident, $value) {
 }
  public function RequestAction($ident, $value) {
      $par= IPS_GetParent(($this->GetIDForIdent('Status')));
-     $name=@IPS_GetName($this->GetIDForIdent($ident));
+//     $name=@IPS_GetName($this->GetIDForIdent($ident));
      $CatID =IPS_GetCategoryIDByName('Konfig', $par);
-     if(!$name){
-         $CatID =IPS_GetCategoryIDByName('Konfig', $par);
-         echo($CatID);
-         if($CatID){
-            $name=IPS_GetName(IPS_GetObjectIDByIdent($ident, $CatID)); 
-         }   
-     }
+//     if(!$name){
+//         $CatID =IPS_GetCategoryIDByName('Konfig', $par);
+//         echo($CatID);
+//         if($CatID){
+//            $name=IPS_GetName(IPS_GetObjectIDByIdent($ident, $CatID)); 
+//         }   
+//     }
      
      if($ident=='AutoOff'){
         SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value);
