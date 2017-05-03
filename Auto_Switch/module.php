@@ -106,7 +106,7 @@ class AutSw extends IPSModule {
                         $test_variable=$ID_Relais_Children[$i];
                         $variable_value= GetValueBoolean($test_variable);
                         IPS_LogMessage("AutoSwitch_ApplyChanges","Variable = ".$ID_Relais_Children[$i]." Typ = ".$test_variable['VariableType']);
-                        $this->RegisterEvent('WatchEvent', $test_variable, "\$id = IPS_GetParent(\$_IPS['SELF']);\n".'AutSw_EventTrigger($id,"Status", GetValueBoolean(IPS_GetEvent($_IPS["SELF"])["TriggerVariableID"]));');
+                        $this->RegisterEvent('WatchEvent', $test_variable, "\$id = IPS_GetParent(\$_IPS['SELF']);\n".'AutSw_EventTrigger($id,$id, GetValueBoolean(IPS_GetEvent($_IPS["SELF"])["TriggerVariableID"]));');
                     }
                 
                 }
@@ -126,7 +126,7 @@ class AutSw extends IPSModule {
                             $test_variable=$ID_Relais_Children[$i];
                             $variable_value= GetValueBoolean($test_variable);
                             IPS_LogMessage("AutoSwitch_ApplyChanges","Variable = ".$ID_Relais_Children[$i]." Typ = ".$test_variable['VariableType']);
-                            $this->RegisterEvent('WatchEvent', $test_variable, "\$id = IPS_GetParent(\$_IPS['SELF']);\n".'AutSw_EventTrigger($id,"Status", GetValueBoolean(IPS_GetEvent($_IPS["SELF"])["TriggerVariableID"]));');
+                            $this->RegisterEvent('WatchEvent', $test_variable, "\$id = IPS_GetParent(\$_IPS['SELF']);\n".'AutSw_EventTrigger($id,$id, GetValueBoolean(IPS_GetEvent($_IPS["SELF"])["TriggerVariableID"]));');
                         }
                     }
                 }
@@ -247,10 +247,10 @@ class AutSw extends IPSModule {
      return $form;
       
 }   
-public function EventTrigger($ident, $value) {
+public function EventTrigger($par, $value) {
     IPS_LogMessage("AutoSwitch_EventTrigger","Ident: ".$ident." Value: ".$value);
  //   $this->RequestAction('Status', $value);
-    $par= IPS_GetParent(($this->GetIDForIdent('Status')));
+//    $par= IPS_GetParent(($this->GetIDForIdent('Status')));
 //    $par= $this->$identID;
     $CatID =IPS_GetCategoryIDByName('Konfig', $par);
  /*    $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
