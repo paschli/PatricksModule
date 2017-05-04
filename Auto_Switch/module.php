@@ -20,6 +20,10 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyInteger('State', 0); //Status der Instanz
     $this->RegisterPropertyBoolean('AutoOff', FALSE);
     $this->RegisterPropertyBoolean('Timer', FALSE);
+    
+    $this->RegisterTimer('AutoOffTimer', 60, "\$id = \$_IPS['TARGET'];\n".'AutSw_AutoOff($id);');
+    $TimerID=$this->GetIDForIdent('AutoOffTimer');
+    IPS_SetEventActive($TimerID, false);
  //   $this->RegisterPropertyInteger('AutoOffCatID', 0); //Status der Instanz
     
   }
@@ -45,6 +49,7 @@ class AutSw extends IPSModule {
     
     
     $CatID = @IPS_GetCategoryIDByName('Konfig', $instID);
+    
     if(!$CatID){    
 //Kategorie erstellen 
         $CatID= $this->CreateCategorie($instID);    
@@ -64,16 +69,9 @@ class AutSw extends IPSModule {
         $timerID= $this->GetIDForIdent('Timer');
         IPS_SetParent($ID,$CatID );
         IPS_SetPosition($ID, 30);
-        
-        
 //Aktionen anmelden       
         $this->EnableAction("Timer");
         $this->EnableAction("AutoOff");
-        
-        
-        $this->RegisterTimer('AutoOffTimer', 60, "\$id = \$_IPS['TARGET'];\n".'AutSw_AutoOff($id);');
-        $TimerID=$this->GetIDForIdent('AutoOffTimer');
-        IPS_SetEventActive($TimerID, false);
 
     }
 //Aktion, falls zu schaltendes Objekt von anderen Instanzen oder Schaltern geschaltet wird
