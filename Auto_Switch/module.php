@@ -52,20 +52,25 @@ class AutSw extends IPSModule {
         $this->CreateVar('SetLaufzeit','Set Laufzeit',$CatID,10,'Hourglass','<?SetValue($_IPS["VARIABLE"],$_IPS["VALUE"]); ?>');
 //Laufzeit Anzeige erstellen
         $this->CreateVar('Laufzeit','Laufzeit',$instID,10,'Hourglass','');
-//Wahlschalter erstellen
+//Wahlschalter "AutoOff" erstellen
         $ID=$this->RegisterVariableBoolean('AutoOff','Auto Off','~Switch');//
         $this->RegisterPropertyBoolean('AutoOff', FALSE);
+        $autoffID= $this->GetIDForIdent('AutoOff');
+        IPS_SetParent($ID,$CatID );
         IPS_SetPosition($ID, 10);
+//Wahlschalter "Timer" erstellen        
         $ID=$this->RegisterVariableBoolean('Timer','Timer','~Switch');//
         $this->RegisterPropertyBoolean('Timer', FALSE);
-        IPS_SetPosition($ID, 30);
-        $autoffID= $this->GetIDForIdent('AutoOff');
         $timerID= $this->GetIDForIdent('Timer');
-//Aktionen        
+        IPS_SetParent($ID,$CatID );
+        IPS_SetPosition($ID, 30);
+        
+        
+//Aktionen anmelden       
         $this->EnableAction("Timer");
         $this->EnableAction("AutoOff");
-        IPS_SetParent($autoffID,$CatID );
-        IPS_SetParent($timerID,$CatID );
+        
+        
         $this->RegisterTimer('AutoOffTimer', 60, "\$id = \$_IPS['TARGET'];\n".'AutSw_AutoOff($id);');
         $TimerID=$this->GetIDForIdent('AutoOffTimer');
         IPS_SetEventActive($TimerID, false);
