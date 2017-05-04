@@ -21,6 +21,10 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyBoolean('AutoOff', FALSE);
     $this->RegisterPropertyBoolean('Timer', FALSE);
     
+    $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
+    $this->RegisterPropertyBoolean('Status', FALSE);
+    IPS_SetIcon($this->GetIDForIdent('Status'), 'Light');
+    
     $this->RegisterTimer('AutoOffTimer', 60, "\$id = \$_IPS['TARGET'];\n".'AutSw_AutoOff($id);');
     $TimerID=$this->GetIDForIdent('AutoOffTimer');
     IPS_SetEventActive($TimerID, false);
@@ -29,21 +33,22 @@ class AutSw extends IPSModule {
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
-    $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
-    $this->RegisterPropertyBoolean('Status', FALSE);
-    $this->RegisterPropertyInteger('Auswahl', 0); //Id der zu beobachtenden Variable
-    $this->RegisterPropertyInteger('idLCNInstance', 0);
-    $this->RegisterPropertyInteger('LaempchenNr', 0);
-    $this->RegisterPropertyInteger('Rampe', 2);
-    $this->RegisterPropertyString('IPAddress', '');
-    $this->RegisterPropertyString('Password', '');
-    $this->RegisterPropertyInteger('ZielID', 0);
-    $this->RegisterPropertyString('Name','');
- //   $this->RegisterPropertyInteger('AutoOffCatID', 0); //Status der Instanz
-    $this->RegisterPropertyInteger('State', 0); //Status der Instanz
-    IPS_SetIcon($this->GetIDForIdent('Status'), 'Light');
-    $instID= IPS_GetParent($statusID);
-    
+//    $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
+//    $this->RegisterPropertyBoolean('Status', FALSE);
+//    $this->RegisterPropertyInteger('Auswahl', 0); //Id der zu beobachtenden Variable
+//    $this->RegisterPropertyInteger('idLCNInstance', 0);
+//    $this->RegisterPropertyInteger('LaempchenNr', 0);
+//    $this->RegisterPropertyInteger('Rampe', 2);
+//    $this->RegisterPropertyString('IPAddress', '');
+//    $this->RegisterPropertyString('Password', '');
+//    $this->RegisterPropertyInteger('ZielID', 0);
+//    $this->RegisterPropertyString('Name','');
+
+//    $this->RegisterPropertyInteger('State', 0); //Status der Instanz
+//    IPS_SetIcon($this->GetIDForIdent('Status'), 'Light');
+  
+//    $instID= IPS_GetParent($statusID);
+    $instID= $this->GetIDforIdent('Status');  
     if($this->ReadPropertyString('Name')!='')
         IPS_SetName($instID, $this->ReadPropertyString('Name'));
     
