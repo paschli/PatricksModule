@@ -48,7 +48,7 @@ class AutSw extends IPSModule {
 //    IPS_SetIcon($this->GetIDForIdent('Status'), 'Light');
   
 //    $instID= IPS_GetParent($statusID);
-    $instID= $this->GetIDforIdent('Status');  
+    $instID= IPS_GetParent($this->GetIDforIdent('Status'));  
     if($this->ReadPropertyString('Name')!='')
         IPS_SetName($instID, $this->ReadPropertyString('Name'));
     
