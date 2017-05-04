@@ -49,8 +49,9 @@ class AutSw extends IPSModule {
 //Kategorie erstellen 
         $CatID= $this->CreateCategorie($instID);    
 //Auswahlvariable für Laufzeit erstellen
-        $this->CreateVar('SetLaufzeit','Set Laufzeit',$CatID,10);
+        $this->CreateVar('SetLaufzeit','Set Laufzeit',$CatID,10,'Hourglass','<?SetValue($_IPS["VARIABLE"],$_IPS["VALUE"]); ?>');
 //Laufzeit Anzeige erstellen
+        $this->CreateVar('Laufzeit','Laufzeit',$instID,10,'Hourglass','');
         $VarID= IPS_CreateVariable(1);
         IPS_SetName($VarID, "Laufzeit"); // Variable benennen
         IPS_SetPosition($VarID, 10);
@@ -484,21 +485,25 @@ private function CreateCategorie($instID) {
     IPS_SetIcon($CatID, 'Gear'); //Icon setzen
     return($CatID);
    }
-   private function CreateVar($ident,$name,$CatID,$pos){
+private function CreateVar($ident,$name,$CatID,$pos,$icon,$script){
     $VarID= IPS_CreateVariable(1);
     IPS_SetName($VarID, $name); // Variable benennen
     IPS_SetPosition($VarID, $pos);
-    IPS_SetIcon($VarID, 'Hourglass');
+    IPS_SetIcon($VarID, $icon);
     IPS_SetParent($VarID,$CatID );
     IPS_SetIdent($VarID,$ident);
-    $SkriptID=IPS_CreateScript(0);
-    IPS_SetName($SkriptID,'control');
-    IPS_SetParent($SkriptID,$VarID);
-    IPS_SetHidden($SkriptID, True);
-    IPS_SetScriptContent($SkriptID, '<?SetValue($_IPS["VARIABLE"],$_IPS["VALUE"]); ?>');
-    IPS_SetVariableCustomAction($VarID, $SkriptID);
-    IPS_SetVariableCustomProfile($VarID, 'Time_4h');   
-   }   
+    if($script){
+        $SkriptID=IPS_CreateScript(0);
+        IPS_SetName($SkriptID,'control');
+        IPS_SetParent($SkriptID,$VarID);
+        IPS_SetHidden($SkriptID, True);
+        IPS_SetScriptContent($SkriptID, $script);
+        IPS_SetVariableCustomAction($VarID, $SkriptID);
+        IPS_SetVariableCustomProfile($VarID, 'Time_4h');   
+    }
+        
+}   
+
 
 } 
 ?>
