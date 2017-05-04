@@ -59,19 +59,16 @@ class AutSw extends IPSModule {
         $this->CreateVar('Laufzeit','Laufzeit',$instID,10,'Hourglass','');
 //Wahlschalter "AutoOff" erstellen
         $autoffID=$this->RegisterVariableBoolean('AutoOff','Auto Off','~Switch');//
-        $this->RegisterPropertyBoolean('AutoOff', FALSE);
-        IPS_SetParent($autoffID,$CatID );  
+        $this->RegisterPropertyBoolean('AutoOff', FALSE); 
         IPS_SetPosition($autoffID, 10);
+        $this->EnableAction("AutoOff");
+        IPS_SetParent($autoffID,$CatID );
 //Wahlschalter "Timer" erstellen        
         $timerID=$this->RegisterVariableBoolean('Timer','Timer','~Switch');//
         $this->RegisterPropertyBoolean('Timer', FALSE);
-        IPS_SetParent($timerID,$CatID );
-        IPS_SetPosition($timerID, 30);
-//Aktionen anmelden       
+        IPS_SetPosition($timerID, 30);       
         $this->EnableAction("Timer");
-        $this->EnableAction("AutoOff");
-        
-        
+        IPS_SetParent($timerID,$CatID );
     }
 //Aktion, falls zu schaltendes Objekt von anderen Instanzen oder Schaltern geschaltet wird
     $typ= $this->ReadPropertyInteger('Auswahl');
