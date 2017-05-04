@@ -52,12 +52,6 @@ class AutSw extends IPSModule {
         $this->CreateVar('SetLaufzeit','Set Laufzeit',$CatID,10,'Hourglass','<?SetValue($_IPS["VARIABLE"],$_IPS["VALUE"]); ?>');
 //Laufzeit Anzeige erstellen
         $this->CreateVar('Laufzeit','Laufzeit',$instID,10,'Hourglass','');
-        $VarID= IPS_CreateVariable(1);
-        IPS_SetName($VarID, "Laufzeit"); // Variable benennen
-        IPS_SetPosition($VarID, 10);
-        IPS_SetIcon($VarID, 'Hourglass');
-        IPS_SetParent($VarID,$instID );
-        IPS_SetHidden($VarID, True);
 //Wahlschalter erstellen
         $ID=$this->RegisterVariableBoolean('AutoOff','Auto Off','~Switch');//
         $this->RegisterPropertyBoolean('AutoOff', FALSE);
