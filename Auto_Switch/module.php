@@ -88,7 +88,7 @@ class AutSw extends IPSModule {
                         $test_variable=$ID_Relais_Children[$i];
                         $variable_value= GetValueBoolean($test_variable);
                         IPS_LogMessage("AutoSwitch_ApplyChanges","Variable = ".$ID_Relais_Children[$i]." Typ = ".$test_variable['VariableType']);
-                        $this->RegisterEvent('WatchEvent', $test_variable, "\$id = \$_IPS['TARGET'];\n".'AutSw_EventTrigger($id,$id, GetValueBoolean(IPS_GetEvent($_IPS["SELF"])["TriggerVariableID"]));');
+                        $this->RegisterEvent('WatchEvent', $test_variable, "\$id = \$_IPS['TARGET'];\n".'AutSw_EventTrigger($id,$id, GetValueBoolean(IPS_GetEvent($_IPS["EVENT"])["TriggerVariableID"]));');
                     }
                 
                 }
@@ -108,7 +108,7 @@ class AutSw extends IPSModule {
                             $test_variable=$ID_Relais_Children[$i];
                             $variable_value= GetValueBoolean($test_variable);
                             IPS_LogMessage("AutoSwitch_ApplyChanges","Variable = ".$ID_Relais_Children[$i]." Typ = ".$test_variable['VariableType']);
-                            $this->RegisterEvent('WatchEvent', $test_variable, "\$id = \$_IPS['TARGET'];\n".'AutSw_EventTrigger($id,$id, GetValueBoolean(IPS_GetEvent($_IPS["SELF"])["TriggerVariableID"]));');
+                            $this->RegisterEvent('WatchEvent', $test_variable, "\$id = \$_IPS['TARGET'];\n".'AutSw_EventTrigger($id,$id, GetValueBoolean(IPS_GetEvent($_IPS["EVENT"])["TriggerVariableID"]));');
                         }
                     }
                 }
