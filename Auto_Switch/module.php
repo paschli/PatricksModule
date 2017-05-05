@@ -267,7 +267,7 @@ public function SetOff() {
       $this->Set(False);
       }
 
-public function checkVerb() {
+private function checkVerb() {
       $password= $this->ReadPropertyString('Password'); 
       $IPAddr= $this->ReadPropertyString('IPAddress');
       $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
