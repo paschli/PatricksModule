@@ -185,7 +185,7 @@ class AutSw extends IPSModule {
       
 } 
 
-public function EventTrigger($par, $value) {
+public function EventTrigger(int $par, $value) {
     IPS_LogMessage("AutoSwitch_EventTrigger","Ident: ".$par." Value: ".$value);
     $CatID =IPS_GetCategoryIDByName('Konfig', $par);
     $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
