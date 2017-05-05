@@ -107,7 +107,8 @@ class AutSw extends IPSModule {
           ]},
           { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
           { "type": "NumberSpinner", "name": "Rampe", "caption": "Sekunden" },
-          { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
+          { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"},
+          { "type": "CheckBox", "name": "WatchTarget", "caption": "Ziel überwachen" }';
      $elements_entry2='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
         "options":[
             { "label": "LCN Ausgang", "value": 1 },
@@ -117,7 +118,8 @@ class AutSw extends IPSModule {
             { "label": "Schalter", "value": 5 }
           ]},
           { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
-          { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
+          { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"},
+          { "type": "CheckBox", "name": "WatchTarget", "caption": "Ziel überwachen" }';
           
      
      $elements_entry3='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
@@ -145,7 +147,8 @@ class AutSw extends IPSModule {
             { "label": "Lämpchen 12", "value": 12 }
           ]
         },
-        { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
+        { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"},
+        { "type": "CheckBox", "name": "WatchTarget", "caption": "Ziel überwachen" }';
      
      $elements_entry4='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
         "options":[
@@ -158,7 +161,8 @@ class AutSw extends IPSModule {
           { "type": "ValidationTextBox", "name": "IPAddress", "caption": "Host"},
           { "type": "PasswordTextBox", "name": "Password", "caption": "Passwort" },
           { "type": "NumberSpinner", "name": "ZielID", "caption": "Ziel ID"},
-          { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
+          { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"},
+          { "type": "CheckBox", "name": "WatchTarget", "caption": "Ziel überwachen" }';
      
      $action_entry='';
      $action_entry1='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" },
@@ -180,7 +184,6 @@ class AutSw extends IPSModule {
      
      if($this->ReadPropertyInteger('idLCNInstance')>0){
          $action_entry=$action_entry1; 
-         $elements_entry=$elements_entry.'{ "type": "CheckBox", "name": "status", "caption": "Status emulieren" }';
      }
      if(($this->ReadPropertyString('IPAddress')!='')&&($this->ReadPropertyString('Password')!='')&&
             ($this->ReadPropertyInteger('ZielID')!=0))
