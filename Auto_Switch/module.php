@@ -20,6 +20,7 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyInteger('State', 0); //Status der Instanz
     $this->RegisterPropertyBoolean('AutoOff', FALSE);
     $this->RegisterPropertyBoolean('Timer', FALSE);
+    $this->RegisterPropertyBoolean('WatchTarget',FALSE);
     
     $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
     $this->RegisterPropertyBoolean('Status', FALSE);
@@ -57,6 +58,17 @@ class AutSw extends IPSModule {
         $typ= $this->ReadPropertyInteger('Auswahl');
     else 
         $typ=0;
+    
+    if(!$this->ReadPropertyBoolean('WatchTarget')){
+        $typ=0;
+        $EventID=@IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID);
+        if($EventID){
+            IPS_DeleteEvent($EventID);
+        }
+    }
+        
+        
+    
     switch($typ){
             case 0: //falls Instanz nicht gewählt wurde
                 break;
