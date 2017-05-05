@@ -477,7 +477,7 @@ private function FindTargetStatusofDevices() {
         if(IPS_GetName($ID_Children[$i])=="Status"){
             $test_variable=$ID_Children[$i];
             IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Variable = "
-                .$ID_Relais_Children[$i]." Typ = ".$test_variable['VariableType']);
+                .$ID_Children[$i]." Typ = ".$test_variable['VariableType']);
             return($test_variable); 
         }
         else {
@@ -493,8 +493,8 @@ private function CheckEvent($script) {
     if($EventID){
         IPS_DeleteEvent($EventID);
     }    
-    $test_variable=$this->FindTargetStatusofDevices();
-    $this->RegisterEvent('WatchEvent', $test_variable, $script);
+    $ID=$this->FindTargetStatusofDevices();
+    $this->RegisterEvent('WatchEvent', $ID, $script);
     
 }
 } 
