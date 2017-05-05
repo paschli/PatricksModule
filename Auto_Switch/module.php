@@ -459,10 +459,10 @@ private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script){
 
 private function CreateWahlVar($ident,$name,$icon,$par){
     $ID=$this->RegisterVariableBoolean($ident,$name,$icon);//
-    $this->RegisterPropertyBoolean('AutoOff', FALSE); 
-    IPS_SetPosition($autoffID, 10);
-    $this->EnableAction("AutoOff");
-    IPS_SetParent($autoffID,$par );
+    $this->RegisterPropertyBoolean($ident, FALSE); 
+    IPS_SetPosition($ID, 10);
+    $this->EnableAction($ident);
+    IPS_SetParent($ID,$par );
 }
         
 
