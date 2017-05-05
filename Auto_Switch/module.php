@@ -177,8 +177,11 @@ class AutSw extends IPSModule {
          case 5:  $elements_entry=$elements_entry2; break;
      }
      
-     if($this->ReadPropertyInteger('idLCNInstance')>0)
-         $action_entry=$action_entry1;  
+     
+     if($this->ReadPropertyInteger('idLCNInstance')>0){
+         $action_entry=$action_entry1; 
+         $elements_entry=$elements_entry.'{ "type": "CheckBox", "name": "status", "caption": "Status emulieren" }';
+     }
      if(($this->ReadPropertyString('IPAddress')!='')&&($this->ReadPropertyString('Password')!='')&&
             ($this->ReadPropertyInteger('ZielID')!=0))
          $action_entry=$action_entry1; 
