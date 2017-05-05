@@ -284,7 +284,7 @@ private function checkVerb() {
       catch (Exception $e) {
           echo 'Server Problem: ',  $e->getMessage(), "\n";
         }
-         $this->RegisterPropertyInteger('State',1);
+        SetValueInteger($this->ReadPropertyInteger('State'),1);
 }     
       
 public function AutoOff() {
