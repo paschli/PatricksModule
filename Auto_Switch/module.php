@@ -33,28 +33,13 @@ class AutSw extends IPSModule {
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
-//    $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
-//    $this->RegisterPropertyBoolean('Status', FALSE);
-//    $this->RegisterPropertyInteger('Auswahl', 0); //Id der zu beobachtenden Variable
-//    $this->RegisterPropertyInteger('idLCNInstance', 0);
-//    $this->RegisterPropertyInteger('LaempchenNr', 0);
-//    $this->RegisterPropertyInteger('Rampe', 2);
-//    $this->RegisterPropertyString('IPAddress', '');
-//    $this->RegisterPropertyString('Password', '');
-//    $this->RegisterPropertyInteger('ZielID', 0);
-//    $this->RegisterPropertyString('Name','');
-
-//    $this->RegisterPropertyInteger('State', 0); //Status der Instanz
-//    IPS_SetIcon($this->GetIDForIdent('Status'), 'Light');
-  
-//    $instID= IPS_GetParent($statusID);
+    $this->EnableAction("Status");
     $instID= IPS_GetParent($this->GetIDforIdent('Status'));  
     if($this->ReadPropertyString('Name')!='')
         IPS_SetName($instID, $this->ReadPropertyString('Name'));
     
     
     $CatID = @IPS_GetCategoryIDByName('Konfig', $instID);
-    
     if(!$CatID){    
 //Kategorie erstellen 
         $CatID= $this->CreateCategorie($instID);    
@@ -76,22 +61,19 @@ class AutSw extends IPSModule {
         IPS_SetParent($timerID,$CatID );
     }
 //Aktion, falls zu schaltendes Objekt von anderen Instanzen oder Schaltern geschaltet wird
+    $scriptDevice="\$id = \$_IPS['TARGET'];\n".
+                    'AutSw_EventTrigger($id,$id, GetValueBoolean(IPS_GetEvent($_IPS["EVENT"])["TriggerVariableID"]));';
     $typ= $this->ReadPropertyInteger('Auswahl');
     switch($typ){
             case 0: //falls Instanz nicht gewählt wurde
                 break;
             case 1: //falls Instanz LCN Ausgang
-                $ZielID= $this->ReadPropertyInteger('idLCNInstance');
-                $ID_Relais_Children=IPS_GetChildrenIds($ZielID);
-                for($i=0;$i<=count($ID_Relais_Children)-1;$i++){
-                    if(IPS_GetName($ID_Relais_Children[$i])=="Status"){
-                        $test_variable=$ID_Relais_Children[$i];
-                        $variable_value= GetValueBoolean($test_variable);
-                        IPS_LogMessage("AutoSwitch_ApplyChanges","Variable = ".$ID_Relais_Children[$i]." Typ = ".$test_variable['VariableType']);
-                        $this->RegisterEvent('WatchEvent', $test_variable, "\$id = \$_IPS['TARGET'];\n".'AutSw_EventTrigger($id,$id, GetValueBoolean(IPS_GetEvent($_IPS["EVENT"])["TriggerVariableID"]));');
-                    }
-                
-                }
+                $EventID=@IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID);
+                if($EventID){
+                    IPS_DeleteEvent($EventID);
+                }    
+                $test_variable=$this->FindTargetStatusofDevices();
+                $this->RegisterEvent('WatchEvent', $test_variable, $scriptDevice);
                 break;
             case 2: //falls Instanz LCN Relais
                 break;
@@ -101,26 +83,14 @@ class AutSw extends IPSModule {
                 break;
             case 5: //falls Instanz Switch-Modul
                 if(@!IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID)){
-                    $ZielID= $this->ReadPropertyInteger('idLCNInstance');
-                    $ID_Relais_Children=IPS_GetChildrenIds($ZielID);
-                    for($i=0;$i<=count($ID_Relais_Children)-1;$i++){
-                        if(IPS_GetName($ID_Relais_Children[$i])=="Status"){
-                            $test_variable=$ID_Relais_Children[$i];
-                            $variable_value= GetValueBoolean($test_variable);
-                            IPS_LogMessage("AutoSwitch_ApplyChanges","Variable = ".$ID_Relais_Children[$i]." Typ = ".$test_variable['VariableType']);
-                            $this->RegisterEvent('WatchEvent', $test_variable, "\$id = \$_IPS['TARGET'];\n".'AutSw_EventTrigger($id,$id, GetValueBoolean(IPS_GetEvent($_IPS["EVENT"])["TriggerVariableID"]));');
-                        }
-                    }
+                    $test_variable=$this->FindTargetStatusofDevices();
+                    $this->RegisterEvent('WatchEvent', $test_variable, $scriptDevice);
                 }
                 break;
             default:
                 break;
         }
-    $this->EnableAction("Status");
-//    $this->EnableAction("Timer");
-//    $this->EnableAction("AutoOff");
-    $this->GetConfigurationForm();
-    
+    $this->GetConfigurationForm(); 
   }
   
  public function GetConfigurationForm() {
@@ -501,7 +471,27 @@ private function CreateVar($ident,$name,$CatID,$pos,$icon,$script){
     }
         
 }   
-
+private function FindTargetStatusofDevices() {
+// ID der zu steuernden Instanz ermitteln    
+    $ZielID= $this->ReadPropertyInteger('idLCNInstance');
+//Children dieser Instanz ermitteln    
+    $ID_Children=IPS_GetChildrenIds($ZielID);
+//Children durchsuchen
+    for($i=0;$i<=count($ID_Children)-1;$i++){
+//Falls "Status" gefunden wird
+        if(IPS_GetName($ID_Children[$i])=="Status"){
+            $test_variable=$ID_Children[$i];
+            IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Variable = "
+                .$ID_Relais_Children[$i]." Typ = ".$test_variable['VariableType']);
+            return($test_variable); 
+        }
+        else {
+            
+        }
+                
+    }
+    return(-1);
+}
 
 } 
 ?>
