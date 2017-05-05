@@ -37,28 +37,18 @@ class AutSw extends IPSModule {
     $instID= IPS_GetParent($this->GetIDforIdent('Status'));  
     if($this->ReadPropertyString('Name')!='')
         IPS_SetName($instID, $this->ReadPropertyString('Name'));
-    
-    
     $CatID = @IPS_GetCategoryIDByName('Konfig', $instID);
     if(!$CatID){    
 //Kategorie erstellen 
         $CatID= $this->CreateCategorie($instID);    
 //Auswahlvariable für Laufzeit erstellen
-        $this->CreateVar('SetLaufzeit','Set Laufzeit',$CatID,10,'Hourglass','<?SetValue($_IPS["VARIABLE"],$_IPS["VALUE"]); ?>');
+        $this->CreateAnzVar('SetLaufzeit','Set Laufzeit',$CatID,10,'Hourglass','<?SetValue($_IPS["VARIABLE"],$_IPS["VALUE"]); ?>');
 //Laufzeit Anzeige erstellen
-        $this->CreateVar('Laufzeit','Laufzeit',$instID,10,'Hourglass','');
+        $this->CreateAnzVar('Laufzeit','Laufzeit',$instID,10,'Hourglass','');
 //Wahlschalter "AutoOff" erstellen
-        $autoffID=$this->RegisterVariableBoolean('AutoOff','Auto Off','~Switch');//
-        $this->RegisterPropertyBoolean('AutoOff', FALSE); 
-        IPS_SetPosition($autoffID, 10);
-        $this->EnableAction("AutoOff");
-        IPS_SetParent($autoffID,$CatID );
+        $this->CreateWahlVar('AutoOff', 'Auto Off', '~Switch', $CatID);
 //Wahlschalter "Timer" erstellen        
-        $timerID=$this->RegisterVariableBoolean('Timer','Timer','~Switch');//
-        $this->RegisterPropertyBoolean('Timer', FALSE);
-        IPS_SetPosition($timerID, 30);       
-        $this->EnableAction("Timer");
-        IPS_SetParent($timerID,$CatID );
+        $this->CreateWahlVar('Timer', 'Timer', '~Switch', $CatID);
     }
 //Aktion, falls zu schaltendes Objekt von anderen Instanzen oder Schaltern geschaltet wird
     $scriptDevice="\$id = \$_IPS['TARGET'];\n".
@@ -68,30 +58,25 @@ class AutSw extends IPSModule {
             case 0: //falls Instanz nicht gewählt wurde
                 break;
             case 1: //falls Instanz LCN Ausgang
-                $EventID=@IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID);
-                if($EventID){
-                    IPS_DeleteEvent($EventID);
-                }    
-                $test_variable=$this->FindTargetStatusofDevices();
-                $this->RegisterEvent('WatchEvent', $test_variable, $scriptDevice);
+                $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
                 break;
             case 2: //falls Instanz LCN Relais
+                $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
                 break;
             case 3: //falls Instanz LCN Lämpchen
                 break;
             case 4: //falls Instanz Fernzugriff
                 break;
             case 5: //falls Instanz Switch-Modul
-                if(@!IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID)){
-                    $test_variable=$this->FindTargetStatusofDevices();
-                    $this->RegisterEvent('WatchEvent', $test_variable, $scriptDevice);
-                }
+                $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
                 break;
             default:
                 break;
         }
     $this->GetConfigurationForm(); 
   }
+  
+  
   
  public function GetConfigurationForm() {
      
@@ -453,7 +438,7 @@ private function CreateCategorie($instID) {
     IPS_SetIcon($CatID, 'Gear'); //Icon setzen
     return($CatID);
    }
-private function CreateVar($ident,$name,$CatID,$pos,$icon,$script){
+private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script){
     $VarID= IPS_CreateVariable(1);
     IPS_SetName($VarID, $name); // Variable benennen
     IPS_SetPosition($VarID, $pos);
@@ -470,7 +455,17 @@ private function CreateVar($ident,$name,$CatID,$pos,$icon,$script){
         IPS_SetVariableCustomProfile($VarID, 'Time_4h');   
     }
         
-}   
+}
+
+private function CreateWahlVar($ident,$name,$icon,$par){
+    $ID=$this->RegisterVariableBoolean($ident,$name,$icon);//
+    $this->RegisterPropertyBoolean('AutoOff', FALSE); 
+    IPS_SetPosition($autoffID, 10);
+    $this->EnableAction("AutoOff");
+    IPS_SetParent($autoffID,$par );
+}
+        
+
 private function FindTargetStatusofDevices() {
 // ID der zu steuernden Instanz ermitteln    
     $ZielID= $this->ReadPropertyInteger('idLCNInstance');
@@ -493,5 +488,14 @@ private function FindTargetStatusofDevices() {
     return(-1);
 }
 
+private function CheckEvent($script) {
+    $EventID=@IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID);
+    if($EventID){
+        IPS_DeleteEvent($EventID);
+    }    
+    $test_variable=$this->FindTargetStatusofDevices();
+    $this->RegisterEvent('WatchEvent', $test_variable, $script);
+    
+}
 } 
 ?>
