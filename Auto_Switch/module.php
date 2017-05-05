@@ -53,7 +53,10 @@ class AutSw extends IPSModule {
 //Aktion, falls zu schaltendes Objekt von anderen Instanzen oder Schaltern geschaltet wird
     $scriptDevice="\$id = \$_IPS['TARGET'];\n".
                     'AutSw_EventTrigger($id,$id, GetValueBoolean(IPS_GetEvent($_IPS["EVENT"])["TriggerVariableID"]));';
-    $typ= $this->ReadPropertyInteger('Auswahl');
+    if($this->ReadPropertyInteger('idLCNInstance'))
+        $typ= $this->ReadPropertyInteger('Auswahl');
+    else 
+        $typ=0;
     switch($typ){
             case 0: //falls Instanz nicht gewählt wurde
                 break;
