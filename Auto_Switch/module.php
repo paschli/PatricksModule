@@ -457,6 +457,9 @@ private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script){
         IPS_SetVariableCustomAction($VarID, $SkriptID);
         IPS_SetVariableCustomProfile($VarID, 'Time_4h');   
     }
+    else {
+        IPS_SetHidden($VarID, True);
+    }
         
 }
 
