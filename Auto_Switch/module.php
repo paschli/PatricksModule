@@ -69,6 +69,8 @@ class AutSw extends IPSModule {
         $this->RegisterTimer('AutoOffTimer', 60, "\$id = \$_IPS['TARGET'];\n".'AutSw_AutoOff($id);');
         $TimerID=$this->GetIDForIdent('AutoOffTimer');
         IPS_SetEventActive($TimerID, false);
+        $AutoOffID=IPS_GetObjectIDByIdent('AutoOff', $CatID);
+        IPS_SetHidden($AutoOffID, FALSE);
         
     }
     else{
