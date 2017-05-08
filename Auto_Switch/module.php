@@ -504,8 +504,8 @@ private function CheckEvent($script) {
         IPS_DeleteEvent($EventID);
     }    
     $ID=$this->FindTargetStatusofDevices();
-    $this->RegisterEvent('WatchEvent', $ID, $script);
-    IPS_SetEventActive($ID, FALSE);
+    $EventID=$this->RegisterEvent('WatchEvent', $ID, $script);
+    IPS_SetEventActive($EventID, FALSE);
 }
 } 
 ?>
