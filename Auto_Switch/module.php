@@ -225,11 +225,17 @@ public function EventTrigger(int $par,bool $value) {
             $Laufzeit= GetValueInteger($LaufzeitID);
             $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
             SetValueInteger($IDLaufz, $Laufzeit);
+            $eventID= @IPS_GetObjectIDByIdent('WatchTarget', $par);
+            if($eventID)
+                IPS_SetEventActive($eventID, True);
         }
         else{
             $timerID= @IPS_GetObjectIDByIdent('AutoOffTimer', $par);
             if($timerID)
                 IPS_SetEventActive($timerID, FALSE);
+            $eventID= @IPS_GetObjectIDByIdent('WatchTarget', $par);
+            if($eventID)
+                IPS_SetEventActive($eventID, FALSE);
         }
      } 
      else if($ident=='Timer'){
@@ -499,7 +505,7 @@ private function CheckEvent($script) {
     }    
     $ID=$this->FindTargetStatusofDevices();
     $this->RegisterEvent('WatchEvent', $ID, $script);
-    
+    IPS_SetEventActive($ID, FALSE);
 }
 } 
 ?>
