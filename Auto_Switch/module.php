@@ -186,7 +186,10 @@ class AutSw extends IPSModule {
      
     if($this->ReadPropertyInteger('idLCNInstance')>0){
         $action_entry=$action_entry1;
-        $elements_entry=$elements_entry.$elements_entry_AutoOff.$elements_entry_AutoOffWatch;
+        $elements_entry=$elements_entry.$elements_entry_AutoOff;
+    }
+    if($this->ReadPropertyBoolean('SelAutoOff')){
+       $elements_entry=$elements_entry.$elements_entry_AutoOffWatch; 
     }
     if(($this->ReadPropertyString('IPAddress')!='')&&($this->ReadPropertyString('Password')!='')&&
     ($this->ReadPropertyInteger('ZielID')!=0))
