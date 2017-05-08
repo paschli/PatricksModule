@@ -75,7 +75,7 @@ class AutSw extends IPSModule {
         $TimerID=@$this->GetIDforIdent('AutoOffTimer');
         if(!$TimerID){
             IPS_SetEventActive($TimerID, False);
-            IPS_SetHidden($AutoOffID, $Hidden);
+            IPS_SetHidden($AutoOffID, True);
         }
     }
         
