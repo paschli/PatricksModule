@@ -46,7 +46,7 @@ class AutSw extends IPSModule {
 //Laufzeit Anzeige erstellen
         $this->CreateAnzVar('Laufzeit','Laufzeit',$instID,10,'Hourglass','');
 //Wahlschalter "AutoOff" erstellen
-        $this->CreateWahlVar('AutoOff', 'Auto Off', '~Switch', $CatID);
+        $AutoOffID=$this->CreateWahlVar('AutoOff', 'Auto Off', '~Switch', $CatID);
 //Wahlschalter "Timer" erstellen        
         $this->CreateWahlVar('Timer', 'Timer', '~Switch', $CatID);
     }
@@ -70,6 +70,13 @@ class AutSw extends IPSModule {
         $TimerID=$this->GetIDForIdent('AutoOffTimer');
         IPS_SetEventActive($TimerID, false);
         
+    }
+    else{
+        $TimerID=@$this->GetIDforIdent('AutoOffTimer');
+        if(!$TimerID){
+            IPS_SetEventActive($TimerID, False);
+            IPS_SetHidden($AutoOffID, $Hidden);
+        }
     }
         
         
@@ -474,6 +481,7 @@ private function CreateWahlVar($ident,$name,$icon,$par){
     IPS_SetPosition($ID, 10);
     $this->EnableAction($ident);
     IPS_SetParent($ID,$par );
+    return($ID);
 }
         
 
