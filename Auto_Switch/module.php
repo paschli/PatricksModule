@@ -95,12 +95,13 @@ class AutSw extends IPSModule {
   
  public function GetConfigurationForm() {
      
-     $status_entry='{ "code": 101, "icon": "inactive", "caption": "Instanz wird erstellt" },
+    $status_entry='{ "code": 101, "icon": "inactive", "caption": "Instanz wird erstellt" },
              { "code": 102, "icon": "active", "caption": "Instanz aktiv" },
              { "code": 200, "icon": "error", "caption": "Instanz fehlerhaft" }'; 
      
      
-     $elements_entry0='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
+    $elements_entry_device='
+        { "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
         "options":[
             { "label": "LCN Ausgang", "value": 1 },
             { "label": "LCN Relais", "value": 2 },
@@ -109,41 +110,19 @@ class AutSw extends IPSModule {
             { "label": "Schalter", "value": 5 }
           ]
         }';
-     $elements_entry1='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
-        "options":[
-            { "label": "LCN Ausgang", "value": 1 },
-            { "label": "LCN Relais", "value": 2 },
-            { "label": "LCN Lämpchen", "value": 3 },
-            { "label": "JSON Fernzugriff", "value": 4 },
-            { "label": "Schalter", "value": 5 }
-          ]},
-          { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
-          { "type": "NumberSpinner", "name": "Rampe", "caption": "Sekunden" },
-          { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"},
-          { "type": "CheckBox", "name": "WatchTarget", "caption": "Ziel überwachen" }';
-     $elements_entry2='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
-        "options":[
-            { "label": "LCN Ausgang", "value": 1 },
-            { "label": "LCN Relais", "value": 2 },
-            { "label": "LCN Lämpchen", "value": 3 },
-            { "label": "JSON Fernzugriff", "value": 4 },
-            { "label": "Schalter", "value": 5 }
-          ]},
-          { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
-          { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"},
-          { "type": "CheckBox", "name": "WatchTarget", "caption": "Ziel überwachen" }';
+    $elements_entry_lcnOutput=',
+        { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
+        { "type": "NumberSpinner", "name": "Rampe", "caption": "Sekunden" },
+        { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
+     
+    $elements_entry_lcnRelais=',
+        { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
+        { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
           
      
-     $elements_entry3='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
-        "options":[
-            { "label": "LCN Ausgang", "value": 1 },
-            { "label": "LCN Relais", "value": 2 },
-            { "label": "LCN Lämpchen", "value": 3 },
-            { "label": "JSON Fernzugriff", "value": 4 },
-            { "label": "Schalter", "value": 5 }
-          ]},
-          { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
-          { "name": "LaempchenNr", "type": "Select", "caption": "Lämpchen Nr.", 
+    $elements_entry_lcnLämpchen=',
+        { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
+        { "name": "LaempchenNr", "type": "Select", "caption": "Lämpchen Nr.", 
         "options":[
             { "label": "Lämpchen 1", "value": 1 },
             { "label": "Lämpchen 2", "value": 2 },
@@ -159,50 +138,46 @@ class AutSw extends IPSModule {
             { "label": "Lämpchen 12", "value": 12 }
           ]
         },
-        { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"},
-        { "type": "CheckBox", "name": "WatchTarget", "caption": "Ziel überwachen" }';
+        { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
      
-     $elements_entry4='{ "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
-        "options":[
-            { "label": "LCN Ausgang", "value": 1 },
-            { "label": "LCN Relais", "value": 2 },
-            { "label": "LCN Lämpchen", "value": 3 },
-            { "label": "JSON Fernzugriff", "value": 4 },
-            { "label": "Schalter", "value": 5 }
-          ]},
-          { "type": "ValidationTextBox", "name": "IPAddress", "caption": "Host"},
-          { "type": "PasswordTextBox", "name": "Password", "caption": "Passwort" },
-          { "type": "NumberSpinner", "name": "ZielID", "caption": "Ziel ID"},
-          { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"},
-          { "type": "CheckBox", "name": "WatchTarget", "caption": "Ziel überwachen" }';
+    $elements_entry_jsonZugriff=',
+        { "type": "ValidationTextBox", "name": "IPAddress", "caption": "Host"},
+        { "type": "PasswordTextBox", "name": "Password", "caption": "Passwort" },
+        { "type": "NumberSpinner", "name": "ZielID", "caption": "Ziel ID"},
+        { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
      
-     $action_entry='';
-     $action_entry1='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" },
+    $elements_entry_AutoOff=',{ "type": "CheckBox", "name": "SelAutoOff", "caption": "Countdown-Timer-Funktion hinzufügen" }';
+    
+    $elements_entry_AutoOffWatch=',{ "type": "CheckBox", "name": "WatchTarget", "caption": "Ziel überwachen" }';        
+            
+    $action_entry='';
+    $action_entry1='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" },
           { "type": "Button", "label": "An", "onClick": "AutSw_SetOn($id);" },
           { "type": "Button", "label": "Aus", "onClick": "AutSw_SetOff($id);" }';
      
      
      
-     $wahl=$this->ReadPropertyInteger('Auswahl');
-     switch($wahl){
-         case 0:  $elements_entry=$elements_entry0; break;
-         case 1:  $elements_entry=$elements_entry1; break;
-         case 2:  $elements_entry=$elements_entry2; break;
-         case 3:  $elements_entry=$elements_entry3; break;
-         case 4:  $elements_entry=$elements_entry4; break;
-         case 5:  $elements_entry=$elements_entry2; break;
-     }
+    $wahl=$this->ReadPropertyInteger('Auswahl');
+    switch($wahl){
+        case 0:  $elements_entry=$elements_entry_device; break;
+        case 1:  $elements_entry=$elements_entry_device.$elements_entry_lcnOutput; break;
+        case 2:  $elements_entry=$elements_entry_device.$elements_entry_lcnRelais; break;
+        case 3:  $elements_entry=$elements_entry_device.$elements_entry_lcnLämpchen; break;
+        case 4:  $elements_entry=$elements_entry_device.$elements_entry_jsonZugriff; break;
+        case 5:  $elements_entry=$elements_entry_device.$elements_entry_lcnRelais; break;
+    }
      
      
-     if($this->ReadPropertyInteger('idLCNInstance')>0){
-         $action_entry=$action_entry1; 
-     }
-     if(($this->ReadPropertyString('IPAddress')!='')&&($this->ReadPropertyString('Password')!='')&&
-            ($this->ReadPropertyInteger('ZielID')!=0))
-         $action_entry=$action_entry1; 
+    if($this->ReadPropertyInteger('idLCNInstance')>0){
+        $action_entry=$action_entry1;
+        $elements_entry=$elements_entry.$elements_entry_AutoOff.$elements_entry_AutoOffWatch;
+    }
+    if(($this->ReadPropertyString('IPAddress')!='')&&($this->ReadPropertyString('Password')!='')&&
+    ($this->ReadPropertyInteger('ZielID')!=0))
+        $action_entry=$action_entry1; 
      
-     $form='{ "status":['.$status_entry.'],"elements":['.$elements_entry.'],"actions":['.$action_entry.'],}';
-     return $form;
+    $form='{ "status":['.$status_entry.'],"elements":['.$elements_entry.'],"actions":['.$action_entry.'],}';
+    return $form;
       
 } 
 
