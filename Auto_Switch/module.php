@@ -21,14 +21,13 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyBoolean('AutoOff', FALSE);
     $this->RegisterPropertyBoolean('Timer', FALSE);
     $this->RegisterPropertyBoolean('WatchTarget',FALSE);
+    $this->RegisterPropertyBoolean('SelAutoOff',FALSE);
     
     $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
     $this->RegisterPropertyBoolean('Status', FALSE);
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Light');
     
-    $this->RegisterTimer('AutoOffTimer', 60, "\$id = \$_IPS['TARGET'];\n".'AutSw_AutoOff($id);');
-    $TimerID=$this->GetIDForIdent('AutoOffTimer');
-    IPS_SetEventActive($TimerID, false);
+    
  //   $this->RegisterPropertyInteger('AutoOffCatID', 0); //Status der Instanz
     
   }
@@ -65,6 +64,12 @@ class AutSw extends IPSModule {
         if($EventID){
             IPS_DeleteEvent($EventID);
         }
+    }
+    if($this->ReadPropertyBoolean('SelAutoOff')){
+        $this->RegisterTimer('AutoOffTimer', 60, "\$id = \$_IPS['TARGET'];\n".'AutSw_AutoOff($id);');
+        $TimerID=$this->GetIDForIdent('AutoOffTimer');
+        IPS_SetEventActive($TimerID, false);
+        
     }
         
         
