@@ -211,10 +211,10 @@ public function EventTrigger(int $par,bool $value) {
     IPS_LogMessage("AutoSwitch_EventTrigger","Ident: ".$par." Value: ".$value);
     $CatID =IPS_GetCategoryIDByName('Konfig', $par);
     $AutoOffID=IPS_GetObjectIDByIdent('AutoOff_Switch', $CatID);
+    $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
     if($value && GetValueBoolean($AutoOffID) && $this->ReadPropertyBoolean('SelAutoOff')){
         $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
         $Laufzeit= GetValueInteger($LaufzeitID);
-        $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
         $TimerID=@$this->GetIDForIdent('AutoOffTimer');
         if($TimerID)
             IPS_SetEventActive($TimerID, TRUE);
