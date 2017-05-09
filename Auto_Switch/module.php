@@ -209,19 +209,20 @@ class AutSw extends IPSModule {
 
 public function EventTrigger(int $par,bool $value) {
     IPS_LogMessage("AutoSwitch_EventTrigger","Ident: ".$par." Value: ".$value);
-    $CatID =IPS_GetCategoryIDByName('Konfig', $par);
-    $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
-    $Laufzeit= GetValueInteger($LaufzeitID);
-    $AutoOffID=IPS_GetObjectIDByIdent('AutoOff_Switch', $CatID);
-    $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
+    
     if($value && GetValueBoolean($AutoOffID)){
+        $CatID =IPS_GetCategoryIDByName('Konfig', $par);
+        $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
+        $Laufzeit= GetValueInteger($LaufzeitID);
+        $AutoOffID=IPS_GetObjectIDByIdent('AutoOff_Switch', $CatID);
+        $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
         $TimerID=@$this->GetIDForIdent('AutoOffTimer');
         if($TimerID)
             IPS_SetEventActive($TimerID, TRUE);
-            SetValueInteger($IDLaufz, $Laufzeit);
-            IPS_SetHidden($IDLaufz, FALSE);
-        }
-    else {
+        SetValueInteger($IDLaufz, $Laufzeit);
+        IPS_SetHidden($IDLaufz, FALSE);
+    }
+    else{
         IPS_SetHidden($IDLaufz, TRUE);
     }
     $this->Set($value);      
