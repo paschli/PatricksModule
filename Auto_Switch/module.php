@@ -18,8 +18,8 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyInteger('ZielID', '');// ID des zu schaltenden entfernten Objekts
     $this->RegisterPropertyString('Name','');//Otionaler Name für die erstellte Instanz
     $this->RegisterPropertyInteger('State', 0); //Status der Instanz
-    $this->RegisterPropertyBoolean('AutoOff', FALSE);
-    $this->RegisterPropertyBoolean('Timer', FALSE);
+    $this->RegisterPropertyBoolean('AutoOff_Switch', FALSE);
+    $this->RegisterPropertyBoolean('Timer_Switch', FALSE);
     $this->RegisterPropertyBoolean('WatchTarget',FALSE);
     $this->RegisterPropertyBoolean('SelAutoOff',FALSE);
     
@@ -46,9 +46,9 @@ class AutSw extends IPSModule {
 //Laufzeit Anzeige erstellen
         $this->CreateAnzVar('Laufzeit','Laufzeit',$instID,10,'Hourglass','');
 //Wahlschalter "AutoOff" erstellen
-        $this->CreateWahlVar('AutoOff', 'Auto Off', '~Switch', $CatID);
+        $this->CreateWahlVar('AutoOff_Switch', 'Auto Off', '~Switch', $CatID);
 //Wahlschalter "Timer" erstellen        
-        $this->CreateWahlVar('Timer', 'Timer', '~Switch', $CatID);
+        $this->CreateWahlVar('Timer_Switch', 'Timer', '~Switch', $CatID);
     }
 //Aktion, falls zu schaltendes Objekt von anderen Instanzen oder Schaltern geschaltet wird
     $scriptDevice="\$id = \$_IPS['TARGET'];\n".
@@ -69,7 +69,7 @@ class AutSw extends IPSModule {
         $this->RegisterTimer('AutoOffTimer', 60, "\$id = \$_IPS['TARGET'];\n".'AutSw_AutoOff($id);');
         $TimerID=$this->GetIDForIdent('AutoOffTimer');
         IPS_SetEventActive($TimerID, false);
-        $AutoOffID=IPS_GetObjectIDByIdent('AutoOff', $CatID);
+        $AutoOffID=IPS_GetObjectIDByIdent('AutoOff_Switch', $CatID);
         IPS_SetHidden($AutoOffID, FALSE);
         
     }
@@ -79,7 +79,7 @@ class AutSw extends IPSModule {
             IPS_SetEventActive($TimerID, False);
             
         }
-        $AutoOffID=IPS_GetObjectIDByIdent('AutoOff', $CatID);
+        $AutoOffID=IPS_GetObjectIDByIdent('AutoOff_Switch', $CatID);
         IPS_SetHidden($AutoOffID, True);
     }
         
@@ -164,6 +164,8 @@ class AutSw extends IPSModule {
      
     $elements_entry_AutoOff=',{ "type": "CheckBox", "name": "SelAutoOff", "caption": "Countdown-Timer-Funktion hinzufügen" }';
     
+    $elements_entry_Timer=',{ "type": "CheckBox", "name": "Timer", "caption": "Timer Funktion" }';
+    
     $elements_entry_AutoOffWatch=',{ "type": "CheckBox", "name": "WatchTarget", "caption": "Ziel überwachen" }';        
             
     $action_entry='';
@@ -186,7 +188,7 @@ class AutSw extends IPSModule {
      
     if($this->ReadPropertyInteger('idLCNInstance')>0){
         $action_entry=$action_entry1;
-        $elements_entry=$elements_entry.$elements_entry_AutoOff;
+        $elements_entry=$elements_entry.$elements_entry_AutoOff.$elements_entry_Timer;
     }
     if($this->ReadPropertyBoolean('SelAutoOff')){
        $elements_entry=$elements_entry.$elements_entry_AutoOffWatch; 
@@ -205,7 +207,7 @@ public function EventTrigger(int $par,bool $value) {
     $CatID =IPS_GetCategoryIDByName('Konfig', $par);
     $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
     $Laufzeit= GetValueInteger($LaufzeitID);
-    $AutoOffID=IPS_GetObjectIDByIdent('AutoOff', $CatID);
+    $AutoOffID=IPS_GetObjectIDByIdent('AutoOff_Switch', $CatID);
     $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
     if($value && GetValueBoolean($AutoOffID)){
         $TimerID=@$this->GetIDForIdent('AutoOffTimer');
@@ -232,7 +234,7 @@ public function EventTrigger(int $par,bool $value) {
 //         }   
 //     }
      
-     if($ident=='AutoOff'){
+     if($ident=='AutoOff_Switch'){
         SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value);
         if($value){
             $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
@@ -252,13 +254,13 @@ public function EventTrigger(int $par,bool $value) {
                 IPS_SetEventActive($eventID, FALSE);
         }
      } 
-     else if($ident=='Timer'){
+     else if($ident=='Timer_Switch'){
         $this->Set($value);
      }
      else if($ident=='Status'){
         $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
         $Laufzeit= GetValueInteger($LaufzeitID);
-        $AutoOffID=IPS_GetObjectIDByIdent('AutoOff', $CatID);
+        $AutoOffID=IPS_GetObjectIDByIdent('AutoOff_Switch', $CatID);
         $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
         if($value && GetValueBoolean($AutoOffID)){
             $TimerID=@$this->GetIDForIdent('AutoOffTimer');
