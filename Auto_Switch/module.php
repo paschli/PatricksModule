@@ -46,7 +46,7 @@ class AutSw extends IPSModule {
 //Laufzeit Anzeige erstellen
         $this->CreateAnzVar('Laufzeit','Laufzeit',$instID,10,'Hourglass','');
 //Wahlschalter "AutoOff" erstellen
-        $this->CreateWahlVar('AutoOff', 'Auto Off1', '~Switch', $CatID);
+        $this->CreateWahlVar('AutoOff', 'Auto Off', '~Switch', $CatID);
 //Wahlschalter "Timer" erstellen        
         $this->CreateWahlVar('Timer', 'Timer', '~Switch', $CatID);
     }
