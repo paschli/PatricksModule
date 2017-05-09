@@ -254,9 +254,9 @@ public function EventTrigger(int $par,bool $value) {
             $timerID= @IPS_GetObjectIDByIdent('AutoOffTimer', $par);
             if($timerID)
                 IPS_SetEventActive($timerID, FALSE);
-            $eventID= @IPS_GetObjectIDByIdent('WatchTarget', $par);
+/*            $eventID= @IPS_GetObjectIDByIdent('WatchTarget', $par);
             if($eventID)
-                IPS_SetEventActive($eventID, FALSE);
+                IPS_SetEventActive($eventID, FALSE);*/
         }
      } 
      else if($ident=='Timer_Switch'){
@@ -528,7 +528,7 @@ private function CheckEvent($script) {
     }    
     $ID=$this->FindTargetStatusofDevices();
     $EventID=$this->RegisterEvent('WatchEvent', $ID, $script);
-    IPS_SetEventActive($EventID, FALSE);
+    //IPS_SetEventActive($EventID, FALSE);
 }
 } 
 ?>
