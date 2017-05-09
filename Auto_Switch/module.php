@@ -40,15 +40,15 @@ class AutSw extends IPSModule {
     $CatID = @IPS_GetCategoryIDByName('Konfig', $instID);
     if(!$CatID){    
 //Kategorie erstellen 
-        $CatID= $this->CreateCategorie($instID);    
+    $CatID= $this->CreateCategorie($instID);    
 //Auswahlvariable für Laufzeit erstellen
-        $this->CreateAnzVar('SetLaufzeit','Set Laufzeit',$CatID,10,'Hourglass','<?SetValue($_IPS["VARIABLE"],$_IPS["VALUE"]); ?>');
+    $this->CreateAnzVar('SetLaufzeit','Set Laufzeit',$CatID,10,'Hourglass','<?SetValue($_IPS["VARIABLE"],$_IPS["VALUE"]); ?>');
 //Laufzeit Anzeige erstellen
-        $this->CreateAnzVar('Laufzeit','Laufzeit',$instID,10,'Hourglass','');
+    $this->CreateAnzVar('Laufzeit','Laufzeit',$instID,10,'Hourglass','');
 //Wahlschalter "AutoOff" erstellen
-        $this->CreateWahlVar('AutoOff_Switch', 'Auto Off', '~Switch', $CatID);
+    $this->CreateWahlVar('AutoOff_Switch', 'Auto Off', '~Switch', $CatID);
 //Wahlschalter "Timer" erstellen        
-        $this->CreateWahlVar('Timer_Switch', 'Timer', '~Switch', $CatID);
+    $this->CreateWahlVar('Timer_Switch', 'Timer', '~Switch', $CatID);
     }
 //Aktion, falls zu schaltendes Objekt von anderen Instanzen oder Schaltern geschaltet wird
     $scriptDevice="\$id = \$_IPS['TARGET'];\n".
@@ -71,7 +71,10 @@ class AutSw extends IPSModule {
         IPS_SetEventActive($TimerID, false);
         $AutoOffID=IPS_GetObjectIDByIdent('AutoOff_Switch', $CatID);
         IPS_SetHidden($AutoOffID, FALSE);
-        
+        $EventID=@IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID);
+        if($EventID){
+            IPS_DeleteEvent($EventID);
+        }
     }
     else{
         $TimerID=@$this->GetIDforIdent('AutoOffTimer');
