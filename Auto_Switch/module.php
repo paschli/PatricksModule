@@ -72,10 +72,7 @@ class AutSw extends IPSModule {
         IPS_SetEventActive($TimerID, false);
         $AutoOffID=IPS_GetObjectIDByIdent('AutoOff_Switch', $CatID);
         IPS_SetHidden($AutoOffID, FALSE);
-        $EventID=@IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID);
-        if($EventID){
-            IPS_DeleteEvent($EventID);
-        }
+        
     }
     else{
         $TimerID=@$this->GetIDforIdent('AutoOffTimer');
@@ -85,6 +82,10 @@ class AutSw extends IPSModule {
         }
         $AutoOffID=IPS_GetObjectIDByIdent('AutoOff_Switch', $CatID);
         IPS_SetHidden($AutoOffID, True);
+        $EventID=@IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID);
+        if($EventID){
+            IPS_DeleteEvent($EventID);
+        }
     }
         
         
