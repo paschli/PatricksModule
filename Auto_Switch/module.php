@@ -59,13 +59,7 @@ class AutSw extends IPSModule {
     else 
         $typ=0;
     
-    if(!$this->ReadPropertyBoolean('WatchTarget')){
-        $typ=0;
-        $EventID=@IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID);
-        if($EventID){
-            IPS_DeleteEvent($EventID);
-        }
-    }
+    
     if($this->ReadPropertyBoolean('SelAutoOff')){
         $this->RegisterTimer('AutoOffTimer', 60, "\$id = \$_IPS['TARGET'];\n".'AutSw_AutoOff($id);');
         $TimerID=$this->GetIDForIdent('AutoOffTimer');
@@ -87,7 +81,13 @@ class AutSw extends IPSModule {
             IPS_DeleteEvent($EventID);
         }
     }
-        
+    if(!$this->ReadPropertyBoolean('WatchTarget')){
+        $typ=0;
+        $EventID=@IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID);
+        if($EventID){
+            IPS_DeleteEvent($EventID);
+        }
+    }    
         
     
     switch($typ){
