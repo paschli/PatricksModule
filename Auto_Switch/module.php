@@ -22,6 +22,7 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyBoolean('Timer_Switch', FALSE);
     $this->RegisterPropertyBoolean('WatchTarget',FALSE);
     $this->RegisterPropertyBoolean('SelAutoOff',FALSE);
+    $this->RegisterPropertyBoolean('SelTimer',FALSE);
     
     $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
     $this->RegisterPropertyBoolean('Status', FALSE);
