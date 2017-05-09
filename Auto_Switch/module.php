@@ -164,7 +164,7 @@ class AutSw extends IPSModule {
      
     $elements_entry_AutoOff=',{ "type": "CheckBox", "name": "SelAutoOff", "caption": "Countdown-Timer-Funktion hinzufügen" }';
     
-    $elements_entry_Timer=',{ "type": "CheckBox", "name": "Timer", "caption": "Timer Funktion" }';
+    $elements_entry_Timer=',{ "type": "CheckBox", "name": "SelTimer", "caption": "Timer Funktion" }';
     
     $elements_entry_AutoOffWatch=',{ "type": "CheckBox", "name": "WatchTarget", "caption": "Ziel überwachen" }';        
             
@@ -185,14 +185,18 @@ class AutSw extends IPSModule {
         case 5:  $elements_entry=$elements_entry_device.$elements_entry_lcnRelais; break;
     }
      
-     
+    if($this->ReadPropertyBoolean('SelAutoOff')){
+        $elements_entry_AutoOff=$elements_entry_AutoOff.$elements_entry_AutoOffWatch; 
+    } 
+    else{
+        $elements_entry_AutoOff=$elements_entry_AutoOff;
+    }
+        
     if($this->ReadPropertyInteger('idLCNInstance')>0){
         $action_entry=$action_entry1;
         $elements_entry=$elements_entry.$elements_entry_AutoOff.$elements_entry_Timer;
     }
-    if($this->ReadPropertyBoolean('SelAutoOff')){
-       $elements_entry=$elements_entry.$elements_entry_AutoOffWatch; 
-    }
+    
     if(($this->ReadPropertyString('IPAddress')!='')&&($this->ReadPropertyString('Password')!='')&&
     ($this->ReadPropertyInteger('ZielID')!=0))
         $action_entry=$action_entry1; 
