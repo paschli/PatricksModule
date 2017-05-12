@@ -82,6 +82,15 @@ class AutSw extends IPSModule {
         IPS_SetHidden($LaufzeitID, TRUE);
     }
     
+    if($this->ReadPropertyBoolean('SelTimer')){
+        $TimerSelID=IPS_GetObjectIDByIdent('Timer_Switch', $CatID);
+        IPS_SetHidden($TimerSelID, FALSE);
+    }
+    else{
+        $TimerSelID=IPS_GetObjectIDByIdent('Timer_Switch', $CatID);
+        IPS_SetHidden($TimerSelID, TRUE);
+    }
+    
  /*   if(!$this->ReadPropertyBoolean('WatchTarget')||!$this->ReadPropertyBoolean('SelAutoOff')){
         $typ=0;
         $EventID=@IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID);
