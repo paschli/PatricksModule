@@ -91,6 +91,8 @@ class AutSw extends IPSModule {
                 break;
             case 1: //falls Instanz LCN Ausgang
                 $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
+                $script='SetValue($_IPS["VARIABLE"], $_IPS["VALUE"]);';
+                $this->CreateAnzVar('Slider', 'Slider', $instID, 20, 'Intensity',$script );
                 break;
             case 2: //falls Instanz LCN Relais
                 $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
