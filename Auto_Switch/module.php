@@ -484,10 +484,8 @@ private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
     IPS_SetName($VarID, $name); // Variable benennen
     IPS_SetPosition($VarID, $pos);
     IPS_SetIcon($VarID, $icon);
-    IPS_SetIdent($VarID,$ident);
-    $this->EnableAction($ident);
     IPS_SetParent($VarID,$CatID );
-    
+    IPS_SetIdent($VarID,$ident);
     if($script){
         $SkriptID=IPS_CreateScript(0);
         IPS_SetName($SkriptID,'control');
@@ -503,7 +501,6 @@ private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
     }
     else {
         IPS_SetHidden($VarID, True);
-        
     }
         
 }
