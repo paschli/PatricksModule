@@ -469,7 +469,7 @@ private function CreateCategorie($instID) {
     IPS_SetIcon($CatID, 'Gear'); //Icon setzen
     return($CatID);
    }
-private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script){
+private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
     $VarID= IPS_CreateVariable(1);
     IPS_SetName($VarID, $name); // Variable benennen
     IPS_SetPosition($VarID, $pos);
@@ -483,6 +483,10 @@ private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script){
         IPS_SetHidden($SkriptID, True);
         IPS_SetScriptContent($SkriptID, $script);
         IPS_SetVariableCustomAction($VarID, $SkriptID);
+        if (isset($profil)){
+            IPS_SetVariableCustomProfile($VarID, $profil);
+        }
+        else    
         IPS_SetVariableCustomProfile($VarID, 'Time_4h');   
     }
     else {
