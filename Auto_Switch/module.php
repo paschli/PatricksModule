@@ -96,6 +96,7 @@ class AutSw extends IPSModule {
                     $script='SetValue($_IPS["VARIABLE"], $_IPS["VALUE"]);';
                     $this->CreateAnzVar('SliderAnz', 'Slider', $instID, 20, 'Intensity','','~Intensity.100' );
                     //$this->EnableAction('SliderAnz');
+                    IPS_SetHidden($ID, $Hidden)
                 }
                 break;
             case 2: //falls Instanz LCN Relais
@@ -502,7 +503,7 @@ private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
     else {
         IPS_SetHidden($VarID, True);
     }
-        
+    return($VarID);    
 }
 
 private function CreateWahlVar($ident,$name,$icon,$par){
