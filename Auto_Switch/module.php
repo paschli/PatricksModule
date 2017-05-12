@@ -95,7 +95,7 @@ class AutSw extends IPSModule {
                 if(!@IPS_GetObjectIDByIdent('SliderAnz', $instID)){
                     $script='SetValue($_IPS["VARIABLE"], $_IPS["VALUE"]);';
                     $this->CreateAnzVar('SliderAnz', 'Slider', $instID, 20, 'Intensity','','~Intensity.100' );
-                    $this->EnableAction('SliderAnz');
+                    //$this->EnableAction('SliderAnz');
                 }
                 break;
             case 2: //falls Instanz LCN Relais
