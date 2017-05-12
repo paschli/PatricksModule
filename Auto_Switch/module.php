@@ -91,8 +91,11 @@ class AutSw extends IPSModule {
                 break;
             case 1: //falls Instanz LCN Ausgang
                 $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
-                $script='SetValue($_IPS["VARIABLE"], $_IPS["VALUE"]);';
-                $this->CreateAnzVar('SliderAnz', 'Slider', $instID, 20, 'Intensity',$script,'Intensity.100' );
+                if(!IPS_GetObjectIDByIdent('SliderAnz', $instID)){
+                    $script='SetValue($_IPS["VARIABLE"], $_IPS["VALUE"]);';
+                    $this->CreateAnzVar('SliderAnz', 'Slider', $instID, 20, 'Intensity',$script,'~Intensity.100' );
+                    $this->EnableAction('SliderAnz');
+                }
                 break;
             case 2: //falls Instanz LCN Relais
                 $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
@@ -281,6 +284,10 @@ public function EventTrigger(int $par,bool $value) {
         }
         $this->Set($value);
         
+     }
+     else if($ident=='SliderAnz'){
+        $instID=$this->ReadPropertyInteger('idLCNInstance');
+        LCN_SetIntensity($instID, $value, 0);
      }
      
 //Neuen Wert in die Statusvariable schreiben
