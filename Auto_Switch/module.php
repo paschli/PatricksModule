@@ -43,9 +43,9 @@ class AutSw extends IPSModule {
 //Kategorie erstellen 
     $CatID= $this->CreateCategorie($instID);    
 //Auswahlvariable für Laufzeit erstellen
-    $this->CreateAnzVar('SetLaufzeit','Set Laufzeit',$CatID,10,'Hourglass','<?SetValue($_IPS["VARIABLE"],$_IPS["VALUE"]); ?>');
+    $this->CreateAnzVar('SetLaufzeit','Set Laufzeit',$CatID,10,'Hourglass','<?SetValue($_IPS["VARIABLE"],$_IPS["VALUE"]); ?>','');
 //Laufzeit Anzeige erstellen
-    $this->CreateAnzVar('Laufzeit','Laufzeit',$instID,10,'Hourglass','');
+    $this->CreateAnzVar('Laufzeit','Laufzeit',$instID,10,'Hourglass','','');
 //Wahlschalter "AutoOff" erstellen
     $this->CreateWahlVar('AutoOff_Switch', 'Auto Off', '~Switch', $CatID);
 //Wahlschalter "Timer" erstellen        
@@ -92,7 +92,7 @@ class AutSw extends IPSModule {
             case 1: //falls Instanz LCN Ausgang
                 $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
                 $script='SetValue($_IPS["VARIABLE"], $_IPS["VALUE"]);';
-                $this->CreateAnzVar('Slider', 'Slider', $instID, 20, 'Intensity',$script );
+                $this->CreateAnzVar('Slider', 'Slider', $instID, 20, 'Intensity',$script,'Intensity.100' );
                 break;
             case 2: //falls Instanz LCN Relais
                 $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
@@ -469,7 +469,7 @@ private function CreateCategorie($instID) {
     IPS_SetIcon($CatID, 'Gear'); //Icon setzen
     return($CatID);
    }
-private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script,...$profil){
+private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
     $VarID= IPS_CreateVariable(1);
     IPS_SetName($VarID, $name); // Variable benennen
     IPS_SetPosition($VarID, $pos);
@@ -483,7 +483,7 @@ private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script,...$profil)
         IPS_SetHidden($SkriptID, True);
         IPS_SetScriptContent($SkriptID, $script);
         IPS_SetVariableCustomAction($VarID, $SkriptID);
-        if (isset($profil)){
+        if ($profil!=''){
             IPS_SetVariableCustomProfile($VarID, $profil);
         }
         else    
