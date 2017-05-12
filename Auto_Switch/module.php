@@ -469,7 +469,7 @@ private function CreateCategorie($instID) {
     IPS_SetIcon($CatID, 'Gear'); //Icon setzen
     return($CatID);
    }
-private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
+private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script,...$profil){
     $VarID= IPS_CreateVariable(1);
     IPS_SetName($VarID, $name); // Variable benennen
     IPS_SetPosition($VarID, $pos);
