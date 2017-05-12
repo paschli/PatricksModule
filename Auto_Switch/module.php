@@ -287,6 +287,8 @@ public function EventTrigger(int $par,bool $value) {
         
      }
      else if($ident=='SliderAnz'){
+         IPS_LogMessage("AutoSwitch_RequestAction","Ident: ".$ident." Value: ".$value);
+        SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value); 
         $instID=$this->ReadPropertyInteger('idLCNInstance');
         LCN_SetIntensity($instID, $value, 0);
      }
