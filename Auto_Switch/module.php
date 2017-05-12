@@ -186,7 +186,7 @@ class AutSw extends IPSModule {
         case 5:  $elements_entry=$elements_entry_device.$elements_entry_lcnRelais; break;
     }
      
-    if($this->ReadPropertyBoolean('SelAutoOff')){
+    if($this->ReadPropertyBoolean('SelAutoOff')&&($wahl!=3)){
         $elements_entry_AutoOff=$elements_entry_AutoOff.$elements_entry_AutoOffWatch; 
     } 
     else{
