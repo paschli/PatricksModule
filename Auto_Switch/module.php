@@ -110,8 +110,6 @@ class AutSw extends IPSModule {
                             'SetValue($_IPS["VARIABLE"], $_IPS["VALUE"]);'.chr(13).
                             'LCN_SetIntensity('.$this->ReadPropertyInteger("idLCNInstance").', $_IPS["VALUE"],0);'.chr(13).
                             '?>';
- //                   $script='SetValue($_IPS["VARIABLE"], $_IPS["VALUE"]);\n'.
- //                           'LCN_SetIntensity('.$this->ReadPropertyInteger("idLCNInstance").',$_IPS["VALUE"],0);';
                     $SliderID=$this->CreateAnzVar('SliderAnz', 'Slider', $instID, 20, 'Intensity',$script,'~Intensity.100' );
                     IPS_SetHidden($SliderID, FALSE);
                 }
@@ -129,6 +127,10 @@ class AutSw extends IPSModule {
             default:
                 break;
         }
+    if($typ!=1){
+        if(@IPS_GetObjectIDByIdent('SliderAnz', $instID))
+            IPS_DeleteVariable($SliderID);
+    }
     $this->GetConfigurationForm(); 
   }
   
