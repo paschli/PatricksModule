@@ -128,7 +128,7 @@ class AutSw extends IPSModule {
                 break;
         }
     if($typ!=1){
-        if(@IPS_GetObjectIDByIdent('SliderAnz', $instID))
+        if($SliderID=@IPS_GetObjectIDByIdent('SliderAnz', $instID))
             IPS_DeleteVariable($SliderID);
     }
     $this->GetConfigurationForm(); 
