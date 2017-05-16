@@ -3,7 +3,7 @@
 //Skript, falls die Zeit der letzten zur aktuellen Aktualisierung kleiner gleich 
 //einem Wert ist
 class PIIOC extends IPSModule {
-  public $RelStore=0;  
+  protected $RelStore=0;  
   public function Create() {
     parent::Create();
     //$this->RegisterPropertyInteger('idLCNInstance', 0);
@@ -114,7 +114,7 @@ public function set($RelNo) {
 public function clear($RelNo) {
     shell_exec("/usr/local/bin/gpio write ".$RelNo." 1");
     IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelNo." 1");
-    $RelStore= GetValueInteger($this->RelStore);
+    $RelStore= GetValueInteger($this->$RelStore);
     IPS_LogMessage('PIIOC', "RelStore= ".$RelStore);
     if($this->readback($RelNo))
         return 1;
