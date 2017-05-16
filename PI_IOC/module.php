@@ -91,6 +91,7 @@ class PIIOC extends IPSModule {
         $result=$this->clear($RelNo);
       }
 //Neuen Wert in die Statusvariable schreiben
+      IPS_LogMessage('PIIOC', "ReadBack=".intval($result));
       if($result){
           SetValue($this->GetIDForIdent($ident), $value);
           IPS_LogMessage('PIIOC', "Befehl erfolgreich ausgeführt!");
@@ -106,7 +107,7 @@ public function set() {
     $RelStore= $this->RelStore;
     shell_exec("/usr/local/bin/gpio write ".$RelStore." 0"); 
     IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelStore." 0");
-    IPS_LogMessage('PIIOC', "ReadBack=".intval($this->readback($RelStore)));
+    //IPS_LogMessage('PIIOC', "ReadBack=".intval($this->readback($RelStore)));
     if(!$this->readback($RelStore))
         return 1;
     else
@@ -117,7 +118,7 @@ public function clear() {
     $RelStore= $this->RelStore;
     shell_exec("/usr/local/bin/gpio write ".$RelStore." 1");
     IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelStore." 1");
-    IPS_LogMessage('PIIOC', "ReadBack=".intval($this->readback($RelStore)));
+    //IPS_LogMessage('PIIOC', "ReadBack=".intval($this->readback($RelStore)));
     if($this->readback($RelStore))
         return 1;
     else
