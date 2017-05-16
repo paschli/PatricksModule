@@ -79,24 +79,44 @@ class PIIOC extends IPSModule {
       }
       if($value){
         //LCN_SetLamp($lcn_instID,$lampNo,'E');
-        $this->set($RelNo);
+        $result=$this->set($RelNo);
       }
       else{
         //LCN_SetLamp($lcn_instID,$lampNo,'A');
-        $this->clear($RelNo);
+        $result=$this->clear($RelNo);
       }
 //Neuen Wert in die Statusvariable schreiben
-      SetValue($this->GetIDForIdent($ident), $value);
+      if(result){
+          SetValue($this->GetIDForIdent($ident), $value);
+          IPS_LogMessage('PIIOC', "Befehl erfolgreich ausgeführt!");
+      }
+      else {
+          IPS_LogMessage('PIIOC', "Pin-Änderung konnte nicht verifiziert werden!");
+          
+      }
+      
 }
   
 public function set($RelNo) {
     shell_exec("/usr/local/bin/gpio write ".$RelNo." 0"); 
     IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelNo." 0");
+    if(!$this->readback($RelNo))
+        return 1;
+    else
+        return 0;
 }
 
 public function clear($RelNo) {
     shell_exec("/usr/local/bin/gpio write ".$RelNo." 1");
     IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelNo." 1");
+    if($this->readback($RelNo))
+        return 1;
+    else
+        return 0;
+}
+protected function readback($RelNo) {
+    $result= boolval(shell_exec("/usr/local/bin/gpio read ".$RelNo));
+    return ($result);
 }
 public function Check() {
     if(IPS_SemaphoreEnter('LCNLA', 1000)) {
