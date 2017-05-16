@@ -3,6 +3,7 @@
 //Skript, falls die Zeit der letzten zur aktuellen Aktualisierung kleiner gleich 
 //einem Wert ist
 class PIIOC extends IPSModule {
+  private $RelStore;  
   public function Create() {
     parent::Create();
     //$this->RegisterPropertyInteger('idLCNInstance', 0);
@@ -78,7 +79,7 @@ class PIIOC extends IPSModule {
           case 8 : $RelNo=8; break;
           
       }
-      SetValue($this->GetIDForIdent("RelStore"), $RelNo);
+      SetValue($this->RelStore, $RelNo);
       if($value){
         //LCN_SetLamp($lcn_instID,$lampNo,'E');
         $result=$this->set($RelNo);
@@ -102,7 +103,7 @@ class PIIOC extends IPSModule {
 public function set($RelNo) {
     shell_exec("/usr/local/bin/gpio write ".$RelNo." 0"); 
     IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelNo." 0");
-    $RelStore= GetValueInteger($this->GetIDForIdent('RelStore'));
+    $RelStore= GetValueInteger($this->$RelStore);
     IPS_LogMessage('PIIOC', "RelStore= ".$RelStore);
     if(!$this->readback($RelNo))
         return 1;
@@ -113,7 +114,7 @@ public function set($RelNo) {
 public function clear($RelNo) {
     shell_exec("/usr/local/bin/gpio write ".$RelNo." 1");
     IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelNo." 1");
-    $RelStore= GetValueInteger($this->GetIDForIdent('RelStore'));
+    $RelStore= GetValueInteger($this->RelStore);
     IPS_LogMessage('PIIOC', "RelStore= ".$RelStore);
     if($this->readback($RelNo))
         return 1;
