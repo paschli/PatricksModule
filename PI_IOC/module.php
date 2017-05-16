@@ -102,22 +102,22 @@ class PIIOC extends IPSModule {
       
 }
   
-public function set($RelNo) {
-    shell_exec("/usr/local/bin/gpio write ".$RelNo." 0"); 
-    IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelNo." 0");
+public function set() {
     $RelStore= $this->RelStore;
-    IPS_LogMessage('PIIOC', "RelStore= ".$RelStore);
-    if(!$this->readback($RelNo))
+    shell_exec("/usr/local/bin/gpio write ".$RelStore." 0"); 
+    IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelStore." 0");
+    IPS_LogMessage('PIIOC', "ReadBack=".intval($this->readback($RelStore)));
+    if(!$this->readback($RelStore))
         return 1;
     else
         return 0;
 }
 
-public function clear($RelNo) {
-    shell_exec("/usr/local/bin/gpio write ".$RelNo." 1");
-    IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelNo." 1");
+public function clear() {
     $RelStore= $this->RelStore;
-    IPS_LogMessage('PIIOC', "RelStore= ".$RelStore);
+    shell_exec("/usr/local/bin/gpio write ".$RelStore." 1");
+    IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelStore." 1");
+    IPS_LogMessage('PIIOC', "ReadBack=".intval($this->readback($RelStore)));
     if($this->readback($RelNo))
         return 1;
     else
