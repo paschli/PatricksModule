@@ -3,7 +3,7 @@
 //Skript, falls die Zeit der letzten zur aktuellen Aktualisierung kleiner gleich 
 //einem Wert ist
 class PIIOC extends IPSModule {
-  private $RelStore;  
+  public $RelStore=0;  
   public function Create() {
     parent::Create();
     //$this->RegisterPropertyInteger('idLCNInstance', 0);
