@@ -118,7 +118,7 @@ public function clear() {
     shell_exec("/usr/local/bin/gpio write ".$RelStore." 1");
     IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelStore." 1");
     IPS_LogMessage('PIIOC', "ReadBack=".intval($this->readback($RelStore)));
-    if($this->readback($RelNo))
+    if($this->readback($RelStore))
         return 1;
     else
         return 0;
