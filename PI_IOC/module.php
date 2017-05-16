@@ -62,25 +62,7 @@ class PIIOC extends IPSModule {
 //ID der Instanz ermitteln   
       //$lcn_instID=$this->ReadPropertyInteger('idLCNInstance');	
 //Lämpchen Nr. ermitteln
-      $RelNo=$this->ReadPropertyInteger('RelNr');
-//Auswertung 
-      //IPS_LogMessage('LCNLA',"Starte.....................");
-      //IPS_LogMessage('LCNLA',"ident=".$ident);
-      //IPS_LogMessage('LCNLA',"value=".$value);
-//Überprüfen Status und sende Befehl an LCN_Instanz
       
-      switch ($RelNo){
-          case 1 : $RelNo=2; break;
-          case 2 : $RelNo=3; break;
-          case 3 : $RelNo=4; break;
-          case 4 : $RelNo=5; break;
-          case 5 : $RelNo=6; break;
-          case 6 : $RelNo=1; break;
-          case 7 : $RelNo=0; break;
-          case 8 : $RelNo=8; break;
-          
-      }
-      $this->RelStore=$RelNo;
       //SetValue($this->RelStore, $RelNo);
       if($value){
         //LCN_SetLamp($lcn_instID,$lampNo,'E');
@@ -104,7 +86,8 @@ class PIIOC extends IPSModule {
 }
   
 public function set() {
-    $RelStore= $this->RelStore;
+    $RelStore=$this->setchannel();
+    //$RelStore= $this->RelStore;
     shell_exec("/usr/local/bin/gpio write ".$RelStore." 0"); 
     IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelStore." 0");
     //IPS_LogMessage('PIIOC', "ReadBack=".intval($this->readback($RelStore)));
@@ -115,7 +98,8 @@ public function set() {
 }
 
 public function clear() {
-    $RelStore= $this->RelStore;
+    $RelStore=$this->setchannel();
+    //$RelStore= $this->RelStore;
     shell_exec("/usr/local/bin/gpio write ".$RelStore." 1");
     IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelStore." 1");
     //IPS_LogMessage('PIIOC', "ReadBack=".intval($this->readback($RelStore)));
@@ -128,6 +112,25 @@ protected function readback($RelNo) {
     $result= intval(shell_exec("/usr/local/bin/gpio read ".$RelNo));
     return ($result);
 }
+
+protected function setchannel(){
+    $RelNo=$this->ReadPropertyInteger('RelNr');
+    switch ($RelNo){
+          case 1 : $RelNo=2; break;
+          case 2 : $RelNo=3; break;
+          case 3 : $RelNo=4; break;
+          case 4 : $RelNo=5; break;
+          case 5 : $RelNo=6; break;
+          case 6 : $RelNo=1; break;
+          case 7 : $RelNo=0; break;
+          case 8 : $RelNo=8; break;
+          
+      }
+      
+      $this->RelStore=$RelNo;
+      return($RelNo);
+}
+
 public function Check() {
     if(IPS_SemaphoreEnter('LCNLA', 1000)) {
       
