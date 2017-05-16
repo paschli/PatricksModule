@@ -80,6 +80,7 @@ class PIIOC extends IPSModule {
           case 8 : $RelNo=8; break;
           
       }
+      $this->RelStore=$RelNo;
       SetValue($this->RelStore, $RelNo);
       if($value){
         //LCN_SetLamp($lcn_instID,$lampNo,'E');
