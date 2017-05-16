@@ -116,7 +116,7 @@ public function set($RelNo) {
 public function clear($RelNo) {
     shell_exec("/usr/local/bin/gpio write ".$RelNo." 1");
     IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelNo." 1");
-    $RelStore= $this->$RelStore;
+    $RelStore= $this->RelStore;
     IPS_LogMessage('PIIOC', "RelStore= ".$RelStore);
     if($this->readback($RelNo))
         return 1;
