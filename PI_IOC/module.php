@@ -4,6 +4,10 @@
 //einem Wert ist
 class PIIOC extends IPSModule {
   protected $RelStore=0;  
+  public function __construct() {
+    parent::__construct();
+    $this->RelStore = 123; 
+  }
   public function Create() {
     parent::Create();
     //$this->RegisterPropertyInteger('idLCNInstance', 0);
@@ -79,7 +83,7 @@ class PIIOC extends IPSModule {
           case 8 : $RelNo=8; break;
           
       }
-      SetValue($this->$RelStore, $RelNo);
+      SetValue($this->RelStore, $RelNo);
       if($value){
         //LCN_SetLamp($lcn_instID,$lampNo,'E');
         $result=$this->set($RelNo);
