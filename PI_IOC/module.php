@@ -81,7 +81,7 @@ class PIIOC extends IPSModule {
           
       }
       $this->RelStore=$RelNo;
-      SetValue($this->RelStore, $RelNo);
+      //SetValue($this->RelStore, $RelNo);
       if($value){
         //LCN_SetLamp($lcn_instID,$lampNo,'E');
         $result=$this->set($RelNo);
@@ -105,7 +105,7 @@ class PIIOC extends IPSModule {
 public function set($RelNo) {
     shell_exec("/usr/local/bin/gpio write ".$RelNo." 0"); 
     IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelNo." 0");
-    $RelStore= GetValueInteger($this->$RelStore);
+    $RelStore= $this->RelStore;
     IPS_LogMessage('PIIOC', "RelStore= ".$RelStore);
     if(!$this->readback($RelNo))
         return 1;
@@ -116,7 +116,7 @@ public function set($RelNo) {
 public function clear($RelNo) {
     shell_exec("/usr/local/bin/gpio write ".$RelNo." 1");
     IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelNo." 1");
-    $RelStore= GetValueInteger($this->$RelStore);
+    $RelStore= $this->$RelStore;
     IPS_LogMessage('PIIOC', "RelStore= ".$RelStore);
     if($this->readback($RelNo))
         return 1;
