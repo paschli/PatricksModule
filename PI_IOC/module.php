@@ -4,10 +4,7 @@
 //einem Wert ist
 class PIIOC extends IPSModule {
   protected $RelStore=0;  
-  public function __construct() {
-    parent::__construct();
-    $this->RelStore = 123; 
-  }
+  
   public function Create() {
     parent::Create();
     //$this->RegisterPropertyInteger('idLCNInstance', 0);
