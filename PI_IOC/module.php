@@ -79,11 +79,11 @@ class PIIOC extends IPSModule {
       }
       if($value){
         //LCN_SetLamp($lcn_instID,$lampNo,'E');
-        set($RelNo);
+        $this->set($RelNo);
       }
       else{
         //LCN_SetLamp($lcn_instID,$lampNo,'A');
-        clear($RelNo);
+        $this->clear($RelNo);
       }
 //Neuen Wert in die Statusvariable schreiben
       SetValue($this->GetIDForIdent($ident), $value);
