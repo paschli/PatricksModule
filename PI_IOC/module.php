@@ -86,7 +86,7 @@ class PIIOC extends IPSModule {
         $result=$this->clear($RelNo);
       }
 //Neuen Wert in die Statusvariable schreiben
-      if(result){
+      if($result){
           SetValue($this->GetIDForIdent($ident), $value);
           IPS_LogMessage('PIIOC', "Befehl erfolgreich ausgeführt!");
       }
