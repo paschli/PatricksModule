@@ -65,21 +65,39 @@ class PIIOC extends IPSModule {
       //IPS_LogMessage('LCNLA',"ident=".$ident);
       //IPS_LogMessage('LCNLA',"value=".$value);
 //Überprüfen Status und sende Befehl an LCN_Instanz
+      
+      switch ($RelNo){
+          case 1 : $RelNo=2; break;
+          case 2 : $RelNo=3; break;
+          case 3 : $RelNo=4; break;
+          case 4 : $RelNo=5; break;
+          case 5 : $RelNo=6; break;
+          case 6 : $RelNo=1; break;
+          case 7 : $RelNo=0; break;
+          case 8 : $RelNo=8; break;
+          
+      }
       if($value){
         //LCN_SetLamp($lcn_instID,$lampNo,'E');
-        shell_exec("/usr/local/bin/gpio write ".$RelNo." 0"); 
-        IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelNo." 0");
+        set($RelNo);
       }
       else{
         //LCN_SetLamp($lcn_instID,$lampNo,'A');
-        shell_exec("/usr/local/bin/gpio write ".$RelNo." 1");
-        IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelNo." 1");
+        clear($RelNo);
       }
 //Neuen Wert in die Statusvariable schreiben
       SetValue($this->GetIDForIdent($ident), $value);
 }
   
+public function set($RelNo) {
+    shell_exec("/usr/local/bin/gpio write ".$RelNo." 0"); 
+    IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelNo." 0");
+}
 
+public function clear($RelNo) {
+    shell_exec("/usr/local/bin/gpio write ".$RelNo." 1");
+    IPS_LogMessage('PIIOC', "/usr/local/bin/gpio write ".$RelNo." 1");
+}
 public function Check() {
     if(IPS_SemaphoreEnter('LCNLA', 1000)) {
       
