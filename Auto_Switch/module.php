@@ -357,10 +357,10 @@ private function checkVerb() {
       $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
       $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
       IPS_LogMessage("AutoSwitch_Check","Aufruf:".$mes."Target ID".$TargetID);
-      $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
+      
       $this->jsontest=1;
       try {
-          //$rpc->IPS_GetKernelDir();
+          $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
           $rpc->GetValue($TargetID);
         } 
       catch (JSONRPCException $e) {
