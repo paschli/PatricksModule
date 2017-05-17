@@ -5,7 +5,7 @@
 class AutSw extends IPSModule {
   
   
-    
+  protected $jsontest=0;  
     
   public function Create() {
     parent::Create();
@@ -99,7 +99,7 @@ class AutSw extends IPSModule {
         }
     }    
  */       
-    
+//Zusätzliche Aktionen für spezielle Typen    
     switch($typ){
             case 0: //falls Instanz nicht gewählt wurde
                 break;
@@ -123,6 +123,8 @@ class AutSw extends IPSModule {
                 break;
             case 5: //falls Instanz Switch-Modul
                 $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
+                break;
+            case 6:
                 break;
             default:
                 break;
@@ -154,7 +156,8 @@ class AutSw extends IPSModule {
             { "label": "LCN Relais", "value": 2 },
             { "label": "LCN Lämpchen", "value": 3 },
             { "label": "JSON Fernzugriff", "value": 4 },
-            { "label": "Schalter", "value": 5 }
+            { "label": "Schalter", "value": 5 },
+            { "label": "PIIOC", "value": 6 }
           ]
         }';
     $elements_entry_lcnOutput=',
@@ -214,16 +217,17 @@ class AutSw extends IPSModule {
         case 3:  $elements_entry=$elements_entry_device.$elements_entry_lcnLämpchen; break;
         case 4:  $elements_entry=$elements_entry_device.$elements_entry_jsonZugriff; break;
         case 5:  $elements_entry=$elements_entry_device.$elements_entry_lcnRelais; break;
+        case 6:  $elements_entry=$elements_entry_device.$elements_entry_jsonZugriff; break;
     }
-     
-    if($this->ReadPropertyBoolean('SelAutoOff')&&($wahl!=3)){
+//Option für WatchEvent - geht nur bei LCN-Instanz, LCN-Relais, Switch_Modul 
+    if($this->ReadPropertyBoolean('SelAutoOff')&&($wahl!=3)&&($wahl!=4)&&($wahl!=6)){
         $elements_entry_AutoOff=$elements_entry_AutoOff.$elements_entry_AutoOffWatch; 
     } 
     else{
         $elements_entry_AutoOff=$elements_entry_AutoOff;
     }
-        
-    if($this->ReadPropertyInteger('idLCNInstance')>0){
+//Option für AutoOff und Timer CheckBoxen        
+    if($this->ReadPropertyInteger('idLCNInstance')||($this->jsontest>0)){
         $action_entry=$action_entry1;
         $elements_entry=$elements_entry.$elements_entry_AutoOff.$elements_entry_Timer;
     }
@@ -335,17 +339,19 @@ private function checkVerb() {
       $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
       IPS_LogMessage("AutoSwitch_Check","Aufruf:".$mes."Target ID".$TargetID);
       $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
+      $this->jsontest=1;
       try {
           //$rpc->IPS_GetKernelDir();
           $rpc->GetValue($TargetID);
         } 
       catch (JSONRPCException $e) {
           echo 'RPC Problem: ',  $e->getMessage(), "\n";
+          $this->jsontest=0;
         } 
       catch (Exception $e) {
           echo 'Server Problem: ',  $e->getMessage(), "\n";
+          $this->jsontest=0;
         }
-        SetValueInteger($this->ReadPropertyInteger('State'),1);
 }     
       
 public function AutoOff() {
@@ -486,6 +492,25 @@ public function Set(bool $value) {
             }
             SetValue($this->GetIDForIdent("Status"), $value);
             break;  
+          case 6: 
+            $password= $this->ReadPropertyString('Password'); 
+            $IPAddr= $this->ReadPropertyString('IPAddress');
+            $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
+            $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
+            IPS_LogMessage("AutoSwitch_Set","Aufruf".$mes);
+            IPS_LogMessage("AutoSwitch_Set","Target ID".$TargetID);
+            $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
+            if($value){
+                //IPS_LogMessage(Modul,"Value = True => Relais An");
+                $rpc->PIIOC_set($TargetID);
+            }           
+            else{
+                //IPS_LogMessage(Modul,"Value = False => Relais Aus");
+                $rpc->PIIOC_clear($TargetID);
+            }
+            $result=(bool)$rpc->GetValue($TargetID);
+            SetValue($this->GetIDForIdent("Status"), $result);
+            break;
           default: break;
       }
 
