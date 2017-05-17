@@ -5,7 +5,7 @@
 class AutSw extends IPSModule {
   
   
-  $jsontest=0;  
+  var $jsontest=0;  
     
   public function Create() {
     parent::Create();
