@@ -530,8 +530,8 @@ public function Set(bool $value) {
                 //IPS_LogMessage(Modul,"Value = False => Relais Aus");
                 $rpc->PIIOC_clear($TargetID);
             }
-            $result=(bool)$rpc->GetValue($TargetID);
-            SetValue($this->GetIDForIdent("Status"), $result);
+            
+            SetValue($this->GetIDForIdent("Status"), $value);
             break;
           default: break;
       }
