@@ -139,7 +139,7 @@ class AutSw extends IPSModule {
         }
             
     }
-    if((($typ==4)||($typ==6))&&$this->ReadPropertyInteger>0){
+    if((($typ==4)||($typ==6))&&$this->ReadPropertyInteger('ZielID')>0){
         if($this->jsontest==0)
             IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung konnte nicht verifiziert werden!");
     }
