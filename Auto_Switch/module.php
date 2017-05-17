@@ -245,6 +245,7 @@ class AutSw extends IPSModule {
         $elements_entry=$elements_entry.$elements_entry_AutoOff.$elements_entry_Timer;
     }
     else{
+        IPS_LogMessage("AutoSwitch_GetConfigurationForm","jsontest = ".$this->jsontest);
         $action_entry='';
     }
 /*    
@@ -361,17 +362,17 @@ private function checkVerb() {
           @$rpc->GetValue($TargetID);
         } 
       catch (JSONRPCException $e) {
-          IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung konnte nicht verifiziert werden! RPC Problem!");
+          IPS_LogMessage("AutoSwitch_checkVerb","Verbindung konnte nicht verifiziert werden! RPC Problem!");
           //echo 'RPC Problem: ',  $e->getMessage(), "\n";
           $this->jsontest=0;
         } 
       catch (Exception $e) {
-          IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung konnte nicht verifiziert werden! IP- oder Passwort Problem!");
+          IPS_LogMessage("AutoSwitch_checkVerb","Verbindung konnte nicht verifiziert werden! IP- oder Passwort Problem!");
           //echo 'Server Problem: ',  $e->getMessage(), "\n";
           $this->jsontest=0;
         }
         if($this->jsontest!=0){
-            IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung verifiziert! / ".$this->jsontest);
+            IPS_LogMessage("AutoSwitch_checkVerb","Verbindung verifiziert! / ".$this->jsontest);
             $this->jsontest=1;
         }
            
