@@ -370,8 +370,11 @@ private function checkVerb() {
           //echo 'Server Problem: ',  $e->getMessage(), "\n";
           $this->jsontest=0;
         }
-        if($this->jsontest!=0)
-           IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung verifiziert!"); 
+        if($this->jsontest!=0){
+            IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung verifiziert!");
+            $this->jsontest=1;
+        }
+           
 }     
       
 public function AutoOff() {
