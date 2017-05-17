@@ -140,9 +140,7 @@ class AutSw extends IPSModule {
             IPS_DeleteVariable($SliderID);
         }
             
-    }
-    
-        
+    }     
     $this->GetConfigurationForm(); 
   }
   
@@ -238,7 +236,7 @@ class AutSw extends IPSModule {
         $elements_entry=$elements_entry.$elements_entry_AutoOff.$elements_entry_Timer;
     }
     else if((($wahl==4)||($wahl==6))&&($this->ReadPropertyInteger('ZielID')>0)){
-        if($this->checkVerb()==1){
+        if($this->checkVerb($wahl)==1){
             $action_entry=$action_entry1;
             $elements_entry=$elements_entry.$elements_entry_AutoOff.$elements_entry_Timer;
         }
@@ -247,11 +245,7 @@ class AutSw extends IPSModule {
         IPS_LogMessage("AutoSwitch_GetConfigurationForm","Konfiguration nicht vollständig!");
         $action_entry='';
     }
-/*    
-    if(($this->ReadPropertyString('IPAddress')!='')&&($this->ReadPropertyString('Password')!='')&&
-    ($this->ReadPropertyInteger('ZielID')!=0))
-        $action_entry=$action_entry1; 
-*/
+
     $form='{ "status":['.$status_entry.'],"elements":['.$elements_entry.'],"actions":['.$action_entry.'],}';
     return $form;
       
@@ -348,7 +342,7 @@ public function SetOff() {
       $this->Set(False);
       }
 
-private function checkVerb() {
+private function checkVerb($wahl) {
       $password= $this->ReadPropertyString('Password'); 
       $IPAddr= $this->ReadPropertyString('IPAddress');
       $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
@@ -357,7 +351,14 @@ private function checkVerb() {
       
       try {
           $rpc =@ new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
-          @$rpc->GetValue($TargetID);
+          if($wahl==4)
+            @$rpc->GetValue($TargetID);
+          else if($wahl==6)
+            @$rpc->IPS_GetKernelVersion();
+          else{
+            IPS_LogMessage("AutoSwitch_checkVerb","Verbindung konnte nicht verifiziert werden! Aufrufparameter falsch!");
+            return 0;
+          }
         } 
       catch (JSONRPCException $e) {
           IPS_LogMessage("AutoSwitch_checkVerb","Verbindung konnte nicht verifiziert werden! RPC Problem!");
