@@ -371,7 +371,7 @@ private function checkVerb() {
           $this->jsontest=0;
         }
         if($this->jsontest!=0){
-            IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung verifiziert!");
+            IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung verifiziert!-".$this->jsontest);
             $this->jsontest=1;
         }
            
