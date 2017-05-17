@@ -357,8 +357,8 @@ private function checkVerb() {
       
       $this->jsontest=1;
       try {
-          $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
-          $rpc->GetValue($TargetID);
+          $rpc =@ new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
+          @$rpc->GetValue($TargetID);
         } 
       catch (JSONRPCException $e) {
           IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung konnte nicht verifiziert werden! RPC Problem!");
