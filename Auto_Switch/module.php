@@ -353,7 +353,7 @@ private function checkVerb() {
       $IPAddr= $this->ReadPropertyString('IPAddress');
       $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
       $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
-      IPS_LogMessage("AutoSwitch_Check","Aufruf:".$mes."Target ID".$TargetID);
+      //IPS_LogMessage("AutoSwitch_Check","Aufruf:".$mes."Target ID".$TargetID);
       
       $this->jsontest=1;
       try {
@@ -370,6 +370,8 @@ private function checkVerb() {
           //echo 'Server Problem: ',  $e->getMessage(), "\n";
           $this->jsontest=0;
         }
+        if($this->jsontest!=0)
+           IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung verifiziert!"); 
 }     
       
 public function AutoOff() {
