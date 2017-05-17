@@ -122,13 +122,13 @@ class AutSw extends IPSModule {
             case 3: //falls Instanz LCN Lämpchen
                 break;
             case 4: //falls Instanz Fernzugriff
-                $this->checkVerb();
+                
                 break;
             case 5: //falls Instanz Switch-Modul
                 $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
                 break;
             case 6:
-                $this->checkVerb();
+                
                 break;
             default:
                 break;
@@ -143,10 +143,7 @@ class AutSw extends IPSModule {
     }
     IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung testen...".$typ."|".($this->ReadPropertyInteger('ZielID'))."|".$this->jsontest);
     if((($typ==4)||($typ==6))&&($this->ReadPropertyInteger('ZielID')>0)){
-        if($this->jsontest==0)
-            IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung konnte nicht verifiziert werden!");
-        else
-            IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung verifiziert!");
+        $this->checkVerb();
     }
         
     $this->GetConfigurationForm(); 
@@ -364,11 +361,13 @@ private function checkVerb() {
           $rpc->GetValue($TargetID);
         } 
       catch (JSONRPCException $e) {
-          echo 'RPC Problem: ',  $e->getMessage(), "\n";
+          IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung konnte nicht verifiziert werden! RPC Problem!");
+          //echo 'RPC Problem: ',  $e->getMessage(), "\n";
           $this->jsontest=0;
         } 
       catch (Exception $e) {
-          echo 'Server Problem: ',  $e->getMessage(), "\n";
+          IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung konnte nicht verifiziert werden! Server Problem!");
+          //echo 'Server Problem: ',  $e->getMessage(), "\n";
           $this->jsontest=0;
         }
 }     
