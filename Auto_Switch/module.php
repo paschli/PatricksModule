@@ -366,7 +366,7 @@ private function checkVerb() {
           $this->jsontest=0;
         } 
       catch (Exception $e) {
-          IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung konnte nicht verifiziert werden! Server Problem!");
+          IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung konnte nicht verifiziert werden! IP- oder Passwort Problem!");
           //echo 'Server Problem: ',  $e->getMessage(), "\n";
           $this->jsontest=0;
         }
