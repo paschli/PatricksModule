@@ -120,11 +120,13 @@ class AutSw extends IPSModule {
             case 3: //falls Instanz LCN Lämpchen
                 break;
             case 4: //falls Instanz Fernzugriff
+                $this->checkVerb();
                 break;
             case 5: //falls Instanz Switch-Modul
                 $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
                 break;
             case 6:
+                $this->checkVerb();
                 break;
             default:
                 break;
@@ -137,6 +139,11 @@ class AutSw extends IPSModule {
         }
             
     }
+    if((($typ==4)||($typ==6))&&$this->ReadPropertyInteger>0){
+        if($this->jsontest==0)
+            IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung konnte nicht verifiziert werden!");
+    }
+        
     $this->GetConfigurationForm(); 
   }
   
@@ -227,15 +234,22 @@ class AutSw extends IPSModule {
         $elements_entry_AutoOff=$elements_entry_AutoOff;
     }
 //Option für AutoOff und Timer CheckBoxen        
-    if($this->ReadPropertyInteger('idLCNInstance')||($this->jsontest>0)){
+    if($this->ReadPropertyInteger('idLCNInstance')){
         $action_entry=$action_entry1;
         $elements_entry=$elements_entry.$elements_entry_AutoOff.$elements_entry_Timer;
     }
-    
+    else if($this->jsontest>0){
+        $action_entry=$action_entry1;
+        $elements_entry=$elements_entry.$elements_entry_AutoOff.$elements_entry_Timer;
+    }
+    else{
+        $action_entry='';
+    }
+/*    
     if(($this->ReadPropertyString('IPAddress')!='')&&($this->ReadPropertyString('Password')!='')&&
     ($this->ReadPropertyInteger('ZielID')!=0))
         $action_entry=$action_entry1; 
-     
+*/
     $form='{ "status":['.$status_entry.'],"elements":['.$elements_entry.'],"actions":['.$action_entry.'],}';
     return $form;
       
