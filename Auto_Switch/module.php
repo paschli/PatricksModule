@@ -57,6 +57,8 @@ class AutSw extends IPSModule {
                     'AutSw_EventTrigger($id,$id, GetValueBoolean(IPS_GetEvent($_IPS["EVENT"])["TriggerVariableID"]));';
     if($this->ReadPropertyInteger('idLCNInstance'))
         $typ= $this->ReadPropertyInteger('Auswahl');
+    else if($this->ReadPropertyInteger('ZielID'))
+        $typ= $this->ReadPropertyInteger('Auswahl');
     else 
         $typ=0;
     
