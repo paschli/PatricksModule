@@ -5,7 +5,7 @@
 class AutSw extends IPSModule {
   
   
-  var $jsontest=0;  
+  //var $jsontest=0;  
     
   public function Create() {
     parent::Create();
@@ -141,10 +141,7 @@ class AutSw extends IPSModule {
         }
             
     }
-    IPS_LogMessage("AutoSwitch_ApplyChanges","Verbindung testen...".$typ."|".($this->ReadPropertyInteger('ZielID'))."|".$this->jsontest);
-    if((($typ==4)||($typ==6))&&($this->ReadPropertyInteger('ZielID')>0)){
-        $this->checkVerb();
-    }
+    
         
     $this->GetConfigurationForm(); 
   }
@@ -240,12 +237,14 @@ class AutSw extends IPSModule {
         $action_entry=$action_entry1;
         $elements_entry=$elements_entry.$elements_entry_AutoOff.$elements_entry_Timer;
     }
-    else if($this->jsontest>0){
-        $action_entry=$action_entry1;
-        $elements_entry=$elements_entry.$elements_entry_AutoOff.$elements_entry_Timer;
+    else if((($wahl==4)||($wahl==6))&&($this->ReadPropertyInteger('ZielID')>0)){
+        if($this->checkVerb()==1){
+            $action_entry=$action_entry1;
+            $elements_entry=$elements_entry.$elements_entry_AutoOff.$elements_entry_Timer;
+        }
     }
     else{
-        IPS_LogMessage("AutoSwitch_GetConfigurationForm","jsontest = ".$this->jsontest);
+        IPS_LogMessage("AutoSwitch_GetConfigurationForm","Konfiguration nicht vollständig!");
         $action_entry='';
     }
 /*    
@@ -356,7 +355,6 @@ private function checkVerb() {
       $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
       //IPS_LogMessage("AutoSwitch_Check","Aufruf:".$mes."Target ID".$TargetID);
       
-      $this->jsontest=1;
       try {
           $rpc =@ new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
           @$rpc->GetValue($TargetID);
@@ -364,17 +362,16 @@ private function checkVerb() {
       catch (JSONRPCException $e) {
           IPS_LogMessage("AutoSwitch_checkVerb","Verbindung konnte nicht verifiziert werden! RPC Problem!");
           //echo 'RPC Problem: ',  $e->getMessage(), "\n";
-          $this->jsontest=0;
+          return 0;
         } 
       catch (Exception $e) {
           IPS_LogMessage("AutoSwitch_checkVerb","Verbindung konnte nicht verifiziert werden! IP- oder Passwort Problem!");
           //echo 'Server Problem: ',  $e->getMessage(), "\n";
-          $this->jsontest=0;
+          return 0;
         }
-        if($this->jsontest!=0){
-            IPS_LogMessage("AutoSwitch_checkVerb","Verbindung verifiziert! / ".$this->jsontest);
-            $this->jsontest=1;
-        }
+        IPS_LogMessage("AutoSwitch_checkVerb","Verbindung verifiziert!");
+        return 1;
+        
            
 }     
       
