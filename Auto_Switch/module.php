@@ -146,7 +146,7 @@ class AutSw extends IPSModule {
     if($this->ReadPropertyBoolean('SelTimer')){
         $Set_1_ID=@IPS_GetObjectIDByIdent('Set_1', $CatID);
         if(!$Set_1_ID){
-            $eventScript="\$id = \$_IPS['TARGET'];\n"."\$idp = IPS_GetParent($id);\n".'AutSw_Set($idp);';
+            $eventScript="\$id = \$_IPS['TARGET'];\n".'\$idp = IPS_GetParent($id);\n'.'AutSw_Set($idp);';
             $this->CreateTimeEvent('Set_1', $CatID, 10, $eventScript);
         }
         else
@@ -154,7 +154,7 @@ class AutSw extends IPSModule {
         
         $Clear_1_ID=@IPS_GetObjectIDByIdent('Clear_1', $CatID);
         if(!$Clear_1_ID){
-            $eventScript="\$id = \$_IPS['TARGET'];\n"."\$idp = IPS_GetParent($id);\n".'AutSw_Clear($idp);';
+            $eventScript="\$id = \$_IPS['TARGET'];\n".'\$idp = IPS_GetParent($id);\n'.'AutSw_Clear($idp);';
             $this->CreateTimeEvent('Clear_1', $CatID, 20, $eventScript);   
         }
         else
@@ -162,7 +162,7 @@ class AutSw extends IPSModule {
         
         $Set_2_ID=@IPS_GetObjectIDByIdent('Set_2', $CatID);
         if(!$Set_2_ID){
-            $eventScript="\$id = \$_IPS['TARGET'];\n"."\$idp = IPS_GetParent($id);\n".'AutSw_Set($idp);';
+            $eventScript="\$id = \$_IPS['TARGET'];\n".'\$idp = IPS_GetParent($id);\n'.'AutSw_Set($idp);';
             $this->CreateTimeEvent('Set_2', $CatID, 30, $eventScript);   
         }
         else
@@ -170,7 +170,7 @@ class AutSw extends IPSModule {
         
         $Clear_2_ID=@IPS_GetObjectIDByIdent('Clear_2', $CatID);
         if(!$Clear_2_ID){
-            $eventScript="\$id = \$_IPS['TARGET'];\n"."\$idp = IPS_GetParent($id);\n".'AutSw_Clear($idp);';
+            $eventScript="\$id = \$_IPS['TARGET'];\n".'\$idp = IPS_GetParent($id);\n'.'AutSw_Clear($idp);';
             $this->CreateTimeEvent('Clear_2', $CatID, 40, $eventScript);   
         }
         else
