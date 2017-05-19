@@ -44,13 +44,13 @@ class AutSw extends IPSModule {
 //Kategorie erstellen 
     $CatID= $this->CreateCategorie($instID);    
 //Auswahlvariable für Laufzeit erstellen
-    $this->CreateAnzVar('SetLaufzeit','Set Laufzeit',$CatID,10,'Hourglass','<?SetValue($_IPS["VARIABLE"],$_IPS["VALUE"]); ?>','');
+    $this->CreateAnzVar('SetLaufzeit','Set Laufzeit',$CatID,20,'Hourglass','<?SetValue($_IPS["VARIABLE"],$_IPS["VALUE"]); ?>','');
 //Laufzeit Anzeige erstellen
     $this->CreateAnzVar('Laufzeit','Laufzeit',$instID,10,'Hourglass','','');
 //Wahlschalter "AutoOff" erstellen
-    $this->CreateWahlVar('AutoOff_Switch', 'Auto Off', '~Switch', $CatID);
+    $this->CreateWahlVar('AutoOff_Switch', 'Auto Off', '~Switch', $CatID, 10);
 //Wahlschalter "Timer" erstellen        
-    $this->CreateWahlVar('Timer_Switch', 'Timer', '~Switch', $CatID);
+    $this->CreateWahlVar('Timer_Switch', 'Timer', '~Switch', $CatID, 30);
     }
 //Aktion, falls zu schaltendes Objekt von anderen Instanzen oder Schaltern geschaltet wird
     $scriptDevice="\$id = \$_IPS['TARGET'];\n".
@@ -583,10 +583,10 @@ private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
     return($VarID);    
 }
 
-private function CreateWahlVar($ident,$name,$icon,$par){
+private function CreateWahlVar($ident,$name,$icon,$par, $pos){
     $ID=$this->RegisterVariableBoolean($ident,$name,$icon);//
     $this->RegisterPropertyBoolean($ident, FALSE); 
-    IPS_SetPosition($ID, 10);
+    IPS_SetPosition($ID, $pos);
     $this->EnableAction($ident);
     IPS_SetParent($ID,$par );
     return($ID);
@@ -632,7 +632,7 @@ private function TimerSwitchAction($CatID) {
         $Set_1_ID=@IPS_GetObjectIDByIdent('Set_1', $CatID);
         if(!$Set_1_ID){
             $eventScript="\$id = \$_IPS['TARGET'];\n".'\$idp = IPS_GetParent($id);\n'.'AutSw_Set($idp);';
-            $this->CreateTimeEvent('Set_1', $CatID, 10, $eventScript);
+            $this->CreateTimeEvent('Set_1', $CatID, 40, $eventScript);
         }
         else
             IPS_SetHidden ($Set_1_ID, FALSE);
@@ -640,7 +640,7 @@ private function TimerSwitchAction($CatID) {
         $Clear_1_ID=@IPS_GetObjectIDByIdent('Clear_1', $CatID);
         if(!$Clear_1_ID){
             $eventScript="\$id = \$_IPS['TARGET'];\n".'\$idp = IPS_GetParent($id);\n'.'AutSw_Clear($idp);';
-            $this->CreateTimeEvent('Clear_1', $CatID, 20, $eventScript);   
+            $this->CreateTimeEvent('Clear_1', $CatID, 50, $eventScript);   
         }
         else
             IPS_SetHidden ($Clear_1_ID, FALSE);
@@ -648,7 +648,7 @@ private function TimerSwitchAction($CatID) {
         $Set_2_ID=@IPS_GetObjectIDByIdent('Set_2', $CatID);
         if(!$Set_2_ID){
             $eventScript="\$id = \$_IPS['TARGET'];\n".'\$idp = IPS_GetParent($id);\n'.'AutSw_Set($idp);';
-            $this->CreateTimeEvent('Set_2', $CatID, 30, $eventScript);   
+            $this->CreateTimeEvent('Set_2', $CatID, 60, $eventScript);   
         }
         else
             IPS_SetHidden ($Set_2_ID, FALSE);
@@ -656,7 +656,7 @@ private function TimerSwitchAction($CatID) {
         $Clear_2_ID=@IPS_GetObjectIDByIdent('Clear_2', $CatID);
         if(!$Clear_2_ID){
             $eventScript="\$id = \$_IPS['TARGET'];\n".'\$idp = IPS_GetParent($id);\n'.'AutSw_Clear($idp);';
-            $this->CreateTimeEvent('Clear_2', $CatID, 40, $eventScript);   
+            $this->CreateTimeEvent('Clear_2', $CatID, 70, $eventScript);   
         }
         else
             IPS_SetHidden ($Clear_2_ID, FALSE);  
