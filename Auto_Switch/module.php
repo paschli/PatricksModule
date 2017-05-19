@@ -204,8 +204,8 @@ class AutSw extends IPSModule {
     IPS_SetEventCyclic($eid, 3, 1, 127, 1, 0, 2);
     IPS_SetParent($eid, $parentID);
     IPS_SetIcon($eid, 'Clock');
-    IPS_SetIdent($eid, 'Set_1');
-    IPS_SetName($eid, 'Set_1');
+    IPS_SetIdent($eid, $ident);
+    IPS_SetName($eid, $ident);
     IPS_SetEventActive($eid, FALSE);
     IPS_SetPosition($eid, $Position);
     IPS_SetEventScript($eid, $Content);
