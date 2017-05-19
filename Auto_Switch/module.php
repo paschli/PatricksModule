@@ -631,7 +631,7 @@ private function TimerSwitchAction($CatID) {
     if($T_Switch_Val){
         $Set_1_ID=@IPS_GetObjectIDByIdent('Set_1', $CatID);
         if(!$Set_1_ID){
-            $eventScript="\$id = \$_IPS['TARGET'];\n".'\$idp = IPS_GetParent($id);\n'.'AutSw_Set($idp);';
+            $eventScript="\$id = \$_IPS['TARGET'];\n".'$idp = IPS_GetParent($id);'."\n".'AutSw_SetOn($idp);';
             $this->CreateTimeEvent('Set_1', $CatID, 40, $eventScript);
         }
         else
@@ -639,7 +639,7 @@ private function TimerSwitchAction($CatID) {
         
         $Clear_1_ID=@IPS_GetObjectIDByIdent('Clear_1', $CatID);
         if(!$Clear_1_ID){
-            $eventScript="\$id = \$_IPS['TARGET'];\n".'\$idp = IPS_GetParent($id);\n'.'AutSw_Clear($idp);';
+            $eventScript="\$id = \$_IPS['TARGET'];\n".'$idp = IPS_GetParent($id);'."\n".'AutSw_SetOff($idp);';
             $this->CreateTimeEvent('Clear_1', $CatID, 50, $eventScript);   
         }
         else
@@ -647,7 +647,7 @@ private function TimerSwitchAction($CatID) {
         
         $Set_2_ID=@IPS_GetObjectIDByIdent('Set_2', $CatID);
         if(!$Set_2_ID){
-            $eventScript="\$id = \$_IPS['TARGET'];\n".'\$idp = IPS_GetParent($id);\n'.'AutSw_Set($idp);';
+            $eventScript="\$id = \$_IPS['TARGET'];\n".'$idp = IPS_GetParent($id);'."\n".'AutSw_SetOn($idp);';
             $this->CreateTimeEvent('Set_2', $CatID, 60, $eventScript);   
         }
         else
@@ -655,7 +655,7 @@ private function TimerSwitchAction($CatID) {
         
         $Clear_2_ID=@IPS_GetObjectIDByIdent('Clear_2', $CatID);
         if(!$Clear_2_ID){
-            $eventScript="\$id = \$_IPS['TARGET'];\n".'\$idp = IPS_GetParent($id);\n'.'AutSw_Clear($idp);';
+            $eventScript="\$id = \$_IPS['TARGET'];\n".'$idp = IPS_GetParent($id);'."\n".'AutSw_SetOff($idp);';
             $this->CreateTimeEvent('Clear_2', $CatID, 70, $eventScript);   
         }
         else
