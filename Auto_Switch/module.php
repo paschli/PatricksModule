@@ -309,6 +309,7 @@ public function EventTrigger(int $par,bool $value) {
         }
      } 
      else if($ident=='Timer_Switch'){
+         SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value);
          $this->TimerSwitchAction($CatID); 
         //$this->Set($value);
      }
