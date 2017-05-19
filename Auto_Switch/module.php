@@ -663,20 +663,28 @@ private function TimerSwitchAction($CatID) {
     }
     else{
         $Set_1_ID=@IPS_GetObjectIDByIdent('Set_1', $CatID);
-        if($Set_1_ID)
+        if($Set_1_ID){
             IPS_SetHidden ($Set_1_ID, TRUE);
+            IPS_SetEventActive($Set_1_ID, FALSE);    
+        }
         
         $Clear_1_ID=@IPS_GetObjectIDByIdent('Clear_1', $CatID);
-        if($Clear_1_ID)
+        if($Clear_1_ID){
             IPS_SetHidden ($Clear_1_ID, TRUE);
+            IPS_SetEventActive($Clear_1_ID, FALSE);  
+        }
         
         $Set_2_ID=@IPS_GetObjectIDByIdent('Set_2', $CatID);
-        if($Set_2_ID)
+        if($Set_2_ID){
             IPS_SetHidden ($Set_2_ID, TRUE);
+            IPS_SetEventActive($Set_2_ID, FALSE);
+        }
         
         $Clear_2_ID=@IPS_GetObjectIDByIdent('Clear_2', $CatID);
-        if($Clear_2_ID)
+        if($Clear_2_ID){
             IPS_SetHidden ($Clear_2_ID, TRUE);
+            IPS_SetEventActive($Clear_2_ID, FALSE);
+        }
     }
     
 }
