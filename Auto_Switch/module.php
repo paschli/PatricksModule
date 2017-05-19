@@ -141,11 +141,79 @@ class AutSw extends IPSModule {
         }
             
     }     
+    
+ //Timer
+    if($this->ReadPropertyBoolean('SelTimer')){
+        $Set_1_ID=@IPS_GetObjectIDByIdent('Set_1', $CatID);
+        if(!$Set_1_ID){
+            $eventScript="\$id = \$_IPS['TARGET'];\n"."\$idp = IPS_GetParent($id);\n".'AutSw_Set($idp);';
+            $this->CreateTimeEvent('Set_1', $CatID, 10, $eventScript);
+        }
+        else
+            IPS_SetHidden ($Set_1_ID, FALSE);
+        
+        $Clear_1_ID=@IPS_GetObjectIDByIdent('Clear_1', $CatID);
+        if(!$Clear_1_ID){
+            $eventScript="\$id = \$_IPS['TARGET'];\n"."\$idp = IPS_GetParent($id);\n".'AutSw_Clear($idp);';
+            $this->CreateTimeEvent('Clear_1', $CatID, 20, $eventScript);   
+        }
+        else
+            IPS_SetHidden ($Clear_1_ID, FALSE);
+        
+        $Set_2_ID=@IPS_GetObjectIDByIdent('Set_2', $CatID);
+        if(!$Set_2_ID){
+            $eventScript="\$id = \$_IPS['TARGET'];\n"."\$idp = IPS_GetParent($id);\n".'AutSw_Set($idp);';
+            $this->CreateTimeEvent('Set_2', $CatID, 30, $eventScript);   
+        }
+        else
+            IPS_SetHidden ($Set_2_ID, FALSE);
+        
+        $Clear_2_ID=@IPS_GetObjectIDByIdent('Clear_2', $CatID);
+        if(!$Clear_2_ID){
+            $eventScript="\$id = \$_IPS['TARGET'];\n"."\$idp = IPS_GetParent($id);\n".'AutSw_Clear($idp);';
+            $this->CreateTimeEvent('Clear_2', $CatID, 40, $eventScript);   
+        }
+        else
+            IPS_SetHidden ($Clear_2_ID, FALSE);  
+    }
+    else{
+        $Set_1_ID=@IPS_GetObjectIDByIdent('Set_1', $CatID);
+        if($Set_1_ID)
+            IPS_SetHidden ($Set_1_ID, TRUE);
+        
+        $Clear_1_ID=@IPS_GetObjectIDByIdent('Clear_1', $CatID);
+        if($Clear_1_ID)
+            IPS_SetHidden ($Clear_1_ID, TRUE);
+        
+        $Set_2_ID=@IPS_GetObjectIDByIdent('Set_2', $CatID);
+        if($Set_2_ID)
+            IPS_SetHidden ($Set_2_ID, TRUE);
+        
+        $Clear_2_ID=@IPS_GetObjectIDByIdent('Clear_2', $CatID);
+        if($Clear_2_ID)
+            IPS_SetHidden ($Clear_2_ID, TRUE);
+    }
+    
+    
+    
     $this->GetConfigurationForm(); 
   }
   
-  
-  
+ private function CreateTimeEvent($ident, $parentID, $Position, $content){
+    $eid= IPS_CreateEvent(1);
+    IPS_SetEventCyclic($eid, 3, 1, 127, 1, 0, 2);
+    IPS_SetParent($eid, $parentID);
+    IPS_SetIcon($eid, 'Clock');
+    IPS_SetIdent($eid, 'Set_1');
+    IPS_SetName($eid, 'Set_1');
+    IPS_SetEventActive($eid, FALSE);
+    IPS_SetPosition($eid, $Position);
+    IPS_SetEventScript($eid, $Content);
+     
+     
+ }
+
+
  public function GetConfigurationForm() {
      
     $status_entry='{ "code": 101, "icon": "inactive", "caption": "Instanz wird erstellt" },
