@@ -627,7 +627,7 @@ private function CheckEvent($script) {
 
 private function TimerSwitchAction($CatID) {
     //Timer
-    if($this->ReadPropertyBoolean('Timer_Switch')){
+    if(GetValueBoolean($this->GetIDForIdent('Timer_Switch'))){
         $Set_1_ID=@IPS_GetObjectIDByIdent('Set_1', $CatID);
         if(!$Set_1_ID){
             $eventScript="\$id = \$_IPS['TARGET'];\n".'\$idp = IPS_GetParent($id);\n'.'AutSw_Set($idp);';
