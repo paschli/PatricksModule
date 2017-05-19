@@ -143,7 +143,7 @@ class AutSw extends IPSModule {
     }     
     
  //Timer
-    if($this->ReadPropertyBoolean('SelTimer')){
+    if($this->ReadPropertyBoolean('Timer_Switch')){
         $Set_1_ID=@IPS_GetObjectIDByIdent('Set_1', $CatID);
         if(!$Set_1_ID){
             $eventScript="\$id = \$_IPS['TARGET'];\n".'\$idp = IPS_GetParent($id);\n'.'AutSw_Set($idp);';
