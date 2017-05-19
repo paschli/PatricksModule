@@ -209,7 +209,9 @@ class AutSw extends IPSModule {
     
     $elements_entry_Timer=',{ "type": "CheckBox", "name": "SelTimer", "caption": "Timer Funktion" }';
     
-    $elements_entry_AutoOffWatch=',{ "type": "CheckBox", "name": "WatchTarget", "caption": "Ziel überwachen" }';        
+    $elements_entry_AutoOffWatch=',{ "type": "CheckBox", "name": "WatchTarget", "caption": "Ziel überwachen" }'; 
+    
+    $elements_entry_TimerMsg=',{ "type": "CheckBox", "name": "TimerMsg", "caption": "Nachricht bei Timer Event" }'; 
             
     $action_entry='';
     $action_entry1='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" },
@@ -250,7 +252,9 @@ class AutSw extends IPSModule {
         IPS_LogMessage("AutoSwitch_GetConfigurationForm","Konfiguration nicht vollständig!");
         $action_entry='';
     }
-
+    if($this->ReadPropertyBoolean('SelTimer'))
+        $elements_entry=$elements_entry.$elements_entry_TimerMsg;
+    
     $form='{ "status":['.$status_entry.'],"elements":['.$elements_entry.'],"actions":['.$action_entry.'],}';
     return $form;
       
@@ -344,9 +348,18 @@ public function EventTrigger(int $par,bool $value) {
 
 public function SetOn() {
       $this->Set(True);
+      if($this->ReadPropertyBoolean('TimerMsg')){
+          $par= IPS_GetParent(($this->GetIDForIdent('Status')));
+          WFC_PushNotification(33722, "Info AutoSwitchModul", IPS_GetName($par) . " erfolgreich eingeschaltet", "", 0); 
+      }
+           
       }
 public function SetOff() {
       $this->Set(False);
+      if($this->ReadPropertyBoolean('TimerMsg')){
+          $par= IPS_GetParent(($this->GetIDForIdent('Status')));
+          WFC_PushNotification(33722, "Info AutoSwitchModul", IPS_GetName($par) . " erfolgreich ausgeschaltet", "", 0); 
+      }
       }
 
 private function checkVerb($wahl) {
@@ -628,10 +641,18 @@ private function CheckEvent($script) {
 private function TimerSwitchAction($CatID) {
     //Timer
     $T_Switch_Val=GetValue(IPS_GetObjectIDByIdent('Timer_Switch', $CatID));
+    $eventScript="\$id = \$_IPS['TARGET'];\n".'$idp = IPS_GetParent($id);';
+    
+    $esOn="\n".'AutSw_SetOn($idp);';
+    $esOff="\n".'AutSw_SetOff($idp);';
+    
+    
+    if($this->ReadPropertyBoolean('SelTimer'))
+        
     if($T_Switch_Val){
         $Set_1_ID=@IPS_GetObjectIDByIdent('Set_1', $CatID);
         if(!$Set_1_ID){
-            $eventScript="\$id = \$_IPS['TARGET'];\n".'$idp = IPS_GetParent($id);'."\n".'AutSw_SetOn($idp);';
+            $eventScript=$eventScript.$esOn;
             $this->CreateTimeEvent('Set_1', $CatID, 40, $eventScript);
         }
         else
@@ -639,7 +660,7 @@ private function TimerSwitchAction($CatID) {
         
         $Clear_1_ID=@IPS_GetObjectIDByIdent('Clear_1', $CatID);
         if(!$Clear_1_ID){
-            $eventScript="\$id = \$_IPS['TARGET'];\n".'$idp = IPS_GetParent($id);'."\n".'AutSw_SetOff($idp);';
+            $eventScript=$eventScript.$esOff;
             $this->CreateTimeEvent('Clear_1', $CatID, 50, $eventScript);   
         }
         else
@@ -647,7 +668,7 @@ private function TimerSwitchAction($CatID) {
         
         $Set_2_ID=@IPS_GetObjectIDByIdent('Set_2', $CatID);
         if(!$Set_2_ID){
-            $eventScript="\$id = \$_IPS['TARGET'];\n".'$idp = IPS_GetParent($id);'."\n".'AutSw_SetOn($idp);';
+            $eventScript=$eventScript.$esOn;
             $this->CreateTimeEvent('Set_2', $CatID, 60, $eventScript);   
         }
         else
@@ -655,7 +676,7 @@ private function TimerSwitchAction($CatID) {
         
         $Clear_2_ID=@IPS_GetObjectIDByIdent('Clear_2', $CatID);
         if(!$Clear_2_ID){
-            $eventScript="\$id = \$_IPS['TARGET'];\n".'$idp = IPS_GetParent($id);'."\n".'AutSw_SetOff($idp);';
+            $eventScript=$eventScript.$esOff;
             $this->CreateTimeEvent('Clear_2', $CatID, 70, $eventScript);   
         }
         else
