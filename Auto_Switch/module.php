@@ -208,7 +208,7 @@ class AutSw extends IPSModule {
     IPS_SetName($eid, $ident);
     IPS_SetEventActive($eid, FALSE);
     IPS_SetPosition($eid, $Position);
-    IPS_SetEventScript($eid, $Content);
+    IPS_SetEventScript($eid, $content);
      
      
  }
