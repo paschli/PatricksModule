@@ -310,7 +310,7 @@ public function EventTrigger(int $par,bool $value) {
      } 
      else if($ident=='Timer_Switch'){
          $this->TimerSwitchAction($CatID); 
-        $this->Set($value);
+        //$this->Set($value);
      }
      else if($ident=='Status'){
         $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
