@@ -674,7 +674,9 @@ private function TimerSwitchAction($CatID) {
     if($T_Switch_Val){
         if(!@IPS_GetObjectIDByIdent('AutoTime', $CatID))
             $this->CreateWahlVar('AutoTime', 'Dämerungsautomatik', '~Switch', $CatID, 70);
-        
+        else {
+            IPS_SetHidden($AutoTimeID, FALSE);
+        }
         $Set_1_ID=@IPS_GetObjectIDByIdent('Set_1', $CatID);
         if(!$Set_1_ID){
             $eventScript=$eventScript.$esOn;
