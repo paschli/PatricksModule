@@ -348,16 +348,16 @@ public function EventTrigger(int $par,bool $value) {
          SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value);
          if($value){
             $this->AutoTimeUpdate($CatID);
-            $idf=IPS_GetEventIDByName('Set_1', $CatID);
+            $idf=IPS_GetEventIDByName('Clear_1', $CatID);
             IPS_SetDisabled($idf, true);
-            $ids=IPS_GetEventIDByName('Clear_2', $CatID);
+            $ids=IPS_GetEventIDByName('Set_2', $CatID);
             IPS_SetDisabled($ids, true);
          }
          else{
             $this->AutoTimeUpdate($CatID);
-            $idf=IPS_GetEventIDByName('Set_1', $CatID);
+            $idf=IPS_GetEventIDByName('Clear_1', $CatID);
             IPS_SetDisabled($idf, false);
-            $ids=IPS_GetEventIDByName('Clear_2', $CatID);
+            $ids=IPS_GetEventIDByName('Set_2', $CatID);
             IPS_SetDisabled($ids, false); 
          }
          
@@ -762,7 +762,7 @@ private function CreateTimeEvent($ident, $parentID, $Position, $content){
     $Stunde = date("H", $timestamp);
     $Minute = date("i", $timestamp);
     $Sekunde = date("s", $timestamp);
-    $idf=IPS_GetEventIDByName('Set_1', $CatID);
+    $idf=IPS_GetEventIDByName('Clear_1', $CatID);
     IPS_SetEventCyclicTimeFrom($idf, $Stunde, $Minute, $Sekunde);
 //    IPS_SetDisabled($idf, true);
     
@@ -771,7 +771,7 @@ private function CreateTimeEvent($ident, $parentID, $Position, $content){
     $Stunde = date("H", $timestamp);
     $Minute = date("i", $timestamp);
     $Sekunde = date("s", $timestamp);
-    $ids=IPS_GetEventIDByName('Clear_2', $CatID);
+    $ids=IPS_GetEventIDByName('Set_2', $CatID);
     IPS_SetEventCyclicTimeFrom($ids, $Stunde, $Minute, $Sekunde);
 //    IPS_SetDisabled($ids, true);
  }
