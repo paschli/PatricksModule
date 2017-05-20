@@ -342,6 +342,27 @@ public function EventTrigger(int $par,bool $value) {
         $instID=$this->ReadPropertyInteger('idLCNInstance');
         LCN_SetIntensity($instID, $value, 0);
      }
+     else if($ident=="AutoTime"){
+         IPS_LogMessage("AutoSwitch_RequestAction","Ident: ".$ident." Value: ".$value);
+         SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value);
+         if($value){
+            $this->AutoTimeUpdate($CatID);
+            $idf=IPS_GetEventIDByName('Set_1', $CatID);
+            IPS_SetDisabled($idf, true);
+            $ids=IPS_GetEventIDByName('Clear_2', $CatID);
+            IPS_SetDisabled($ids, true);
+         }
+         else{
+            $this->AutoTimeUpdate($CatID);
+            $idf=IPS_GetEventIDByName('Set_1', $CatID);
+            IPS_SetDisabled($idf, false);
+            $ids=IPS_GetEventIDByName('Clear_2', $CatID);
+            IPS_SetDisabled($ids, false); 
+         }
+         
+               
+         
+     }
      
 //Neuen Wert in die Statusvariable schreiben
       
@@ -648,9 +669,11 @@ private function TimerSwitchAction($CatID) {
     $esOff="\n".'AutSw_SetOff($idp);';
     
     
-    if($this->ReadPropertyBoolean('SelTimer'))
-        
+    if($this->ReadPropertyBoolean('SelTimer'))    
     if($T_Switch_Val){
+        if(!@IPS_GetObjectIDByIdent('AutoTime', $CatID))
+            $this->CreateWahlVar('AutoTime', 'Dämerungsautomatik', 'Sun', $CatID, 70);
+        
         $Set_1_ID=@IPS_GetObjectIDByIdent('Set_1', $CatID);
         if(!$Set_1_ID){
             $eventScript=$eventScript.$esOn;
@@ -684,6 +707,12 @@ private function TimerSwitchAction($CatID) {
             IPS_SetHidden ($Clear_2_ID, FALSE);  
     }
     else{
+        $AutoTimeID=@IPS_GetObjectIDByIdent('AutoTime', $CatID);
+        if($AutoTimeID){
+            IPS_SetHidden($AutoTimeID, TRUE);
+        }
+            
+        
         $Set_1_ID=@IPS_GetObjectIDByIdent('Set_1', $CatID);
         if($Set_1_ID){
             IPS_SetHidden ($Set_1_ID, TRUE);
@@ -723,5 +752,24 @@ private function CreateTimeEvent($ident, $parentID, $Position, $content){
     IPS_SetEventScript($eid, $content);  
  }
 
+ private function AutoTimeUpdate($CatID) {
+//Dämmerungszeit Früh kopieren
+    $timestamp = GetValueInteger(21643);
+    $Stunde = date("H", $timestamp);
+    $Minute = date("i", $timestamp);
+    $Sekunde = date("s", $timestamp);
+    $idf=IPS_GetEventIDByName('Set_1', $CatID);
+    IPS_SetEventCyclicTimeFrom($idf, $Stunde, $Minute, $Sekunde);
+//    IPS_SetDisabled($idf, true);
+    
+//Dämmerungszeit Spät
+    $timestamp = GetValueInteger(12574);
+    $Stunde = date("H", $timestamp);
+    $Minute = date("i", $timestamp);
+    $Sekunde = date("s", $timestamp);
+    $ids=IPS_GetEventIDByName('Clear_2', $CatID);
+    IPS_SetEventCyclicTimeFrom($ids, $Stunde, $Minute, $Sekunde);
+//    IPS_SetDisabled($ids, true);
+ }
 } 
 ?>
