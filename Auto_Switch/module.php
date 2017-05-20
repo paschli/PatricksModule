@@ -385,7 +385,7 @@ public function SetOff() {
           $par= IPS_GetParent(($this->GetIDForIdent('Status')));
           WFC_PushNotification(33722, "Info AutoSwitchModul", IPS_GetName($par) . " erfolgreich ausgeschaltet", "", 0); 
       }
-      }
+}
 
 private function checkVerb($wahl) {
       $password= $this->ReadPropertyString('Password'); 
@@ -500,6 +500,8 @@ protected function RegisterTimer($ident, $interval, $script) {
   
 public function Set(bool $value) {
     if(IPS_SemaphoreEnter('AutoSwitch_Set', 1000)) {
+      $par= IPS_GetParent(($this->GetIDForIdent('Status')));
+      $CatID =IPS_GetCategoryIDByName('Konfig', $par);
       $value_dim=0;
       $typ= $this->ReadPropertyInteger('Auswahl');
       
@@ -580,7 +582,7 @@ public function Set(bool $value) {
             break;
           default: break;
       }
-
+      $AutoTimeID=@IPS_GetObjectIDByIdent('AutoTime', $CatID);
        IPS_SemaphoreLeave('AutoSwitch_Set');
      } 
      else {
@@ -760,7 +762,8 @@ private function CreateTimeEvent($ident, $parentID, $Position, $content){
 
  private function AutoTimeUpdate($CatID) {
 //Dämmerungszeit Früh kopieren
-    $timestamp = GetValueInteger(21643);
+    
+    $timestamp = GetValueInteger(12574);
     $Stunde = date("H", $timestamp);
     $Minute = date("i", $timestamp);
     $Sekunde = date("s", $timestamp);
@@ -769,7 +772,7 @@ private function CreateTimeEvent($ident, $parentID, $Position, $content){
 //    IPS_SetDisabled($idf, true);
     
 //Dämmerungszeit Spät
-    $timestamp = GetValueInteger(12574);
+    $timestamp = GetValueInteger(21643);
     $Stunde = date("H", $timestamp);
     $Minute = date("i", $timestamp);
     $Sekunde = date("s", $timestamp);
