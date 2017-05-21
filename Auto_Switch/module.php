@@ -349,10 +349,10 @@ public function EventTrigger(int $par,bool $value) {
          if($value){
             $this->AutoTimeUpdate($CatID);
             $idf=IPS_GetEventIDByName('Clear_1', $CatID);
-            IPS_SetDisabled($idf, true);
+            //IPS_SetDisabled($idf, true);
             IPS_SetEventActive($idf, TRUE);
             $ids=IPS_GetEventIDByName('Set_2', $CatID);
-            IPS_SetDisabled($ids, true);
+            //IPS_SetDisabled($ids, true);
             IPS_SetEventActive($ids, TRUE);
          }
          else{
