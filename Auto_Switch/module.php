@@ -675,6 +675,8 @@ private function TimerSwitchAction($CatID) {
     $esOn="\n".'AutSw_SetOn($idp);';
     $esOff="\n".'AutSw_SetOff($idp);';
     
+    $eventScriptOn=$eventScript.$esOn;
+    $eventScriptOff=$eventScript.$esOff;
     
     if($this->ReadPropertyBoolean('SelTimer'))    
     if($T_Switch_Val){
@@ -686,8 +688,7 @@ private function TimerSwitchAction($CatID) {
         }
         $Set_1_ID=@IPS_GetObjectIDByIdent('Set_1', $CatID);
         if(!$Set_1_ID){
-            $eventScript=$eventScript.$esOn;
-            $this->CreateTimeEvent('Set_1', $CatID, 40, $eventScript);
+            $this->CreateTimeEvent('Set_1', $CatID, 40, $eventScriptOn);
         }
         else
             IPS_SetHidden ($Set_1_ID, FALSE);
@@ -695,23 +696,21 @@ private function TimerSwitchAction($CatID) {
         $Clear_1_ID=@IPS_GetObjectIDByIdent('Clear_1', $CatID);
         if(!$Clear_1_ID){
             $eventScript=$eventScript.$esOff;
-            $this->CreateTimeEvent('Clear_1', $CatID, 50, $eventScript);   
+            $this->CreateTimeEvent('Clear_1', $CatID, 50, $eventScriptOff);   
         }
         else
             IPS_SetHidden ($Clear_1_ID, FALSE);
         
         $Set_2_ID=@IPS_GetObjectIDByIdent('Set_2', $CatID);
         if(!$Set_2_ID){
-            $eventScript=$eventScript.$esOn;
-            $this->CreateTimeEvent('Set_2', $CatID, 60, $eventScript);   
+            $this->CreateTimeEvent('Set_2', $CatID, 60, $eventScriptOn);   
         }
         else
             IPS_SetHidden ($Set_2_ID, FALSE);
         
         $Clear_2_ID=@IPS_GetObjectIDByIdent('Clear_2', $CatID);
         if(!$Clear_2_ID){
-            $eventScript=$eventScript.$esOff;
-            $this->CreateTimeEvent('Clear_2', $CatID, 70, $eventScript);   
+            $this->CreateTimeEvent('Clear_2', $CatID, 70, $eventScriptOff);   
         }
         else
             IPS_SetHidden ($Clear_2_ID, FALSE);  
