@@ -773,7 +773,8 @@ private function CreateTimeEvent($ident, $parentID, $Position, $content){
     $idf=IPS_GetEventIDByName('Clear_1', $CatID);
     $ids=IPS_GetEventIDByName('Set_1', $CatID);
     if(IPS_GetEvent($ids)['EventActive'])
-        IPS_SetEventCyclicTimeFrom($idf, $Stunde, $Minute, $Sekunde);
+        //IPS_SetEventCyclicTimeFrom($idf, $Stunde, $Minute, $Sekunde);
+        IPS_SetEventActive ($idf, FALSE);
     else
         IPS_SetEventActive ($idf, FALSE);
 //    IPS_SetDisabled($idf, true);
