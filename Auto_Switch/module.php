@@ -780,8 +780,10 @@ private function CreateTimeEvent($ident, $parentID, $Position, $content){
     
         IPS_SetEventCyclicTimeFrom($idf, $Stunde, $Minute, $Sekunde);
     }
-    else
+    else{
         IPS_SetEventActive ($idf, FALSE);
+        IPS_LogMessage("AutoSwitch_AutoTimeUpdate","Clear Event = ");
+    }
 //    IPS_SetDisabled($idf, true);
     
 //Dämmerungszeit Spät
