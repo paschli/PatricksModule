@@ -765,7 +765,7 @@ private function CreateTimeEvent($ident, $parentID, $Position, $content){
 
  private function AutoTimeUpdate($CatID) {
 //Dämmerungszeit Früh kopieren
-    
+    IPS_LogMessage("AutoSwitch_AutoTimeUpdate","Start");
     $timestamp = GetValueInteger(12574);
     $Stunde = date("H", $timestamp);
     $Minute = date("i", $timestamp);
