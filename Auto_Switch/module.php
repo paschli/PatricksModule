@@ -772,9 +772,12 @@ private function CreateTimeEvent($ident, $parentID, $Position, $content){
     $Sekunde = date("s", $timestamp);
     $idf=IPS_GetEventIDByName('Clear_1', $CatID);
     $ids=IPS_GetEventIDByName('Set_1', $CatID);
-    if(IPS_GetEvent($ids)['EventActive'])
-        //IPS_SetEventCyclicTimeFrom($idf, $Stunde, $Minute, $Sekunde);
-        IPS_SetEventActive ($idf, FALSE);
+    if(IPS_GetEvent($ids)['EventActive']){
+        IPS_LogMessage("AutoSwitch_AutoTimeUpdate","Event = "
+                .$idf." Zeit = ".$Stunde.":".$Minute.":".$Sekunde);
+    
+        IPS_SetEventCyclicTimeFrom($idf, $Stunde, $Minute, $Sekunde);
+    }
     else
         IPS_SetEventActive ($idf, FALSE);
 //    IPS_SetDisabled($idf, true);
