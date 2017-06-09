@@ -780,8 +780,8 @@ if($value){
     if(IPS_GetEvent($ids2)['EventActive']){
         IPS_LogMessage("AutoSwitch_AutoTimeUpdate","Event = "
                 .$idf." Zeit = ".$Stunde.":".$Minute.":".$Sekunde);
-    
         IPS_SetEventCyclicTimeFrom($idf, $Stunde, $Minute, $Sekunde);
+        IPS_SetEventActive($idf, TRUE);
     }
     else{
         IPS_SetEventActive ($idf, FALSE);
