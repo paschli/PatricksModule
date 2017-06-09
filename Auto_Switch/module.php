@@ -347,22 +347,22 @@ public function EventTrigger(int $par,bool $value) {
          IPS_LogMessage("AutoSwitch_RequestAction","Ident: ".$ident." Value: ".$value);
          SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value);
          if($value){
-            $this->AutoTimeUpdate($CatID);
-            $idf=IPS_GetEventIDByName('Clear_1', $CatID);
+            $this->AutoTimeUpdate($CatID,1);
+/*            $idf=IPS_GetEventIDByName('Clear_1', $CatID);
             IPS_SetDisabled($idf, true);
             IPS_SetEventActive($idf, TRUE);
             $ids=IPS_GetEventIDByName('Set_2', $CatID);
             IPS_SetDisabled($ids, true);
-            IPS_SetEventActive($ids, TRUE);
+            IPS_SetEventActive($ids, TRUE);*/
          }
          else{
-            $this->AutoTimeUpdate($CatID);
-            $idf=IPS_GetEventIDByName('Clear_1', $CatID);
+            $this->AutoTimeUpdate($CatID,0);
+/*            $idf=IPS_GetEventIDByName('Clear_1', $CatID);
             IPS_SetDisabled($idf, false);
             IPS_SetEventActive($idf, FALSE);
             $ids=IPS_GetEventIDByName('Set_2', $CatID);
             IPS_SetDisabled($ids, false);
-            IPS_SetEventActive($ids, FALSE);
+            IPS_SetEventActive($ids, FALSE);*/
          }
          
                
@@ -763,18 +763,21 @@ private function CreateTimeEvent($ident, $parentID, $Position, $content){
     IPS_SetEventScript($eid, $content);  
  }
 
- private function AutoTimeUpdate($CatID) {
+ private function AutoTimeUpdate($CatID, $value) {
 //Dämmerungszeit Früh kopieren
-    IPS_LogMessage("AutoSwitch_AutoTimeUpdate","Start");
+IPS_LogMessage("AutoSwitch_AutoTimeUpdate","Start");
+$ids=IPS_GetEventIDByName('Set_2', $CatID);
+$idf=IPS_GetEventIDByName('Clear_1', $CatID);
+if($value){        
     $timestamp = GetValueInteger(12574);
     $Stunde = date("H", $timestamp);
     $Minute = date("i", $timestamp);
     $Sekunde = date("s", $timestamp);
-    $idf=IPS_GetEventIDByName('Clear_1', $CatID);
-    $ids=IPS_GetEventIDByName('Set_1', $CatID);
+//    $idf=IPS_GetEventIDByName('Clear_1', $CatID);
+    $ids2=IPS_GetEventIDByName('Set_1', $CatID);
     IPS_LogMessage("AutoSwitch_AutoTimeUpdate","EventActive = "
-                .(int)IPS_GetEvent($ids)['EventActive']);
-    if(IPS_GetEvent($ids)['EventActive']){
+                .(int)IPS_GetEvent($ids2)['EventActive']);
+    if(IPS_GetEvent($ids2)['EventActive']){
         IPS_LogMessage("AutoSwitch_AutoTimeUpdate","Event = "
                 .$idf." Zeit = ".$Stunde.":".$Minute.":".$Sekunde);
     
@@ -782,7 +785,7 @@ private function CreateTimeEvent($ident, $parentID, $Position, $content){
     }
     else{
         IPS_SetEventActive ($idf, FALSE);
-        IPS_LogMessage("AutoSwitch_AutoTimeUpdate","Clear Event = ");
+        IPS_LogMessage("AutoSwitch_AutoTimeUpdate","Clear Event!");
     }
 //    IPS_SetDisabled($idf, true);
     
@@ -793,7 +796,18 @@ private function CreateTimeEvent($ident, $parentID, $Position, $content){
     $Sekunde = date("s", $timestamp);
     $ids=IPS_GetEventIDByName('Set_2', $CatID);
     IPS_SetEventCyclicTimeFrom($ids, $Stunde, $Minute, $Sekunde);
-//    IPS_SetDisabled($ids, true);
- }
+    IPS_SetDisabled($idf, true);
+    //IPS_SetEventActive($idf, TRUE);
+    IPS_SetDisabled($ids, true);
+    IPS_SetEventActive($ids, TRUE);
+}
+else{
+    IPS_SetDisabled($idf, false);
+    IPS_SetEventActive($idf, FALSE);
+    IPS_SetDisabled($ids, false);
+    IPS_SetEventActive($ids, FALSE);
+}
+ 
+}
 } 
 ?>
