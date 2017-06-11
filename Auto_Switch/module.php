@@ -574,7 +574,7 @@ public function Set(bool $value) {
       }
       $AutoTimeID=@IPS_GetObjectIDByIdent('AutoTime', $CatID);
       if($AutoTimeID)
-          $this->AutoTimeUpdate($CatID);
+          $this->AutoTimeUpdate($CatID,1);
        IPS_SemaphoreLeave('AutoSwitch_Set');
      } 
      else {
