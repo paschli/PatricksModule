@@ -23,7 +23,7 @@ class Schalter extends IPSModule {
     parent::ApplyChanges();
     $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
     $status=$this->RegisterPropertyBoolean('Status', FALSE);
-    $this->RegisterPropertyInteger('Auswahl', 0); //Id der zu beobachtenden Variable
+ /*   $this->RegisterPropertyInteger('Auswahl', 0); //Id der zu beobachtenden Variable
     $this->RegisterPropertyInteger('idLCNInstance', 0);
     $this->RegisterPropertyInteger('LaempchenNr', 0);
     $this->RegisterPropertyInteger('Rampe', 2);
@@ -31,7 +31,7 @@ class Schalter extends IPSModule {
     $this->RegisterPropertyString('Password', '');
     $this->RegisterPropertyInteger('ZielID', 0);
     $this->RegisterPropertyString('Name','');
-    $this->RegisterPropertyInteger('State', 0); //Status der Instanz
+    $this->RegisterPropertyInteger('State', 0); //Status der Instanz*/
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     $instID= IPS_GetParent($statusID);
     if($this->ReadPropertyString('Name')!='')
