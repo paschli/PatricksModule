@@ -15,7 +15,7 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyInteger('Rampe', 2); // Rampe für das Schalten eines LCN Ausgangs
     $this->RegisterPropertyString('IPAddress', ''); //IP Adesse für remote schalten eines anderen IP-Symcon
     $this->RegisterPropertyString('Password', '');// Passwort für JSON-Verbindung
-    $this->RegisterPropertyInteger('ZielID', '');// ID des zu schaltenden entfernten Objekts
+    $this->RegisterPropertyInteger('ZielID', 0);// ID des zu schaltenden entfernten Objekts
     $this->RegisterPropertyString('Name','');//Otionaler Name für die erstellte Instanz
     $this->RegisterPropertyInteger('State', 0); //Status der Instanz
     $this->RegisterPropertyBoolean('AutoOff_Switch', FALSE);
