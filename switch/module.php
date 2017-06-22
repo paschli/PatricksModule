@@ -18,11 +18,12 @@ class Schalter extends IPSModule {
     $this->RegisterPropertyInteger('ZielID', 0);// ID des zu schaltenden entfernten Objekts
     $this->RegisterPropertyString('Name','');//Otionaler Name für die erstellte Instanz
     $this->RegisterPropertyInteger('State', 0); //Status der Instanz
+    $this->RegisterPropertyBoolean('Status', FALSE);
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
     $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
-    $status=$this->RegisterPropertyBoolean('Status', FALSE);
+ //   $status=$this->RegisterPropertyBoolean('Status', FALSE);
  /*   $this->RegisterPropertyInteger('Auswahl', 0); //Id der zu beobachtenden Variable
     $this->RegisterPropertyInteger('idLCNInstance', 0);
     $this->RegisterPropertyInteger('LaempchenNr', 0);
