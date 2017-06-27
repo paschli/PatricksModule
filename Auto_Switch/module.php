@@ -263,24 +263,14 @@ class AutSw extends IPSModule {
 
 public function EventTrigger(int $par,bool $value) {
     IPS_LogMessage("AutoSwitch_EventTrigger","Ident: ".$par." Value: ".$value);
-    $CatID =IPS_GetCategoryIDByName('Konfig', $par);
- /*   $AutoOffID=IPS_GetObjectIDByIdent('AutoOff_Switch', $CatID);
+    $par= IPS_GetParent(($this->GetIDForIdent("Status")));
     $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
-    if($value && GetValueBoolean($AutoOffID) && $this->ReadPropertyBoolean('SelAutoOff')){
-        $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
-        $Laufzeit= GetValueInteger($LaufzeitID);
-        $TimerID=@$this->GetIDForIdent('AutoOffTimer');
-        if($TimerID)
-            IPS_SetEventActive($TimerID, TRUE);
-        SetValueInteger($IDLaufz, $Laufzeit);
-        IPS_SetHidden($IDLaufz, FALSE);
-        IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit zeigen");
+    if(IPS_GetObject($IDLaufz)[ObjectIsHidden]){
+        $this->Set($value,TRUE);      
     }
     else{
-        IPS_SetHidden($IDLaufz, TRUE);
-        IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit verbergen");
-    }*/
-    $this->Set($value,TRUE);      
+        Set($value,False);  
+    }
 }
 
  public function RequestAction($ident, $value) {
