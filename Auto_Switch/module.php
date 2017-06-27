@@ -329,9 +329,11 @@ public function EventTrigger(int $par,bool $value) {
                 IPS_SetEventActive($TimerID, TRUE);
             SetValueInteger($IDLaufz, $Laufzeit);
             IPS_SetHidden($IDLaufz, FALSE);
+            IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit verbergen");
         }
         else {
             IPS_SetHidden($IDLaufz, TRUE);
+            IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit zeigen");
         }
         $this->Set($value);
         
