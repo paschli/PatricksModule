@@ -274,9 +274,11 @@ public function EventTrigger(int $par,bool $value) {
             IPS_SetEventActive($TimerID, TRUE);
         SetValueInteger($IDLaufz, $Laufzeit);
         IPS_SetHidden($IDLaufz, FALSE);
+        IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit verbergen");
     }
     else{
         IPS_SetHidden($IDLaufz, TRUE);
+        IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit zeigen");
     }
     $this->Set($value);      
 }
@@ -487,6 +489,7 @@ protected function RegisterTimer($ident, $interval, $script) {
     SetValueInteger($IDLaufz, $Laufzeit);
     IPS_SetHidden($IDLaufz, FALSE);
     $this->Set(TRUE);
+    IPS_LogMessage("AutoSwitch_Set_Timer","Funktion Beendet");
   }
   
 public function Set(bool $value) {
