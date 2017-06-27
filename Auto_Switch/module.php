@@ -264,7 +264,7 @@ class AutSw extends IPSModule {
 public function EventTrigger(int $par,bool $value) {
     IPS_LogMessage("AutoSwitch_EventTrigger","Ident: ".$par." Value: ".$value);
     $CatID =IPS_GetCategoryIDByName('Konfig', $par);
-    $AutoOffID=IPS_GetObjectIDByIdent('AutoOff_Switch', $CatID);
+ /*   $AutoOffID=IPS_GetObjectIDByIdent('AutoOff_Switch', $CatID);
     $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
     if($value && GetValueBoolean($AutoOffID) && $this->ReadPropertyBoolean('SelAutoOff')){
         $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
@@ -274,13 +274,13 @@ public function EventTrigger(int $par,bool $value) {
             IPS_SetEventActive($TimerID, TRUE);
         SetValueInteger($IDLaufz, $Laufzeit);
         IPS_SetHidden($IDLaufz, FALSE);
-        IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit verbergen");
+        IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit zeigen");
     }
     else{
         IPS_SetHidden($IDLaufz, TRUE);
-        IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit zeigen");
-    }
-    $this->Set($value);      
+        IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit verbergen");
+    }*/
+    $this->Set($value,TRUE);      
 }
 
  public function RequestAction($ident, $value) {
@@ -337,7 +337,7 @@ public function EventTrigger(int $par,bool $value) {
             IPS_SetHidden($IDLaufz, TRUE);
             IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit zeigen");
         }
-        $this->Set($value);
+        $this->Set($value,TRUE);
         
      }
      else if($ident=='SliderAnz'){
@@ -365,7 +365,7 @@ public function EventTrigger(int $par,bool $value) {
 }
 
 public function SetOn() {
-      $this->Set(True);
+      $this->Set(True,TRUE);
       if($this->ReadPropertyBoolean('TimerMsg')){
           $par= IPS_GetParent(($this->GetIDForIdent('Status')));
           WFC_PushNotification(33722, "Info AutoSwitchModul", IPS_GetName($par) . " erfolgreich eingeschaltet", "", 0); 
@@ -373,7 +373,7 @@ public function SetOn() {
            
       }
 public function SetOff() {
-      $this->Set(False);
+      $this->Set(False,TRUE);
       if($this->ReadPropertyBoolean('TimerMsg')){
           $par= IPS_GetParent(($this->GetIDForIdent('Status')));
           WFC_PushNotification(33722, "Info AutoSwitchModul", IPS_GetName($par) . " erfolgreich ausgeschaltet", "", 0); 
@@ -426,7 +426,7 @@ public function AutoOff() {
         IPS_SetHidden($IDLaufz, TRUE);
         $timerID= IPS_GetObjectIDByIdent('AutoOffTimer', $par);
         IPS_SetEventActive($timerID, FALSE);
-        $this->Set(FALSE);
+        $this->Set(FALSE,TRUE);
     }              
 }
 
@@ -488,11 +488,11 @@ protected function RegisterTimer($ident, $interval, $script) {
         IPS_SetEventActive($TimerID, TRUE);
     SetValueInteger($IDLaufz, $Laufzeit);
     IPS_SetHidden($IDLaufz, FALSE);
-    $this->Set(TRUE);
+    $this->Set(TRUE,FALSE);
     IPS_LogMessage("AutoSwitch_Set_Timer","Funktion Beendet");
   }
   
-public function Set(bool $value) {
+public function Set(bool $value, bool $anzeige) {
     if(IPS_SemaphoreEnter('AutoSwitch_Set', 1000)) {
       $par= IPS_GetParent(($this->GetIDForIdent('Status')));
       $CatID =IPS_GetCategoryIDByName('Konfig', $par);
@@ -577,9 +577,29 @@ public function Set(bool $value) {
           default: break;
       }
       $AutoTimeID=@IPS_GetObjectIDByIdent('AutoTime', $CatID);
-      if($AutoTimeID)
+      if($AutoTimeID){
           $this->AutoTimeUpdate($CatID,1);
-       IPS_SemaphoreLeave('AutoSwitch_Set');
+      }
+      if($anzeige){
+        $AutoOffID=IPS_GetObjectIDByIdent('AutoOff_Switch', $CatID);
+        $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
+        if($value && GetValueBoolean($AutoOffID) && $this->ReadPropertyBoolean('SelAutoOff')){
+            $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
+            $Laufzeit= GetValueInteger($LaufzeitID);
+            $TimerID=@$this->GetIDForIdent('AutoOffTimer');
+            if($TimerID)
+                IPS_SetEventActive($TimerID, TRUE);
+            SetValueInteger($IDLaufz, $Laufzeit);
+            IPS_SetHidden($IDLaufz, FALSE);
+            IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit zeigen");
+        }
+        else{
+            IPS_SetHidden($IDLaufz, TRUE);
+            IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit verbergen");
+        }    
+      }
+     
+      IPS_SemaphoreLeave('AutoSwitch_Set');
      } 
      else {
       IPS_LogMessage('AutoSwitch', 'Semaphore Timeout');
