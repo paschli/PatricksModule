@@ -26,8 +26,7 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyInteger('SliderAnz',0);
     $this->RegisterPropertyBoolean('TimerMsg',FALSE);
     $this->RegisterPropertyBoolean('AutoTime',FALSE);
-    
-    $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
+    $this->RegisterVariableBoolean('Status','Status','~Switch');//
     $this->RegisterPropertyBoolean('Status', FALSE);
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Light');
     
