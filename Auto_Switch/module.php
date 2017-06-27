@@ -616,7 +616,7 @@ private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
 
 private function CreateWahlVar($ident,$name,$icon,$par, $pos){
     $ID=$this->RegisterVariableBoolean($ident,$name,$icon);//
-    $this->RegisterPropertyBoolean($ident, FALSE); 
+    //$this->RegisterPropertyBoolean($ident, FALSE); 
     IPS_SetPosition($ID, $pos);
     $this->EnableAction($ident);
     IPS_SetParent($ID,$par );
