@@ -5,12 +5,11 @@
 class ONEClick extends IPSModule {
   public function Create() {
     parent::Create();
-    $this->RegisterPropertyInteger('idSourceInstance', 0);
+    $this->RegisterPropertyInteger('idSourceInstance', 0);//Id der zu beobachtenden Variable	
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
-    
-    $this->RegisterPropertyInteger('idSourceInstance', 0); //Id der zu beobachtenden Variable	  
+   
     $ClickDetectId = $this->RegisterVariableBoolean('ClickDetect', 'KlickErkannt','', 1); //Boolean anlegen, der bei erkennung gesetzt wird 
     
 //Inhalt für Skript erzeugen, das bei Erkennung ausgeführt wird 
