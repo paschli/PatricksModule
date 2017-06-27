@@ -7,13 +7,14 @@ class LCNLA extends IPSModule {
     parent::Create();
     $this->RegisterPropertyInteger('idLCNInstance', 0);
     $this->RegisterPropertyInteger('LaempchenNr', 1);
+    $status=$this->RegisterPropertyBoolean('Status', FALSE);
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
     $statusID = $this->RegisterVariableBoolean('Status','Status','~Switch');//
-    $status=$this->RegisterPropertyBoolean('Status', FALSE);
-    $this->RegisterPropertyInteger('idLCNInstance', 0); //Id der zu beobachtenden Variable
-    $this->RegisterPropertyInteger('LaempchenNr', 0);	
+ //   $status=$this->RegisterPropertyBoolean('Status', FALSE);
+ //   $this->RegisterPropertyInteger('idLCNInstance', 0); //Id der zu beobachtenden Variable
+ //   $this->RegisterPropertyInteger('LaempchenNr', 0);	
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Bulb');
     
     // Aktiviert die Standardaktion der Statusvariable
