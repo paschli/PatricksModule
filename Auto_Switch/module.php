@@ -478,7 +478,7 @@ protected function RegisterTimer($ident, $interval, $script) {
   
   
   public function Set_Timer(int $Laufzeit) {
-    $par= IPS_GetParent(($this->GetIDForIdent('Status')));
+    $par= IPS_GetParent(($this->GetIDForIdent("Status")));
     $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
     $TimerID=@$this->GetIDForIdent('AutoOffTimer');
     if($TimerID)
