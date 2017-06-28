@@ -267,8 +267,10 @@ public function EventTrigger(int $par,bool $value) {
     $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
     if(IPS_GetObject($IDLaufz)[ObjectIsHidden]){
         $this->Set($value,TRUE);
+        IPS_LogMessage("AutoSwitch_EventTrigger","Set ausführen mit Anzeige");
         return 1;
     }
+    IPS_LogMessage("AutoSwitch_EventTrigger","Set ausführen ohne Anzeige");
     Set($value,False);  
     
 }
