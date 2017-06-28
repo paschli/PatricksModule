@@ -270,7 +270,7 @@ public function EventTrigger(int $par,bool $value) {
         return 1;
     }
     Set($value,False);  
-    }
+    
 }
 
  public function RequestAction($ident, $value) {
