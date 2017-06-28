@@ -266,10 +266,10 @@ public function EventTrigger(int $par,bool $value) {
     $par= IPS_GetParent(($this->GetIDForIdent("Status")));
     $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
     if(IPS_GetObject($IDLaufz)[ObjectIsHidden]){
-        $this->Set($value,TRUE);      
+        $this->Set($value,TRUE);
+        return 1;
     }
-    else{
-        Set($value,False);  
+    Set($value,False);  
     }
 }
 
