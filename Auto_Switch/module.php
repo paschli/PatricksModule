@@ -596,7 +596,12 @@ public function Set(bool $value, bool $anzeige) {
             IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit verbergen");
         }    
       }
-     
+      else {
+        if(!$value){
+           IPS_SetHidden($IDLaufz, TRUE);
+           IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit verbergen"); 
+        }
+      }    
       IPS_SemaphoreLeave('AutoSwitch_Set');
      } 
      else {
