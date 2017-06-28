@@ -494,7 +494,7 @@ public function Set(bool $value, bool $anzeige) {
       $CatID =IPS_GetCategoryIDByName('Konfig', $par);
       $value_dim=0;
       $typ= $this->ReadPropertyInteger('Auswahl');
-      
+       IPS_LogMessage("AutoSwitch_Set","Set aufgerufen mit".$value."!");
       switch($typ){
           case 0: break;
           case 1: $instID=$this->ReadPropertyInteger('idLCNInstance');
