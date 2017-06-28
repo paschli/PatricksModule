@@ -271,7 +271,7 @@ public function EventTrigger(int $par,bool $value) {
         return 1;
     }
     IPS_LogMessage("AutoSwitch_EventTrigger","Set ausführen ohne Anzeige");
-    Set($value,False);  
+    $this->Set($value,False);  
     
 }
 
