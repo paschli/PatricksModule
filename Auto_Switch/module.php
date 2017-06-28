@@ -419,7 +419,13 @@ public function AutoOff() {
         $timerID= IPS_GetObjectIDByIdent('AutoOffTimer', $par);
         IPS_SetEventActive($timerID, FALSE);
         $this->Set(FALSE,TRUE);
-    }              
+    } 
+    if(!GetValueBoolean($this->GetIDForIdent('Status'))){
+        IPS_SetHidden($IDLaufz, TRUE);
+        $timerID= IPS_GetObjectIDByIdent('AutoOffTimer', $par);
+        IPS_SetEventActive($timerID, FALSE);
+        
+    }
 }
 
 protected function RegisterTimer($ident, $interval, $script) {
