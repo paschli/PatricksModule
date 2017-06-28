@@ -578,6 +578,7 @@ public function Set(bool $value, bool $anzeige) {
       if($AutoTimeID){
           $this->AutoTimeUpdate($CatID,1);
       }
+      
       if($anzeige){
         $AutoOffID=IPS_GetObjectIDByIdent('AutoOff_Switch', $CatID);
         $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
@@ -598,6 +599,7 @@ public function Set(bool $value, bool $anzeige) {
       }
       else {
         if(!$value){
+           $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
            IPS_SetHidden($IDLaufz, TRUE);
            IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit verbergen"); 
         }
