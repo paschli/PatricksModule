@@ -549,9 +549,13 @@ public function Set(bool $value, bool $anzeige) {
             }
             catch (JSONRPCException $e) {
                 echo 'RPC Problem', "\n";
+                IPS_SemaphoreLeave('AutoSwitch_Set');
+                return 0;
             } 
             catch (Exception $e) {
                echo 'Server Problem',"\n";
+               IPS_SemaphoreLeave('AutoSwitch_Set');
+               return 0;
             }
             
             $result=(bool)$rpc->GetValue($TargetID);
@@ -586,13 +590,19 @@ public function Set(bool $value, bool $anzeige) {
                     //IPS_LogMessage(Modul,"Value = False => Relais Aus");
                     $rpc->PIIOC_clear($TargetID);
                 }
+                $success=1;
             }
             catch (JSONRPCException $e) {
                 echo 'RPC Problem', "\n";
+                IPS_SemaphoreLeave('AutoSwitch_Set');
+                return 0;
             } 
             catch (Exception $e) {
                echo 'Server Problem',"\n";
+               IPS_SemaphoreLeave('AutoSwitch_Set');
+               return 0;
             }
+            
             SetValue($this->GetIDForIdent("Status"), $value);
             break;
           default: break;
