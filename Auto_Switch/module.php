@@ -536,16 +536,26 @@ public function Set(bool $value, bool $anzeige) {
             $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
             IPS_LogMessage("AutoSwitch_Set","Aufruf".$mes);
             IPS_LogMessage("AutoSwitch_Set","Target ID".$TargetID);
-            $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
-            if($value){
-                //IPS_LogMessage(Modul,"Value = True => Relais An");
-                $rpc->SetValue($TargetID, true);
-            }           
-            else{
-                //IPS_LogMessage(Modul,"Value = False => Relais Aus");
-                $rpc->SetValue($TargetID, false);
+            try {
+                $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
+                if($value){
+                    //IPS_LogMessage(Modul,"Value = True => Relais An");
+                    $rpc->SetValue($TargetID, true);
+                }           
+                else{
+                    //IPS_LogMessage(Modul,"Value = False => Relais Aus");
+                    $rpc->SetValue($TargetID, false);
+                }
             }
+            catch (JSONRPCException $e) {
+                echo 'RPC Problem: ', "\n";
+            } 
+            catch (Exception $e) {
+               echo 'Server Problem: ',"\n";
+            }
+            
             $result=(bool)$rpc->GetValue($TargetID);
+            
             SetValue($this->GetIDForIdent("Status"), $result);
             break;
           case 5: $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
@@ -613,7 +623,7 @@ public function Set(bool $value, bool $anzeige) {
       IPS_SemaphoreLeave('AutoSwitch_Set');
      } 
      else {
-      IPS_LogMessage('AutoSwitch', 'Semaphore Timeout');
+      IPS_LogMessage('AutoSwitch_Set', 'Semaphore Timeout');
     }
    }
 
