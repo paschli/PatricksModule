@@ -550,19 +550,20 @@ public function Set(bool $value, bool $anzeige) {
             catch (JSONRPCException $e) {
                 echo 'RPC Problem', "\n";
                 IPS_SemaphoreLeave('AutoSwitch_Set');
-                PS_LogMessage('AutoSwitch_Set', 'RPC Fehler');
+                IPS_LogMessage('AutoSwitch_Set', 'RPC Fehler');
                 return 0;
             } 
             catch (Exception $e) {
                echo 'Server Problem',"\n";
                IPS_SemaphoreLeave('AutoSwitch_Set');
-               PS_LogMessage('AutoSwitch_Set', 'Verbindungsfehler');
+               IPS_LogMessage('AutoSwitch_Set', 'Verbindungsfehler');
                return 0;
             }
             
             $result=(bool)$rpc->GetValue($TargetID);
             
             SetValue($this->GetIDForIdent("Status"), $result);
+            IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');
             break;
           case 5: $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
             if($value){
@@ -608,6 +609,7 @@ public function Set(bool $value, bool $anzeige) {
             }
             
             SetValue($this->GetIDForIdent("Status"), $value);
+            IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');
             break;
           default: break;
       }
