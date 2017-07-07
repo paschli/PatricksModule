@@ -548,10 +548,10 @@ public function Set(bool $value, bool $anzeige) {
                 }
             }
             catch (JSONRPCException $e) {
-                echo 'RPC Problem: ', "\n";
+                echo 'RPC Problem', "\n";
             } 
             catch (Exception $e) {
-               echo 'Server Problem: ',"\n";
+               echo 'Server Problem',"\n";
             }
             
             $result=(bool)$rpc->GetValue($TargetID);
@@ -576,16 +576,23 @@ public function Set(bool $value, bool $anzeige) {
             $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
             IPS_LogMessage("AutoSwitch_Set","Aufruf".$mes);
             IPS_LogMessage("AutoSwitch_Set","Target ID".$TargetID);
-            $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
-            if($value){
-                //IPS_LogMessage(Modul,"Value = True => Relais An");
-                $rpc->PIIOC_set($TargetID);
-            }           
-            else{
-                //IPS_LogMessage(Modul,"Value = False => Relais Aus");
-                $rpc->PIIOC_clear($TargetID);
+            try{
+                $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
+                if($value){
+                    //IPS_LogMessage(Modul,"Value = True => Relais An");
+                    $rpc->PIIOC_set($TargetID);
+                }           
+                else{
+                    //IPS_LogMessage(Modul,"Value = False => Relais Aus");
+                    $rpc->PIIOC_clear($TargetID);
+                }
             }
-            
+            catch (JSONRPCException $e) {
+                echo 'RPC Problem', "\n";
+            } 
+            catch (Exception $e) {
+               echo 'Server Problem',"\n";
+            }
             SetValue($this->GetIDForIdent("Status"), $value);
             break;
           default: break;
