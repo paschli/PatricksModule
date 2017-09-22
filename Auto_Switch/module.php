@@ -328,6 +328,7 @@ public function EventTrigger(int $par,bool $value) {
         else {
             IPS_SetHidden($IDLaufz, TRUE);
             IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit verbergen");
+            
         }
         $this->Set($value,TRUE);
         
@@ -507,11 +508,17 @@ public function Set(bool $value, bool $anzeige) {
           case 0: break;
           case 1: $instID=$this->ReadPropertyInteger('idLCNInstance');
             $dim_time= $this->ReadPropertyInteger('Rampe');
+            $SliderID=@$this->GetIDForIdent('SliderAnz');
             if($value){
                 LCN_SetIntensity($instID, 100, $dim_time);
+                SetValueInteger($SliderID, 100);
+                
+            
+            }
             }
             else {
                 LCN_SetIntensity($instID, 0, $dim_time);
+                SetValueInteger($SliderID, 0);
             }
             SetValue($this->GetIDForIdent("Status"), $value);
             break;
