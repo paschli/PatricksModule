@@ -107,7 +107,7 @@ class AutSw extends IPSModule {
             case 0: //falls Instanz nicht gewählt wurde
                 break;
             case 1: //falls Instanz LCN Ausgang
-                $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
+                $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 if(!@IPS_GetObjectIDByIdent('SliderAnz', $instID)){
                     $script='<?'.chr(13).
                             'SetValue($_IPS["VARIABLE"], $_IPS["VALUE"]);'.chr(13).
@@ -629,18 +629,18 @@ public function Set(bool $value, bool $anzeige) {
                 IPS_SetEventActive($TimerID, TRUE);
             SetValueInteger($IDLaufz, $Laufzeit);
             IPS_SetHidden($IDLaufz, FALSE);
-            IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit zeigen");
+            IPS_LogMessage("AutoSwitch_Set","Laufzeit zeigen");
         }
         else{
             IPS_SetHidden($IDLaufz, TRUE);
-            IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit verbergen");
+            IPS_LogMessage("AutoSwitch_Set","Laufzeit verbergen");
         }    
       }
       else {
         if(!$value){
            $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
            IPS_SetHidden($IDLaufz, TRUE);
-           IPS_LogMessage("AutoSwitch_RequestAction","Laufzeit verbergen"); 
+           IPS_LogMessage("AutoSwitch_Set","Laufzeit verbergen"); 
         }
       }    
       IPS_SemaphoreLeave('AutoSwitch_Set');
