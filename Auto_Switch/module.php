@@ -512,9 +512,6 @@ public function Set(bool $value, bool $anzeige) {
             if($value){
                 LCN_SetIntensity($instID, 100, $dim_time);
                 SetValueInteger($SliderID, 100);
-                
-            
-            }
             }
             else {
                 LCN_SetIntensity($instID, 0, $dim_time);
