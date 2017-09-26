@@ -262,7 +262,7 @@ class AutSw extends IPSModule {
 } 
 
 public function EventTrigger(int $par,bool $value) {
-    IPS_LogMessage("AutoSwitch_EventTrigger","Ident: ".$par." Value: ".$value);
+    IPS_LogMessage("AutoSwitch_EventTrigger","Name: ".IPS_GetName($par)." Value: ".$value);
     $par= IPS_GetParent(($this->GetIDForIdent("Status")));
     $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
     if(IPS_GetObject($IDLaufz)['ObjectIsHidden']){
