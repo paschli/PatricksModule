@@ -288,6 +288,7 @@ public function EventTrigger(int $par,bool $value) {
 //     }
      
      if($ident=='AutoOff_Switch'){
+        IPS_LogMessage("AutoSwitch_RequestAction","AutoOff Ereigniss");
         SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value);
         if($value){
             $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
@@ -308,11 +309,13 @@ public function EventTrigger(int $par,bool $value) {
         }
      } 
      else if($ident=='Timer_Switch'){
+         IPS_LogMessage("AutoSwitch_RequestAction","Zeitplan Erreignis");
          SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value);
          $this->TimerSwitchAction($CatID); 
         //$this->Set($value);
      }
      else if($ident=='Status'){
+        IPS_LogMessage("AutoSwitch_RequestAction","Status-Variable geändert: ".$value);
         $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
         $Laufzeit= GetValueInteger($LaufzeitID);
         $AutoOffID=IPS_GetObjectIDByIdent('AutoOff_Switch', $CatID);
