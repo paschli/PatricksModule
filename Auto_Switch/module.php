@@ -288,7 +288,7 @@ public function EventTrigger(int $par,bool $value) {
 //     }
      
      if($ident=='AutoOff_Switch'){
-        IPS_LogMessage("AutoSwitch_RequestAction","AutoOff Ereigniss");
+        IPS_LogMessage("AutoSwitch_RequestAction","AutoOff Ereignis");
         SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value);
         if($value){
             $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
@@ -337,13 +337,13 @@ public function EventTrigger(int $par,bool $value) {
         
      }
      else if($ident=='SliderAnz'){
-         IPS_LogMessage("AutoSwitch_RequestAction","Ident: ".$ident." Value: ".$value);
+         IPS_LogMessage("AutoSwitch_RequestAction","Slider Ereignis ".$value);
         SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value); 
         $instID=$this->ReadPropertyInteger('idLCNInstance');
         LCN_SetIntensity($instID, $value, 0);
      }
      else if($ident=="AutoTime"){
-         IPS_LogMessage("AutoSwitch_RequestAction","Ident: ".$ident." Value: ".$value);
+         IPS_LogMessage("AutoSwitch_RequestAction","Zeitplan verstellen");
          SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value);
          if($value){
             $this->AutoTimeUpdate($CatID,1);
