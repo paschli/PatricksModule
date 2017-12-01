@@ -24,7 +24,7 @@ class ONEClick extends IPSModule {
     
  //   if($this->ReadPropertyInteger('idSourceInstance')!=0){  
  //   	$this->RegisterEvent('OnVariableUpdate', 0, 'ONEC_Check($id)');
-    }
+ //   }
   }
   
  
