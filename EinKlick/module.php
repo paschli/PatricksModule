@@ -23,10 +23,10 @@ class ONEClick extends IPSModule {
 //    IPS_SetIcon($this->GetIDForIdent('SCRIPT'), 'Keyboard');
     
     if($this->ReadPropertyInteger('idSourceInstance')!=0){  
-    	$this->RegisterTimer('OnVariableUpdate', 0, 'ONEC_Check($id)');
+    	$this->RegisterEvent('OnVariableUpdate', 0, 'ONEC_Check($id)');
     }
   }
-  protected function RegisterTimer($ident, $interval, $script) {
+  protected function RegisterEvent($ident, $interval, $script) {
     $id = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
     if ($id && IPS_GetEvent($id)['EventType'] <> 1) {
       IPS_DeleteEvent($id);
