@@ -47,9 +47,9 @@ class ONEClick extends IPSModule {
     if (!IPS_EventExists($id)) throw new Exception("Ident with name $ident is used for wrong object type");
   }
  
-   function CheckKategorie(int $inst_id) {
+   protected function CheckKategorie(int $inst_id) {
       IPS_LogMessage('ONEClick-'.$inst_name,"CheckKategorie");
-      $CatID=@IPS_GetCategoryIDByName("Tasten".$inst_id);
+      $CatID=@IPS_GetCategoryIDByName("Tasten",$inst_id);
       if(!$CatID){
           IPS_LogMessage('ONEClick-'.$inst_name,"Kategorie neu anlegen");
           IPS_LogMessage('ONEClick',"Erstelle Kategorie Tasten ");
