@@ -139,12 +139,12 @@ class ONEClick extends IPSModule {
 //Kategorie prüfen
       IPS_LogMessage('ONEClick-'.$inst_name,"Kategorien prüfen");
       $CatID= $this->CheckKategorie($inst_id);
-      $KeyCatID=CheckKatTasten($source_taste,$CatID);
+      $KeyCatID= $this->CheckKatTasten($source_taste,$CatID);
       
 //Ermitteln ob doppelter Tastendruck in Zeit "DBLCLickTime" vorliegt
 //ID der Bool-Variable für Doppelklick
-      $ClickDetectID=$this->GetIDForIdent('ClickDetect');
-      $instancethisID= IPS_GetParent($ClickDetectID);
+      //$ClickDetectID=$this->GetIDForIdent('ClickDetect');
+      //$instancethisID= IPS_GetParent($ClickDetectID);
 //Eigenschaften der "command" Variable ermitteln 
 //      $stringInfo= IPS_GetVariable($stringID);
 //Zeit des letzten Tastendrucks ermitteln
@@ -164,9 +164,9 @@ class ONEClick extends IPSModule {
 //      IPS_LogMessage('DBLClick-'.$inst_name,"Differenz =".($AktuelleZeit-$lastUpdValue));
 //Überprüfen ob Zeit zwischen vorletzter und letzter Bedienung kleiner Grenze ist
 //      if(($AktuelleZeit-$lastUpdValue)<=$DBLClickTime){ 
-	SetValueBoolean($ClickDetectID, true);
-        IPS_LogMessage('ONEClick',"Klick erkannt");
-        $scriptID=CheckSkript($source_taste,$KeyCatID);
+	//SetValueBoolean($ClickDetectID, true);
+        //IPS_LogMessage('ONEClick',"Klick erkannt");
+        $scriptID= $this->CheckSkript($source_taste,$KeyCatID);
             
         IPS_RunScript($scriptID);
       }
