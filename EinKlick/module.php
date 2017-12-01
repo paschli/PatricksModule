@@ -22,9 +22,9 @@ class ONEClick extends IPSModule {
 //    IPS_SetIcon($this->GetIDForIdent('DBLClickDetect'), 'Motion');
 //    IPS_SetIcon($this->GetIDForIdent('SCRIPT'), 'Keyboard');
     
- //   if($this->ReadPropertyInteger('idSourceInstance')!=0){  
- //   	$this->RegisterEvent('OnVariableUpdate', 0, 'ONEC_Check($id)');
- //   }
+    if($this->ReadPropertyInteger('idSourceInstance')!=0){  
+    	$this->RegisterEvent('OnVariableUpdate', 0, 'ONEC_Check($id)');
+    }
   }
   
  
