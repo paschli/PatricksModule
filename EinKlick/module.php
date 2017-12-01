@@ -138,7 +138,7 @@ class ONEClick extends IPSModule {
       IPS_LogMessage('ONEClick-'.$inst_name,"Taste =".$source_taste);
 //Kategorie prüfen
       IPS_LogMessage('ONEClick-'.$inst_name,"Kategorien prüfen");
-      $CatID=CheckKategorie($inst_id);
+      $CatID= $this->CheckKategorie($inst_id);
       $KeyCatID=CheckKatTasten($source_taste,$CatID);
       
 //Ermitteln ob doppelter Tastendruck in Zeit "DBLCLickTime" vorliegt
