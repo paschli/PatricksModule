@@ -1,7 +1,7 @@
 <?
-//Modul überwacht die letzte Aktualisierung bei einer Variable und startet ein 
-//Skript, falls die Zeit der letzten zur aktuellen Aktualisierung kleiner gleich 
-//einem Wert ist
+//Modul überwacht die Host Kommandos eises Moduls (Taster), die in einer Variable abgelegt werden. 
+//Für die erkannte Taste und das Ereignis wird ein Skript gestartet. 
+//Falls das Skript nicht vorhanden ist, wird es erstellt.
 class ONEClick extends IPSModule {
   public function Create() {
     parent::Create();
@@ -10,7 +10,7 @@ class ONEClick extends IPSModule {
   public function ApplyChanges() {
     parent::ApplyChanges();
    
-    $ClickDetectId = $this->RegisterVariableBoolean('ClickDetect', 'KlickErkannt','', 1); //Boolean anlegen, der bei erkennung gesetzt wird 
+    //$ClickDetectId = $this->RegisterVariableBoolean('ClickDetect', 'KlickErkannt','', 1); //Boolean anlegen, der bei erkennung gesetzt wird 
     
 //Inhalt für Skript erzeugen, das bei Erkennung ausgeführt wird 
 /*  $stringInhalt="<?\n IPS_LogMessage('DBLClick_Script','Starte User_Script.....................'); \n SetValueBoolean($DBLClickDetectId, FALSE); \n//Start your code here\n\n?>"; */
@@ -26,6 +26,8 @@ class ONEClick extends IPSModule {
     	$this->RegisterEvent('OnVariableUpdate', 0, 'ONEC_Check($id)');
     }
   }
+  
+ 
   protected function RegisterEvent($ident, $interval, $script) {
     $id = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
     if ($id && IPS_GetEvent($id)['EventType'] <> 1) {
@@ -45,6 +47,44 @@ class ONEClick extends IPSModule {
     if (!IPS_EventExists($id)) throw new Exception("Ident with name $ident is used for wrong object type");
   }
  
+   protected function CheckKategorie($inst_id) {
+      
+      $CatID=@IPS_GetCategoryIDByName("Tasten".$inst_id);
+      if(!$CatID){
+          IPS_LogMessage('ONEClick',"Erstelle Kategorie Tasten ");
+          $CatID=IPS_CreateCategory();
+          IPS_SetParent($CatID, $inst_id);
+          IPS_SetName($CatID, "Tasten");
+      }
+      return $CatID;
+  }
+  
+  protected function CheckKatTasten($Key,$inst_id) {
+      $KeyID=@IPS_GetCategoryIDByName($Key,$inst_id);
+      if(!$KeyID){
+          IPS_LogMessage('ONEClick',"Erstelle Kategorie für Taste: ".$Key);
+          $KeyID=IPS_CreateCategory();
+          IPS_SetParent($KeyID, $inst_id);
+          IPS_SetName($KeyID, $Key);
+      }
+      return $KeyID;
+  }
+  
+  protected function CheckSkript($source_taste,$KeyCatID) {
+//Skript für erkannte Taste ermitteln oder erstellen
+        $scriptID=@IPS_GetScriptIDByName("Taste_".$source_taste, $KeyCatID);
+//Falls Skript noch nicht vorhanden
+        if(!$scriptID){
+            $stringInhalt="<?\n IPS_LogMessage('ONEClick_Script'.'$source_taste','Starte User_Script.....................'); \n SetValueBoolean($ClickDetectID, FALSE); \n//Start your code here\n\n?>";
+            
+            $scriptID= IPS_CreateScript(0);
+            IPS_SetParent($scriptID, $KeyCatID);
+            IPS_SetName($scriptID, "Taste_".$source_taste);
+            IPS_SetScriptContent($scriptID, $stringInhalt);   
+        }
+  }
+  
+  
   public function Check() {
     //IPS_LogMessage('DBLClick',"Setze Semaphore");
     if(IPS_SemaphoreEnter('ONEClick', 1000)) {
@@ -57,11 +97,19 @@ class ONEClick extends IPSModule {
       $inst_name=$inst_info['ObjectName'];
 //Auswertung 
       IPS_LogMessage('ONEClick-'.$inst_name,"Starte Check.....................");
-//Test, ob Event ein kurzer Tastendruck war
-      if(strstr(substr($string, -3), "111")===FALSE){ //Falls Update nicht durch einfachen Tastendruck verursacht
-          IPS_LogMessage('ONEClick',"Update war kein Einfach-klick -> Exit");
-          IPS_SemaphoreLeave('ONEClick');
-          exit ();
+//Tastendruck erkennen
+      
+      if(strstr(substr($string, -3), "111")===True){ //kurzer Tastendruck
+          IPS_LogMessage('ONEClick',"Kurzer Tatendruck ");
+          $TastenDruck="_kurz";
+      }
+      else if(strstr(substr($string, -3), "123")===True){ //langer Tastendruck
+          IPS_LogMessage('ONEClick',"Langer Tatendruck ");
+          $TastenDruck="_lang";
+      }
+      else if(strstr(substr($string, -3), "222")===True){ //Loslassen nach langem Tastedruck
+          IPS_LogMessage('ONEClick',"Loslassen ");
+          $TastenDruck="_los";
       }
 //Sender-Taste ermitteln (Tabelle und Tastennummer
       $source_table= substr($string,1,1);
@@ -81,8 +129,12 @@ class ONEClick extends IPSModule {
           exit ();
           break;
       }
-      $source_taste=$source_table.$source_button;
+      $source_taste=$source_table.$source_button.$TastenDruck;
       IPS_LogMessage('ONEClick-'.$inst_name,"Taste =".$source_taste);
+//Kategorie prüfen
+      $CatID=CheckKategorie($inst_id);
+      $KeyCatID=CheckKatTasten($source_taste,$CatID);
+      
 //Ermitteln ob doppelter Tastendruck in Zeit "DBLCLickTime" vorliegt
 //ID der Bool-Variable für Doppelklick
       $ClickDetectID=$this->GetIDForIdent('ClickDetect');
@@ -108,17 +160,7 @@ class ONEClick extends IPSModule {
 //      if(($AktuelleZeit-$lastUpdValue)<=$DBLClickTime){ 
 	SetValueBoolean($ClickDetectID, true);
         IPS_LogMessage('ONEClick',"Klick erkannt");
-//Skript für erkannte Taste ermitteln oder erstellen
-        $scriptID=@IPS_GetScriptIDByName("Taste_".$source_taste, $instancethisID);
-//Falls Skript noch nicht vorhanden
-        if(!$scriptID){
-            $stringInhalt="<?\n IPS_LogMessage('ONEClick_Script'.'$source_taste','Starte User_Script.....................'); \n SetValueBoolean($ClickDetectID, FALSE); \n//Start your code here\n\n?>";
-            
-            $scriptID= IPS_CreateScript(0);
-            IPS_SetParent($scriptID, $instancethisID);
-            IPS_SetName($scriptID, "Taste_".$source_taste);
-            IPS_SetScriptContent($scriptID, $stringInhalt);   
-        }
+        $scriptID=CheckSkript($source_taste,$KeyCatID);
             
         IPS_RunScript($scriptID);
       }
