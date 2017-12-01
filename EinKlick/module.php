@@ -99,15 +99,15 @@ class ONEClick extends IPSModule {
       IPS_LogMessage('ONEClick-'.$inst_name,"Starte Check.(".substr($string, -3).")....................");
 //Tastendruck erkennen
       
-      if(strstr(substr($string, -3), "111")===True){ //kurzer Tastendruck
+      if(substr($string, -3) == "111"){ //kurzer Tastendruck
           IPS_LogMessage('ONEClick',"Kurzer Tatendruck ");
           $TastenDruck="_kurz";
       }
-      else if(strstr(substr($string, -3), "123")===True){ //langer Tastendruck
+      else if(substr($string, -3) == "123"){ //langer Tastendruck
           IPS_LogMessage('ONEClick',"Langer Tatendruck ");
           $TastenDruck="_lang";
       }
-      else if(strstr(substr($string, -3), "222")===True){ //Loslassen nach langem Tastedruck
+      else if(substr($string, -3) == "222"){ //Loslassen nach langem Tastedruck
           IPS_LogMessage('ONEClick',"Loslassen ");
           $TastenDruck="_los";
       }
