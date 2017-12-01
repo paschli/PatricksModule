@@ -48,9 +48,10 @@ class ONEClick extends IPSModule {
   }
  
    protected function CheckKategorie($inst_id) {
-      
+      IPS_LogMessage('ONEClick-'.$inst_name,"CheckKategorie");
       $CatID=@IPS_GetCategoryIDByName("Tasten".$inst_id);
       if(!$CatID){
+          IPS_LogMessage('ONEClick-'.$inst_name,"Kategorie neu anlegen");
           IPS_LogMessage('ONEClick',"Erstelle Kategorie Tasten ");
           $CatID=IPS_CreateCategory();
           IPS_SetParent($CatID, $inst_id);
