@@ -57,11 +57,12 @@ class ONEClick extends IPSModule {
           IPS_SetParent($CatID, $inst_id);
           IPS_SetName($CatID, "Tasten");
       }
-      IPS_LogMessage('ONEClick',"Kategorie OK");
+      IPS_LogMessage('ONEClick',"Haupt-Kategorie OK");
       return $CatID;
   }
   
   protected function CheckKatTasten($Key,$inst_id) {
+      IPS_LogMessage('ONEClick-'.$inst_name,"CheckKatTasten");
       $KeyID=@IPS_GetCategoryIDByName($Key,$inst_id);
       if(!$KeyID){
           IPS_LogMessage('ONEClick',"Erstelle Kategorie für Taste: ".$Key);
@@ -69,21 +70,26 @@ class ONEClick extends IPSModule {
           IPS_SetParent($KeyID, $inst_id);
           IPS_SetName($KeyID, $Key);
       }
+      IPS_LogMessage('ONEClick',"Tasten-Kategorie OK");
       return $KeyID;
   }
   
   protected function CheckSkript($source_taste,$KeyCatID) {
+      IPS_LogMessage('ONEClick-'.$inst_name,"CheckSkript");
 //Skript für erkannte Taste ermitteln oder erstellen
         $scriptID=@IPS_GetScriptIDByName("Taste_".$source_taste, $KeyCatID);
 //Falls Skript noch nicht vorhanden
         if(!$scriptID){
             $stringInhalt="<?\n IPS_LogMessage('ONEClick_Script'.'$source_taste','Starte User_Script.....................'); \n//Start your code here\n\n?>";
-            
+            IPS_LogMessage('ONEClick',"Erstelle Skript für Taste: ".$Key);
             $scriptID= IPS_CreateScript(0);
             IPS_SetParent($scriptID, $KeyCatID);
             IPS_SetName($scriptID, "Taste_".$source_taste);
             IPS_SetScriptContent($scriptID, $stringInhalt);   
         }
+        IPS_LogMessage('ONEClick',"Skript OK");
+        
+        return $scriptID;
   }
   
   
