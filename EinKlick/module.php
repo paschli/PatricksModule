@@ -96,7 +96,7 @@ class ONEClick extends IPSModule {
       $inst_info= IPS_GetObject($inst_id);
       $inst_name=$inst_info['ObjectName'];
 //Auswertung 
-      IPS_LogMessage('ONEClick-'.$inst_name,"Starte Check.....................");
+      IPS_LogMessage('ONEClick-'.$inst_name,"Starte Check.(".substr($string, -3).")....................");
 //Tastendruck erkennen
       
       if(strstr(substr($string, -3), "111")===True){ //kurzer Tastendruck
@@ -110,6 +110,9 @@ class ONEClick extends IPSModule {
       else if(strstr(substr($string, -3), "222")===True){ //Loslassen nach langem Tastedruck
           IPS_LogMessage('ONEClick',"Loslassen ");
           $TastenDruck="_los";
+      }
+      else {
+          IPS_LogMessage('ONEClick',"Tastendruck nicht erkannt (".substr($string, -3).") ");
       }
 //Sender-Taste ermitteln (Tabelle und Tastennummer
       $source_table= substr($string,1,1);
