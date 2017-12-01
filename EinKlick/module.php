@@ -137,7 +137,7 @@ class ONEClick extends IPSModule {
       $source_taste=$source_table.$source_button.$TastenDruck;
       IPS_LogMessage('ONEClick-'.$inst_name,"Taste =".$source_taste);
 //Kategorie prüfen
-      IPS_LogMessage('ONEClick-'.$inst_name,"CheckKategorie");
+      IPS_LogMessage('ONEClick-'.$inst_name,"Kategorien prüfen");
       $CatID=CheckKategorie($inst_id);
       $KeyCatID=CheckKatTasten($source_taste,$CatID);
       
