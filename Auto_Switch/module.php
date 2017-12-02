@@ -167,7 +167,8 @@ class AutSw extends IPSModule {
             { "label": "LCN Lämpchen", "value": 3 },
             { "label": "JSON Fernzugriff", "value": 4 },
             { "label": "Schalter", "value": 5 },
-            { "label": "PIIOC", "value": 6 }
+            { "label": "PIIOC", "value": 6 },
+            { "label": "Sonoff", "value": 7 }
           ]
         }';
     $elements_entry_lcnOutput=',
@@ -178,7 +179,10 @@ class AutSw extends IPSModule {
     $elements_entry_lcnRelais=',
         { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
         { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
-          
+    
+    $elements_entry_Sonoff=',
+        { "name": "idLCNInstance", "type": "SelectInstance", "caption": "Sonoff Instanz" },
+        { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';     
      
     $elements_entry_lcnLämpchen=',
         { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
@@ -625,6 +629,11 @@ public function Set(bool $value, bool $anzeige) {
             
             SetValue($this->GetIDForIdent("Status"), $value);
             IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');
+            break;
+          case 7:
+            $instID=$this->ReadPropertyInteger('idLCNInstance');
+            Tasmota_setPower(28773, "Tasmota_POWER", $value);
+            SetValue($this->GetIDForIdent("Status"), $value);
             break;
           default: break;
       }
