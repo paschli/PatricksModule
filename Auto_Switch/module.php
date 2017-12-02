@@ -359,15 +359,23 @@ public function EventTrigger(int $par,bool $value) {
 //Neuen Wert in die Statusvariable schreiben
       
 }
+public function Toggle(){
+    $status= GetValueBoolean($this->GetIDForIdent('Status'));
+    if($status)
+        $this->SetOff ();
+    else
+        $this->SetOn ();
+      
+}
 
 public function SetOn() {
       $this->Set(True,TRUE);
       if($this->ReadPropertyBoolean('TimerMsg')){
           $par= IPS_GetParent(($this->GetIDForIdent('Status')));
           WFC_PushNotification(33722, "Info AutoSwitchModul", IPS_GetName($par) . " erfolgreich eingeschaltet", "", 0); 
-      }
-           
-      }
+      }           
+}
+
 public function SetOff() {
       $this->Set(False,TRUE);
       if($this->ReadPropertyBoolean('TimerMsg')){
