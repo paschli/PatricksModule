@@ -234,6 +234,7 @@ class AutSw extends IPSModule {
         case 4:  $elements_entry=$elements_entry_device.$elements_entry_jsonZugriff; break;
         case 5:  $elements_entry=$elements_entry_device.$elements_entry_lcnRelais; break;
         case 6:  $elements_entry=$elements_entry_device.$elements_entry_jsonZugriff; break;
+        case 7:  $elements_entry=$elements_entry_device.$elements_entry_Sonoff; break;
     }
 //Option für WatchEvent - geht nur bei LCN-Instanz, LCN-Relais, Switch_Modul 
     if($this->ReadPropertyBoolean('SelAutoOff')&&($wahl!=3)&&($wahl!=4)&&($wahl!=6)){
