@@ -235,6 +235,7 @@ class AutSw extends IPSModule {
         case 5:  $elements_entry=$elements_entry_device.$elements_entry_lcnRelais; break;
         case 6:  $elements_entry=$elements_entry_device.$elements_entry_jsonZugriff; break;
         case 7:  $elements_entry=$elements_entry_device.$elements_entry_Sonoff; break;
+        
     }
 //Option für WatchEvent - geht nur bei LCN-Instanz, LCN-Relais, Switch_Modul 
     if($this->ReadPropertyBoolean('SelAutoOff')&&($wahl!=3)&&($wahl!=4)&&($wahl!=6)){
@@ -633,7 +634,7 @@ public function Set(bool $value, bool $anzeige) {
             break;
           case 7:
             $instID=$this->ReadPropertyInteger('idLCNInstance');
-            Tasmota_setPower(28773, "Tasmota_POWER", $value);
+            Tasmota_setPower($instID, "Tasmota_POWER", $value);
             SetValue($this->GetIDForIdent("Status"), $value);
             break;
           default: break;
