@@ -129,7 +129,6 @@ class AutSw extends IPSModule {
                 $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
                 break;
             case 6:
-                
                 break;
             case 7:
                 break;
@@ -173,7 +172,8 @@ class AutSw extends IPSModule {
             { "label": "JSON Fernzugriff", "value": 4 },
             { "label": "Schalter", "value": 5 },
             { "label": "PIIOC", "value": 6 },
-            { "label": "Sonoff", "value": 7 }
+            { "label": "Sonoff", "value": 7 },
+            { "label": "PIGPIO_Out", "value": 8}
           ]
         }';
     $elements_entry_lcnOutput=',
