@@ -820,7 +820,9 @@ private function Set_Tasmota($value) {
 private function Set_PIGPIO($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
     I2GOUT_Set_Status($instID, $value);
-    SetValue($this->GetIDForIdent("Status"), I2GOUT_Get_Status($instID));
+    $result=I2GOUT_Get_Status($instID);
+    SetValue($this->GetIDForIdent("Status"), $result);
+    //return $result;
 }
 
 private function CreateCategorie($instID) {
