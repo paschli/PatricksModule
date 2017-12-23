@@ -821,7 +821,7 @@ private function Set_PIGPIO($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
     I2GOUT_Set_Status($instID, $value);
     $result=I2GOUT_Get_Status($instID);
-    SetValue($this->GetIDForIdent("Status"), $result);
+    SetValue($this->GetIDForIdent("Status"), $value);
     //return $result;
 }
 
