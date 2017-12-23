@@ -162,7 +162,8 @@ class AutSw extends IPSModule {
              { "code": 102, "icon": "active", "caption": "Instanz aktiv" },
              { "code": 200, "icon": "error", "caption": "Instanz fehlerhaft" }'; 
      
-     
+     /*,
+            { "label": "PIGPIO_Output", "value": 8 }*/
     $elements_entry_device='
         { "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
         "options":[
@@ -172,8 +173,7 @@ class AutSw extends IPSModule {
             { "label": "JSON Fernzugriff", "value": 4 },
             { "label": "Schalter", "value": 5 },
             { "label": "PIIOC", "value": 6 },
-            { "label": "Sonoff", "value": 7 },
-            { "label": "PIGPIO_Output", "value": 8 }
+            { "label": "Sonoff", "value": 7 }
           ]
         }';
     $elements_entry_lcnOutput=',
