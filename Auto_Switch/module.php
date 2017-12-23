@@ -544,12 +544,12 @@ public function Set(bool $value, bool $anzeige) {
                 SetValueInteger($SliderID, 0);
             }
             SetValue($this->GetIDForIdent("Status"), $value);*/
-            Set_LCN_Dim($value);  
+            $this->Set_LCN_Dim($value);  
             break;
           case 2: /*$instID=$this->ReadPropertyInteger('idLCNInstance');
             LCN_SwitchRelay($instID, $value);
             SetValue($this->GetIDForIdent("Status"), $value);*/
-            Set_LCN_Rel($value);
+            $this->Set_LCN_Rel($value);
             break;
           case 3: /*$lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
             $lampNo=$this->ReadPropertyInteger('LaempchenNr');
@@ -560,7 +560,7 @@ public function Set(bool $value, bool $anzeige) {
               LCN_SetLamp($lcn_instID,$lampNo,'A');  
             }
             SetValue($this->GetIDForIdent("Status"), $value);*/
-            Set_LCN_Lamp($value);  
+            $this->Set_LCN_Lamp($value);  
             break;
           case 4: 
             /*$password= $this->ReadPropertyString('Password'); 
@@ -597,6 +597,7 @@ public function Set(bool $value, bool $anzeige) {
             
             SetValue($this->GetIDForIdent("Status"), $result);
             IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');*/
+              $this->Set_JSON($value);
             break;
           case 5: /*$lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
             if($value){
@@ -608,7 +609,7 @@ public function Set(bool $value, bool $anzeige) {
                 Schalter_Set($lcn_instID,0);
             }
             SetValue($this->GetIDForIdent("Status"), $value);*/
-            Set_Schalter($value);
+            $this->Set_Schalter($value);
             break;  
           case 6: 
             /*$password= $this->ReadPropertyString('Password'); 
@@ -644,16 +645,16 @@ public function Set(bool $value, bool $anzeige) {
             
             SetValue($this->GetIDForIdent("Status"), $value);
             IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');*/
-            Set_PIIOC($value);
+            $this->Set_PIIOC($value);
             break;
           case 7:
             /*$instID=$this->ReadPropertyInteger('idLCNInstance');
             Tasmota_setPower($instID, "Tasmota_POWER", $value);
             SetValue($this->GetIDForIdent("Status"), $value);*/
-            Set_Tasmota($value);
+            $this->Set_Tasmota($value);
             break;
           case 8:
-            Set_PIGPIO($value);  
+            $this->Set_PIGPIO($value);  
             break;
           default: break;
       }
