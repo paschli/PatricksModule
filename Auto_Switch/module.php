@@ -172,7 +172,8 @@ class AutSw extends IPSModule {
             { "label": "JSON Fernzugriff", "value": 4 },
             { "label": "Schalter", "value": 5 },
             { "label": "PIIOC", "value": 6 },
-            { "label": "Sonoff", "value": 7 }
+            { "label": "Sonoff", "value": 7 },
+            { "label": "PIGPIO_Output", "value": 7 }
           ]
         }';
     $elements_entry_lcnOutput=',
