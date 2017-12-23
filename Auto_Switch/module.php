@@ -173,7 +173,7 @@ class AutSw extends IPSModule {
             { "label": "Schalter", "value": 5 },
             { "label": "PIIOC", "value": 6 },
             { "label": "Sonoff", "value": 7 },
-            { "label": "PIGPIO_Output", "value": 7 }
+            { "label": "PIGPIO_Output", "value": 8 }
           ]
         }';
     $elements_entry_lcnOutput=',
