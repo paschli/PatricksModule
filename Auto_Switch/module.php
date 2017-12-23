@@ -131,6 +131,10 @@ class AutSw extends IPSModule {
             case 6:
                 
                 break;
+            case 7:
+                break;
+            case 8:
+                break;
             default:
                 break;
         }
@@ -182,7 +186,11 @@ class AutSw extends IPSModule {
     
     $elements_entry_Sonoff=',
         { "name": "idLCNInstance", "type": "SelectInstance", "caption": "Sonoff Instanz" },
-        { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';     
+        { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
+    
+    $elements_entry_PIGPIO=',
+        { "name": "idLCNInstance", "type": "SelectInstance", "caption": "PIGPIO_Output Instanz" },
+        { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
      
     $elements_entry_lcnLämpchen=',
         { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
@@ -235,6 +243,7 @@ class AutSw extends IPSModule {
         case 5:  $elements_entry=$elements_entry_device.$elements_entry_lcnRelais; break;
         case 6:  $elements_entry=$elements_entry_device.$elements_entry_jsonZugriff; break;
         case 7:  $elements_entry=$elements_entry_device.$elements_entry_Sonoff; break;
+        case 8:  $elements_entry=$elements_entry_device.$elements_entry_PIGPIO; break;
         
     }
 //Option für WatchEvent - geht nur bei LCN-Instanz, LCN-Relais, Switch_Modul 
@@ -523,7 +532,7 @@ public function Set(bool $value, bool $anzeige) {
        IPS_LogMessage("AutoSwitch_Set","Set aufgerufen mit".$value."!");
       switch($typ){
           case 0: break;
-          case 1: $instID=$this->ReadPropertyInteger('idLCNInstance');
+          case 1: /*$instID=$this->ReadPropertyInteger('idLCNInstance');
             $dim_time= $this->ReadPropertyInteger('Rampe');
             $SliderID=@$this->GetIDForIdent('SliderAnz');
             if($value){
@@ -534,13 +543,15 @@ public function Set(bool $value, bool $anzeige) {
                 LCN_SetIntensity($instID, 0, $dim_time);
                 SetValueInteger($SliderID, 0);
             }
-            SetValue($this->GetIDForIdent("Status"), $value);
+            SetValue($this->GetIDForIdent("Status"), $value);*/
+            Set_LCN_Dim($value);  
             break;
-          case 2: $instID=$this->ReadPropertyInteger('idLCNInstance');
+          case 2: /*$instID=$this->ReadPropertyInteger('idLCNInstance');
             LCN_SwitchRelay($instID, $value);
-            SetValue($this->GetIDForIdent("Status"), $value);
+            SetValue($this->GetIDForIdent("Status"), $value);*/
+            Set_LCN_Rel($value);
             break;
-          case 3: $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
+          case 3: /*$lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
             $lampNo=$this->ReadPropertyInteger('LaempchenNr');
             if($value){
               LCN_SetLamp($lcn_instID,$lampNo,'E');  
@@ -548,10 +559,11 @@ public function Set(bool $value, bool $anzeige) {
             else{
               LCN_SetLamp($lcn_instID,$lampNo,'A');  
             }
-            SetValue($this->GetIDForIdent("Status"), $value);
+            SetValue($this->GetIDForIdent("Status"), $value);*/
+            Set_LCN_Lamp($value);  
             break;
           case 4: 
-            $password= $this->ReadPropertyString('Password'); 
+            /*$password= $this->ReadPropertyString('Password'); 
             $IPAddr= $this->ReadPropertyString('IPAddress');
             $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
             $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
@@ -584,21 +596,22 @@ public function Set(bool $value, bool $anzeige) {
             $result=(bool)$rpc->GetValue($TargetID);
             
             SetValue($this->GetIDForIdent("Status"), $result);
-            IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');
+            IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');*/
             break;
-          case 5: $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
+          case 5: /*$lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
             if($value){
                 IPS_LogMessage("AutoSwitch_Set","Aufruf AN Schalter_Set ID=".$lcn_instID);
                 Schalter_Set($lcn_instID,1);  
             }
             else{
                 IPS_LogMessage("AutoSwitch_Set","Aufruf AUS Schalter_Set ID=".$lcn_instID);
-                Schalter_Set($lcn_instID,0);  
+                Schalter_Set($lcn_instID,0);
             }
-            SetValue($this->GetIDForIdent("Status"), $value);
+            SetValue($this->GetIDForIdent("Status"), $value);*/
+            Set_Schalter($value);
             break;  
           case 6: 
-            $password= $this->ReadPropertyString('Password'); 
+            /*$password= $this->ReadPropertyString('Password'); 
             $IPAddr= $this->ReadPropertyString('IPAddress');
             $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
             $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
@@ -630,12 +643,17 @@ public function Set(bool $value, bool $anzeige) {
             }
             
             SetValue($this->GetIDForIdent("Status"), $value);
-            IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');
+            IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');*/
+            Set_PIIOC($value);
             break;
           case 7:
-            $instID=$this->ReadPropertyInteger('idLCNInstance');
+            /*$instID=$this->ReadPropertyInteger('idLCNInstance');
             Tasmota_setPower($instID, "Tasmota_POWER", $value);
-            SetValue($this->GetIDForIdent("Status"), $value);
+            SetValue($this->GetIDForIdent("Status"), $value);*/
+            Set_Tasmota($value);
+            break;
+          case 8:
+            Set_PIGPIO($value);  
             break;
           default: break;
       }
@@ -675,6 +693,137 @@ public function Set(bool $value, bool $anzeige) {
       IPS_LogMessage('AutoSwitch_Set', 'Semaphore Timeout');
     }
    }
+
+private function Set_LCN_Dim($value) {
+    $instID=$this->ReadPropertyInteger('idLCNInstance');
+    $dim_time= $this->ReadPropertyInteger('Rampe');
+    $SliderID=@$this->GetIDForIdent('SliderAnz');
+    if($value){
+        LCN_SetIntensity($instID, 100, $dim_time);
+        SetValueInteger($SliderID, 100);
+    }
+    else {
+        LCN_SetIntensity($instID, 0, $dim_time);
+        SetValueInteger($SliderID, 0);
+    }
+    SetValue($this->GetIDForIdent("Status"), $value);
+}   
+   
+private function Set_LCN_Rel($value) {
+    $instID=$this->ReadPropertyInteger('idLCNInstance');
+    LCN_SwitchRelay($instID, $value);
+    SetValue($this->GetIDForIdent("Status"), $value);
+}
+
+private function Set_LCN_Lamp($value) {
+    $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
+    $lampNo=$this->ReadPropertyInteger('LaempchenNr');
+    if($value){
+      LCN_SetLamp($lcn_instID,$lampNo,'E');  
+    }
+    else{
+      LCN_SetLamp($lcn_instID,$lampNo,'A');  
+    }
+    SetValue($this->GetIDForIdent("Status"), $value);
+}
+
+private function Set_JSON($value) {
+    $password= $this->ReadPropertyString('Password'); 
+    $IPAddr= $this->ReadPropertyString('IPAddress');
+    $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
+    $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
+    IPS_LogMessage("AutoSwitch_Set","Aufruf".$mes);
+    IPS_LogMessage("AutoSwitch_Set","Target ID".$TargetID);
+    try {
+        $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
+        if($value){
+            //IPS_LogMessage(Modul,"Value = True => Relais An");
+            $rpc->SetValue($TargetID, true);
+        }           
+        else{
+            //IPS_LogMessage(Modul,"Value = False => Relais Aus");
+            $rpc->SetValue($TargetID, false);
+        }
+    }
+    catch (JSONRPCException $e) {
+        echo 'RPC Problem', "\n";
+        IPS_SemaphoreLeave('AutoSwitch_Set');
+        IPS_LogMessage('AutoSwitch_Set', 'RPC Fehler');
+        return 0;
+    } 
+    catch (Exception $e) {
+       echo 'Server Problem',"\n";
+       IPS_SemaphoreLeave('AutoSwitch_Set');
+       IPS_LogMessage('AutoSwitch_Set', 'Verbindungsfehler');
+       return 0;
+    }
+
+    $result=(bool)$rpc->GetValue($TargetID);
+
+    SetValue($this->GetIDForIdent("Status"), $result);
+    IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');
+}
+
+private function Set_Schalter($value) {
+    $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
+    if($value){
+        IPS_LogMessage("AutoSwitch_Set","Aufruf AN Schalter_Set ID=".$lcn_instID);
+        Schalter_Set($lcn_instID,1);  
+    }
+    else{
+        IPS_LogMessage("AutoSwitch_Set","Aufruf AUS Schalter_Set ID=".$lcn_instID);
+        Schalter_Set($lcn_instID,0);  
+    }
+    SetValue($this->GetIDForIdent("Status"), $value);
+}
+
+private function Set_PIIOC($value) {
+    $password= $this->ReadPropertyString('Password'); 
+    $IPAddr= $this->ReadPropertyString('IPAddress');
+    $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
+    $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
+    IPS_LogMessage("AutoSwitch_Set","Aufruf".$mes);
+    IPS_LogMessage("AutoSwitch_Set","Target ID".$TargetID);
+    try{
+        $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
+        if($value){
+            //IPS_LogMessage(Modul,"Value = True => Relais An");
+            $rpc->PIIOC_set($TargetID);
+        }           
+        else{
+            //IPS_LogMessage(Modul,"Value = False => Relais Aus");
+            $rpc->PIIOC_clear($TargetID);
+        }
+
+    }
+    catch (JSONRPCException $e) {
+        echo 'RPC Problem', "\n";
+        IPS_SemaphoreLeave('AutoSwitch_Set');
+        IPS_LogMessage('AutoSwitch_Set', 'RPC Fehler');
+        return 0;
+    } 
+    catch (Exception $e) {
+       echo 'Server Problem',"\n";
+       IPS_SemaphoreLeave('AutoSwitch_Set');
+       IPS_LogMessage('AutoSwitch_Set', 'Verbindungsfehler');
+       return 0;
+    }
+
+    SetValue($this->GetIDForIdent("Status"), $value);
+    IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');
+}
+
+private function Set_Tasmota($value) {
+    $instID=$this->ReadPropertyInteger('idLCNInstance');
+    Tasmota_setPower($instID, "Tasmota_POWER", $value);
+    SetValue($this->GetIDForIdent("Status"), $value);
+}
+
+private function Set_PIGPIO($value) {
+    $instID=$this->ReadPropertyInteger('idLCNInstance');
+    I2GOUT_Set_Status($instID, $value);
+    SetValue($this->GetIDForIdent("Status"), I2GOUT_Get_Status($instID));
+}
 
 private function CreateCategorie($instID) {
     $CatID = IPS_CreateCategory();       // Kategorie anlegen
