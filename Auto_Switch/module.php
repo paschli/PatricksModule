@@ -705,7 +705,7 @@ private function Set_LCN_Dim($value) {
         LCN_SetIntensity($instID, 0, $dim_time);
         SetValueInteger($SliderID, 0);
     }
-    $status_id=get_status_id($instID,'Status');
+    $status_id= $this->get_status_id($instID,'Status');
     if($status_id){
         SetValue($this->GetIDForIdent("Status"), GetValueBoolean($status_id));
         return 1;
@@ -718,7 +718,7 @@ private function Set_LCN_Dim($value) {
 private function Set_LCN_Rel($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
     LCN_SwitchRelay($instID, $value);
-    $status_id=get_status_id($instID,'Status');
+    $status_id= $this->get_status_id($instID,'Status');
     if($status_id){
         SetValue($this->GetIDForIdent("Status"), GetValueBoolean($status_id));
         return 1;
@@ -836,7 +836,7 @@ private function Set_PIIOC($value) {
 private function Set_Tasmota($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
     Tasmota_setPower($instID, "", $value);
-    $status_id=get_status_id($instID,'Power');
+    $status_id= $this->get_status_id($instID,'Power');
     if($status_id){
         SetValue($this->GetIDForIdent("Status"), GetValueBoolean($status_id));
         return 1;
@@ -850,7 +850,7 @@ private function Set_PIGPIO($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
     I2GOUT_Set_Status($instID, $value);
     $result=I2GOUT_Get_Status($instID);
-    $status_id=get_status_id($instID,'Status');
+    $status_id= $this->get_status_id($instID,'Status');
     if($status_id){
         SetValue($this->GetIDForIdent("Status"), GetValueBoolean($status_id));
         return 1;
