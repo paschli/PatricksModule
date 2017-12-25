@@ -541,12 +541,12 @@ public function Set(bool $value, bool $anzeige) {
                 SetValueInteger($SliderID, 0);
             }
             SetValue($this->GetIDForIdent("Status"), $value);*/
-            $this->Set_LCN_Dim($value);  
+            $result=$this->Set_LCN_Dim($value);  
             break;
           case 2: /*$instID=$this->ReadPropertyInteger('idLCNInstance');
             LCN_SwitchRelay($instID, $value);
             SetValue($this->GetIDForIdent("Status"), $value);*/
-            $this->Set_LCN_Rel($value);
+            $result=$this->Set_LCN_Rel($value);
             break;
           case 3: /*$lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
             $lampNo=$this->ReadPropertyInteger('LaempchenNr');
@@ -594,7 +594,8 @@ public function Set(bool $value, bool $anzeige) {
             
             SetValue($this->GetIDForIdent("Status"), $result);
             IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');*/
-              $this->Set_JSON($value);
+              $result=$this->Set_JSON($value);
+              IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');
             break;
           case 5: /*$lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
             if($value){
@@ -648,7 +649,7 @@ public function Set(bool $value, bool $anzeige) {
             /*$instID=$this->ReadPropertyInteger('idLCNInstance');
             Tasmota_setPower($instID, "Tasmota_POWER", $value);
             SetValue($this->GetIDForIdent("Status"), $value);*/
-            $this->Set_Tasmota($value);
+            $result=$this->Set_Tasmota($value);
             break;
           case 8:
             $this->Set_PIGPIO($value);  
@@ -704,13 +705,28 @@ private function Set_LCN_Dim($value) {
         LCN_SetIntensity($instID, 0, $dim_time);
         SetValueInteger($SliderID, 0);
     }
-    SetValue($this->GetIDForIdent("Status"), $value);
+    $status_id=get_status_id($instID,'Status');
+    if($status_id){
+        SetValue($this->GetIDForIdent("Status"), GetValueBoolean($status_id));
+        return 1;
+    }
+    else {
+        return 0;
+    }
 }   
    
 private function Set_LCN_Rel($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
     LCN_SwitchRelay($instID, $value);
-    SetValue($this->GetIDForIdent("Status"), $value);
+    $status_id=get_status_id($instID,'Status');
+    if($status_id){
+        SetValue($this->GetIDForIdent("Status"), GetValueBoolean($status_id));
+        return 1;
+    }
+    else {
+        return 0;
+    }
+    
 }
 
 private function Set_LCN_Lamp($value) {
@@ -757,9 +773,15 @@ private function Set_JSON($value) {
     }
 
     $result=(bool)$rpc->GetValue($TargetID);
-
-    SetValue($this->GetIDForIdent("Status"), $result);
-    IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');
+    if($result==$value){
+        SetValue($this->GetIDForIdent("Status"), $result);
+        return 1;
+    }
+    else {
+        return 0;
+    }
+    
+    
 }
 
 private function Set_Schalter($value) {
@@ -813,16 +835,39 @@ private function Set_PIIOC($value) {
 
 private function Set_Tasmota($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
-    Tasmota_setPower($instID, "Tasmota_POWER", $value);
-    SetValue($this->GetIDForIdent("Status"), $value);
+    Tasmota_setPower($instID, "", $value);
+    $status_id=get_status_id($instID,'Power');
+    if($status_id){
+        SetValue($this->GetIDForIdent("Status"), GetValueBoolean($status_id));
+        return 1;
+    }
+    else {
+        return 0;
+    }
 }
 
 private function Set_PIGPIO($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
     I2GOUT_Set_Status($instID, $value);
     $result=I2GOUT_Get_Status($instID);
-    SetValue($this->GetIDForIdent("Status"), $value);
+    $status_id=get_status_id($instID,'Status');
+    if($status_id){
+        SetValue($this->GetIDForIdent("Status"), GetValueBoolean($status_id));
+        return 1;
+    }
+    else {
+        return 0;
+    }
     //return $result;
+}
+private function get_status_id($id, $name){
+    $arr=IPS_GetChildrenIDs($id);
+    $status_id=0;
+    foreach($arr as $child){
+        if(IPS_GetName($child)==$name) 
+            $status_id=$child;
+    }    
+    return $status_id;
 }
 
 private function CreateCategorie($instID) {
