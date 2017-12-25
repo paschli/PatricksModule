@@ -541,12 +541,22 @@ public function Set(bool $value, bool $anzeige) {
                 SetValueInteger($SliderID, 0);
             }
             SetValue($this->GetIDForIdent("Status"), $value);*/
-            $result=$this->Set_LCN_Dim($value);  
+            for($i = 1 ; $i <= 3 ; $i++){
+                $result=$this->Set_LCN_Dim($value);  
+                if($result==1)
+                    break;
+            }  
+            
             break;
           case 2: /*$instID=$this->ReadPropertyInteger('idLCNInstance');
             LCN_SwitchRelay($instID, $value);
             SetValue($this->GetIDForIdent("Status"), $value);*/
-            $result=$this->Set_LCN_Rel($value);
+            for($i = 1 ; $i <= 3 ; $i++){
+                $result=$this->Set_LCN_Rel($value);  
+                if($result==1)
+                    break;
+            }  
+            
             break;
           case 3: /*$lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
             $lampNo=$this->ReadPropertyInteger('LaempchenNr');
@@ -594,8 +604,12 @@ public function Set(bool $value, bool $anzeige) {
             
             SetValue($this->GetIDForIdent("Status"), $result);
             IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');*/
-              $result=$this->Set_JSON($value);
-              IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');
+            for($i = 1 ; $i <= 3 ; $i++){
+                $result=$this->Set_JSON($value);  
+                if($result==1)
+                    break;
+            }
+            
             break;
           case 5: /*$lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
             if($value){
@@ -649,13 +663,32 @@ public function Set(bool $value, bool $anzeige) {
             /*$instID=$this->ReadPropertyInteger('idLCNInstance');
             Tasmota_setPower($instID, "Tasmota_POWER", $value);
             SetValue($this->GetIDForIdent("Status"), $value);*/
-            $result=$this->Set_Tasmota($value);
+            for($i = 1 ; $i <= 3 ; $i++){
+                $result=$this->Set_Tasmota($value);  
+                if($result==1)
+                    break;
+            }
+            
             break;
           case 8:
-            $this->Set_PIGPIO($value);  
+            for($i = 1 ; $i <= 3 ; $i++){
+                $this->Set_PIGPIO($value);  
+                if($result==1)
+                    break;
+            }
+              
             break;
           default: break;
       }
+      if($result==1){
+          IPS_LogMessage('AutoSwitch_Set', 'Aktion erfolgreich!');
+      }
+      else{
+          IPS_LogMessage('AutoSwitch_Set', 'Aktion fehlgeschlagen!');
+          IPS_SemaphoreLeave('AutoSwitch_Set');
+          exit();
+      }
+          
       $AutoTimeID=@IPS_GetObjectIDByIdent('AutoTime', $CatID);
       if($AutoTimeID){
           $this->AutoTimeUpdate($CatID,1);
