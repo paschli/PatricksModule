@@ -542,7 +542,8 @@ public function Set(bool $value, bool $anzeige) {
             }
             SetValue($this->GetIDForIdent("Status"), $value);*/
             for($i = 1 ; $i <= 3 ; $i++){
-                $result=$this->Set_LCN_Dim($value);  
+                $result=$this->Set_LCN_Dim($value); 
+                IPS_LogMessage('AutoSwitch_Set_LCN_Out', 'Aktion ausgeführt= '.$i."-mal");
                 if($result==1)
                     break;
             }  
@@ -552,7 +553,8 @@ public function Set(bool $value, bool $anzeige) {
             LCN_SwitchRelay($instID, $value);
             SetValue($this->GetIDForIdent("Status"), $value);*/
             for($i = 1 ; $i <= 3 ; $i++){
-                $result=$this->Set_LCN_Rel($value);  
+                $result=$this->Set_LCN_Rel($value);
+                IPS_LogMessage('AutoSwitch_Set_LCN_Relais', 'Aktion ausgeführt= '.$i."-mal");
                 if($result==1)
                     break;
             }  
@@ -605,7 +607,8 @@ public function Set(bool $value, bool $anzeige) {
             SetValue($this->GetIDForIdent("Status"), $result);
             IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');*/
             for($i = 1 ; $i <= 3 ; $i++){
-                $result=$this->Set_JSON($value);  
+                $result=$this->Set_JSON($value); 
+                IPS_LogMessage('AutoSwitch_Set_JSON', 'Aktion ausgeführt= '.$i."-mal");
                 if($result==1)
                     break;
             }
