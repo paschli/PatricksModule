@@ -382,18 +382,18 @@ public function Toggle(){
 
 public function SetOn() {
       $this->Set(True,TRUE);
-      if($this->ReadPropertyBoolean('TimerMsg')){
+ /*     if($this->ReadPropertyBoolean('TimerMsg')){
           $par= IPS_GetParent(($this->GetIDForIdent('Status')));
           WFC_PushNotification(33722, "Info AutoSwitchModul", IPS_GetName($par) . " erfolgreich eingeschaltet", "", 0); 
-      }           
+      } */          
 }
 
 public function SetOff() {
       $this->Set(False,TRUE);
-      if($this->ReadPropertyBoolean('TimerMsg')){
+/*      if($this->ReadPropertyBoolean('TimerMsg')){
           $par= IPS_GetParent(($this->GetIDForIdent('Status')));
           WFC_PushNotification(33722, "Info AutoSwitchModul", IPS_GetName($par) . " erfolgreich ausgeschaltet", "", 0); 
-      }
+      }*/
 }
 
 private function checkVerb($wahl) {
@@ -536,7 +536,9 @@ public function Set(bool $value, bool $anzeige) {
           IPS_LogMessage("AutoSwitch_".$func,"WatchEvent deaktivieren!");
       }  
       switch($typ){
-        case 0: break;
+        case 0: 
+            $result=0;
+        break;
 
         case 1: 
           for($i = 1 ; $i <= 3 ; $i++){
@@ -558,7 +560,8 @@ public function Set(bool $value, bool $anzeige) {
         break;
         
         case 3: 
-          $this->Set_LCN_Lamp($value);  
+          $this->Set_LCN_Lamp($value); 
+            $result=1;
           break;
       
         case 4: 
@@ -581,6 +584,8 @@ public function Set(bool $value, bool $anzeige) {
           }
           SetValue($this->GetIDForIdent("Status"), $value);*/
           $this->Set_Schalter($value);
+          $result=1;
+           
         break; 
     
         case 6: 
@@ -618,6 +623,7 @@ public function Set(bool $value, bool $anzeige) {
           SetValue($this->GetIDForIdent("Status"), $value);
           IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');*/
           $this->Set_PIIOC($value);
+          $result=1;
         break;
       
         case 7:
@@ -644,6 +650,10 @@ public function Set(bool $value, bool $anzeige) {
       }
       if($result==1){
           IPS_LogMessage('AutoSwitch_Set', 'Aktion erfolgreich!');
+          if($this->ReadPropertyBoolean('TimerMsg')){
+              $value ? WFC_PushNotification(33722, "Info AutoSwitchModul", $name . " erfolgreich eingeschaltet", "", 0):
+                       WFC_PushNotification(33722, "Info AutoSwitchModul", $name . " erfolgreich ausgeschaltet", "", 0);
+          }
       }
       else{
           IPS_LogMessage('AutoSwitch_Set', 'Aktion fehlgeschlagen!');
