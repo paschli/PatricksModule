@@ -533,7 +533,7 @@ public function Set(bool $value, bool $anzeige) {
       $EventID=@IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID);
       if($EventID){
           IPS_SetEventActive($EventID,false);
-          IPS_LogMessage("AutoSwitch_".$func,"Event für deaktivieren!");
+          IPS_LogMessage("AutoSwitch_".$func,"WatchEvent deaktivieren!");
       }  
       switch($typ){
         case 0: break;
@@ -654,7 +654,7 @@ public function Set(bool $value, bool $anzeige) {
       }
       if($EventID){
           IPS_SetEventActive($EventID,true);
-          IPS_LogMessage("AutoSwitch_".$func,"Event aktivieren!");
+          IPS_LogMessage("AutoSwitch_".$func,"WatchEvent aktivieren!");
       }    
       $AutoTimeID=@IPS_GetObjectIDByIdent('AutoTime', $CatID);
       if($AutoTimeID){
