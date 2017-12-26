@@ -889,8 +889,8 @@ private function Set_PIGPIO($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
     I2GOUT_Set_Status($instID, $value);
     //$result=I2GOUT_Get_Status($instID);
-    //usleep(100000);
-    sleep(1);
+    usleep(100000);
+    //sleep(1);
     $status_id= $this->get_status_id($instID,'Status');
     if($status_id==$value){
         SetValue($this->GetIDForIdent("Status"), $status_id);
