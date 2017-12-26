@@ -869,8 +869,8 @@ private function Set_PIIOC($value) {
 private function Set_Tasmota($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
     $value ? Tasmota_setPower($instID, 'POWER', 1) : Tasmota_setPower($instID, 'POWER', 0);
-    //usleep(100000);
-    sleep(1);
+    usleep(10000);
+    //sleep(1);
     //Tasmota_setPower($instID, 'POWER', $value);
     $status_id= $this->get_status_id($instID,'POWER');
     IPS_LogMessage('AutoSwitch_Set_Tasmota', 'Aktion ausgeführt'.$status_id);
