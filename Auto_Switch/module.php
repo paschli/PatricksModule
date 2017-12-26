@@ -665,7 +665,7 @@ public function Set(bool $value, bool $anzeige) {
             SetValue($this->GetIDForIdent("Status"), $value);*/
             for($i = 1 ; $i <= 3 ; $i++){
                 $result=$this->Set_Tasmota($value); 
-                IPS_LogMessage('AutoSwitch_Set_Tasmota', 'Aktion ausgeführt= '.$i."!");
+                IPS_LogMessage('AutoSwitch_Set_Tasmota', 'Aktion ausgeführt= '.$i."-mal");
                 if($result==1)
                     break;
             }
