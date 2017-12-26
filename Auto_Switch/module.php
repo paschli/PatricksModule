@@ -903,7 +903,7 @@ private function get_status_id($id, $name){
         if(IPS_GetName($child)==$name) 
             $status_id=$child;
     }    
-    return $status_id;
+    return GetValueBoolean($status_id);
 }
 
 private function CreateCategorie($instID) {
