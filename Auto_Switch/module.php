@@ -529,7 +529,7 @@ public function Set(bool $value, bool $anzeige) {
       $CatID =IPS_GetCategoryIDByName('Konfig', $par);
       $value_dim=0;
       $typ= $this->ReadPropertyInteger('Auswahl');
-       IPS_LogMessage("AutoSwitch_".$func,"Set für ".$name." aufgerufen mit". $this->boolToString($value)."!");
+      //IPS_LogMessage("AutoSwitch_".$func,"Set für ".$name." aufgerufen mit". $this->boolToString($value)."!");
       switch($typ){
         case 0: break;
 
@@ -642,7 +642,7 @@ public function Set(bool $value, bool $anzeige) {
       }
       else{
           IPS_LogMessage('AutoSwitch_Set', 'Aktion fehlgeschlagen!');
-          WFC_PushNotification(33722, "Info AutoSwitchModul", "Fehler bei SET für ".$name."/ Wert = ".$this->boolToString($value), "", 0);
+          //WFC_PushNotification(33722, "Info AutoSwitchModul", "Fehler bei SET für ".$name."/ Wert = ".$this->boolToString($value), "", 0);
           IPS_SemaphoreLeave('AutoSwitch_Set');
           exit();
       }
