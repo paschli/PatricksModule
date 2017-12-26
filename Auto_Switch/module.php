@@ -664,7 +664,8 @@ public function Set(bool $value, bool $anzeige) {
             Tasmota_setPower($instID, "Tasmota_POWER", $value);
             SetValue($this->GetIDForIdent("Status"), $value);*/
             for($i = 1 ; $i <= 3 ; $i++){
-                $result=$this->Set_Tasmota($value);  
+                $result=$this->Set_Tasmota($value); 
+                IPS_LogMessage('AutoSwitch_Set_Tasmota', 'Aktion ausgeführt= '.$i"!");
                 if($result==1)
                     break;
             }
@@ -869,11 +870,11 @@ private function Set_PIIOC($value) {
 private function Set_Tasmota($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
     $value ? Tasmota_setPower($instID, 'POWER', 1) : Tasmota_setPower($instID, 'POWER', 0);
-    usleep(10000);
+    usleep(90000);
     //sleep(1);
     //Tasmota_setPower($instID, 'POWER', $value);
     $status_id= $this->get_status_id($instID,'POWER');
-    IPS_LogMessage('AutoSwitch_Set_Tasmota', 'Aktion ausgeführt='.$status_id."!");
+    
     if($status_id==$value){
         SetValue($this->GetIDForIdent("Status"), $status_id);
         return 1;
