@@ -705,7 +705,12 @@ private function Set_LCN_Dim($value) {
         LCN_SetIntensity($instID, 0, $dim_time);
         SetValueInteger($SliderID, 0);
     }
-    sleep($dim_time);
+    if($dim_time){
+        sleep($dim_time);
+    }
+    else {
+        usleep(100000);
+    }
     $status_id= $this->get_status_id($instID,'Status');
     $wert=$this->boolToString($status_id);
     IPS_LogMessage('AutoSwitch_Set_LCN_Dim', 'Status für '.$instID.' = '.$wert);
