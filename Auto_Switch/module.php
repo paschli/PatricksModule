@@ -521,176 +521,128 @@ protected function RegisterTimer($ident, $interval, $script) {
   }
   
 public function Set(bool $value, bool $anzeige) {
+    $func="Set";
+    
     if(IPS_SemaphoreEnter('AutoSwitch_Set', 1000)) {
       $par= IPS_GetParent(($this->GetIDForIdent('Status')));
+      $name= IPS_GetName($par);
       $CatID =IPS_GetCategoryIDByName('Konfig', $par);
       $value_dim=0;
       $typ= $this->ReadPropertyInteger('Auswahl');
-       IPS_LogMessage("AutoSwitch_Set","Set aufgerufen mit".$value."!");
+       IPS_LogMessage("AutoSwitch_".$func,"Set für ".$name." aufgerufen mit". $this->boolToString($value)."!");
       switch($typ){
-          case 0: break;
-          case 1: /*$instID=$this->ReadPropertyInteger('idLCNInstance');
-            $dim_time= $this->ReadPropertyInteger('Rampe');
-            $SliderID=@$this->GetIDForIdent('SliderAnz');
-            if($value){
-                LCN_SetIntensity($instID, 100, $dim_time);
-                SetValueInteger($SliderID, 100);
-            }
-            else {
-                LCN_SetIntensity($instID, 0, $dim_time);
-                SetValueInteger($SliderID, 0);
-            }
-            SetValue($this->GetIDForIdent("Status"), $value);*/
-            for($i = 1 ; $i <= 3 ; $i++){
-                $result=$this->Set_LCN_Dim($value); 
-                IPS_LogMessage('AutoSwitch_Set_LCN_Out', 'Aktion ausgeführt= '.$i."-mal");
-                if($result==1)
-                    break;
-            }  
-            
-            break;
-          case 2: /*$instID=$this->ReadPropertyInteger('idLCNInstance');
-            LCN_SwitchRelay($instID, $value);
-            SetValue($this->GetIDForIdent("Status"), $value);*/
-            for($i = 1 ; $i <= 3 ; $i++){
-                $result=$this->Set_LCN_Rel($value);
-                IPS_LogMessage('AutoSwitch_Set_LCN_Relais', 'Aktion ausgeführt= '.$i."-mal");
-                if($result==1)
-                    break;
-            }  
-            
-            break;
-          case 3: /*$lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
-            $lampNo=$this->ReadPropertyInteger('LaempchenNr');
-            if($value){
-              LCN_SetLamp($lcn_instID,$lampNo,'E');  
-            }
-            else{
-              LCN_SetLamp($lcn_instID,$lampNo,'A');  
-            }
-            SetValue($this->GetIDForIdent("Status"), $value);*/
-            $this->Set_LCN_Lamp($value);  
-            break;
-          case 4: 
-            /*$password= $this->ReadPropertyString('Password'); 
-            $IPAddr= $this->ReadPropertyString('IPAddress');
-            $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
-            $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
-            IPS_LogMessage("AutoSwitch_Set","Aufruf".$mes);
-            IPS_LogMessage("AutoSwitch_Set","Target ID".$TargetID);
-            try {
-                $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
-                if($value){
-                    //IPS_LogMessage(Modul,"Value = True => Relais An");
-                    $rpc->SetValue($TargetID, true);
-                }           
-                else{
-                    //IPS_LogMessage(Modul,"Value = False => Relais Aus");
-                    $rpc->SetValue($TargetID, false);
-                }
-            }
-            catch (JSONRPCException $e) {
-                echo 'RPC Problem', "\n";
-                IPS_SemaphoreLeave('AutoSwitch_Set');
-                IPS_LogMessage('AutoSwitch_Set', 'RPC Fehler');
-                return 0;
-            } 
-            catch (Exception $e) {
-               echo 'Server Problem',"\n";
-               IPS_SemaphoreLeave('AutoSwitch_Set');
-               IPS_LogMessage('AutoSwitch_Set', 'Verbindungsfehler');
-               return 0;
-            }
-            
-            $result=(bool)$rpc->GetValue($TargetID);
-            
-            SetValue($this->GetIDForIdent("Status"), $result);
-            IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');*/
-            for($i = 1 ; $i <= 3 ; $i++){
-                $result=$this->Set_JSON($value); 
-                IPS_LogMessage('AutoSwitch_Set_JSON', 'Aktion ausgeführt= '.$i."-mal");
-                if($result==1)
-                    break;
-            }
-            
-            break;
-          case 5: /*$lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
-            if($value){
-                IPS_LogMessage("AutoSwitch_Set","Aufruf AN Schalter_Set ID=".$lcn_instID);
-                Schalter_Set($lcn_instID,1);  
-            }
-            else{
-                IPS_LogMessage("AutoSwitch_Set","Aufruf AUS Schalter_Set ID=".$lcn_instID);
-                Schalter_Set($lcn_instID,0);
-            }
-            SetValue($this->GetIDForIdent("Status"), $value);*/
-            $this->Set_Schalter($value);
-            break;  
-          case 6: 
-            /*$password= $this->ReadPropertyString('Password'); 
-            $IPAddr= $this->ReadPropertyString('IPAddress');
-            $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
-            $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
-            IPS_LogMessage("AutoSwitch_Set","Aufruf".$mes);
-            IPS_LogMessage("AutoSwitch_Set","Target ID".$TargetID);
-            try{
-                $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
-                if($value){
-                    //IPS_LogMessage(Modul,"Value = True => Relais An");
-                    $rpc->PIIOC_set($TargetID);
-                }           
-                else{
-                    //IPS_LogMessage(Modul,"Value = False => Relais Aus");
-                    $rpc->PIIOC_clear($TargetID);
-                }
-                
-            }
-            catch (JSONRPCException $e) {
-                echo 'RPC Problem', "\n";
-                IPS_SemaphoreLeave('AutoSwitch_Set');
-                IPS_LogMessage('AutoSwitch_Set', 'RPC Fehler');
-                return 0;
-            } 
-            catch (Exception $e) {
-               echo 'Server Problem',"\n";
-               IPS_SemaphoreLeave('AutoSwitch_Set');
-               IPS_LogMessage('AutoSwitch_Set', 'Verbindungsfehler');
-               return 0;
-            }
-            
-            SetValue($this->GetIDForIdent("Status"), $value);
-            IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');*/
-            $this->Set_PIIOC($value);
-            break;
-          case 7:
-            /*$instID=$this->ReadPropertyInteger('idLCNInstance');
-            Tasmota_setPower($instID, "Tasmota_POWER", $value);
-            SetValue($this->GetIDForIdent("Status"), $value);*/
-            for($i = 1 ; $i <= 3 ; $i++){
-                $result=$this->Set_Tasmota($value); 
-                IPS_LogMessage('AutoSwitch_Set_Tasmota', 'Aktion ausgeführt= '.$i."-mal");
-                if($result==1)
-                    break;
-            }
-            
-            break;
-          case 8:
-            for($i = 1 ; $i <= 3 ; $i++){
-                $result=$this->Set_PIGPIO($value);
-                IPS_LogMessage('AutoSwitch_Set_PIGPIO', 'Aktion ausgeführt= '.$i."-mal");
-                if($result==1)
-                    break;
-            }
-              
-            break;
-          default: break;
+        case 0: break;
+
+        case 1: 
+          for($i = 1 ; $i <= 3 ; $i++){
+              $result=$this->Set_LCN_Dim($value); 
+              IPS_LogMessage('AutoSwitch_Set_LCN_Out', 'Aktion ausgeführt= '.$i."-mal");
+              if($result==1)
+                  break;
+          }  
+        break;
+          
+        case 2: 
+          for($i = 1 ; $i <= 3 ; $i++){
+              $result=$this->Set_LCN_Rel($value);
+              IPS_LogMessage('AutoSwitch_Set_LCN_Relais', 'Aktion ausgeführt= '.$i."-mal");
+              if($result==1)
+                  break;
+          }  
+
+        break;
+        
+        case 3: 
+          $this->Set_LCN_Lamp($value);  
+          break;
+      
+        case 4: 
+          for($i = 1 ; $i <= 3 ; $i++){
+              $result=$this->Set_JSON($value); 
+              IPS_LogMessage('AutoSwitch_Set_JSON', 'Aktion ausgeführt= '.$i."-mal");
+              if($result==1)
+                  break;
+          }
+        break;
+        
+        case 5: /*$lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
+          if($value){
+              IPS_LogMessage("AutoSwitch_Set","Aufruf AN Schalter_Set ID=".$lcn_instID);
+              Schalter_Set($lcn_instID,1);  
+          }
+          else{
+              IPS_LogMessage("AutoSwitch_Set","Aufruf AUS Schalter_Set ID=".$lcn_instID);
+              Schalter_Set($lcn_instID,0);
+          }
+          SetValue($this->GetIDForIdent("Status"), $value);*/
+          $this->Set_Schalter($value);
+        break; 
+    
+        case 6: 
+          /*$password= $this->ReadPropertyString('Password'); 
+          $IPAddr= $this->ReadPropertyString('IPAddress');
+          $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
+          $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
+          IPS_LogMessage("AutoSwitch_Set","Aufruf".$mes);
+          IPS_LogMessage("AutoSwitch_Set","Target ID".$TargetID);
+          try{
+              $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
+              if($value){
+                  //IPS_LogMessage(Modul,"Value = True => Relais An");
+                  $rpc->PIIOC_set($TargetID);
+              }           
+              else{
+                  //IPS_LogMessage(Modul,"Value = False => Relais Aus");
+                  $rpc->PIIOC_clear($TargetID);
+              }
+
+          }
+          catch (JSONRPCException $e) {
+              echo 'RPC Problem', "\n";
+              IPS_SemaphoreLeave('AutoSwitch_Set');
+              IPS_LogMessage('AutoSwitch_Set', 'RPC Fehler');
+              return 0;
+          } 
+          catch (Exception $e) {
+             echo 'Server Problem',"\n";
+             IPS_SemaphoreLeave('AutoSwitch_Set');
+             IPS_LogMessage('AutoSwitch_Set', 'Verbindungsfehler');
+             return 0;
+          }
+
+          SetValue($this->GetIDForIdent("Status"), $value);
+          IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');*/
+          $this->Set_PIIOC($value);
+        break;
+      
+        case 7:
+          for($i = 1 ; $i <= 3 ; $i++){
+              $result=$this->Set_Tasmota($value); 
+              IPS_LogMessage('AutoSwitch_Set_Tasmota', 'Aktion ausgeführt= '.$i."-mal");
+              if($result==1)
+                  break;
+          }
+        break;
+        
+        case 8:
+          for($i = 1 ; $i <= 3 ; $i++){
+              $result=$this->Set_PIGPIO($value);
+              IPS_LogMessage('AutoSwitch_Set_PIGPIO', 'Aktion ausgeführt= '.$i."-mal");
+              if($result==1)
+                  break;
+          }
+        break;
+        
+        default: 
+          $result=0;
+        break;
       }
       if($result==1){
           IPS_LogMessage('AutoSwitch_Set', 'Aktion erfolgreich!');
       }
       else{
           IPS_LogMessage('AutoSwitch_Set', 'Aktion fehlgeschlagen!');
-          WFC_PushNotification(33722, "Info AutoSwitchModul", "Fehler bei SET", "", 0);
+          WFC_PushNotification(33722, "Info AutoSwitchModul", "Fehler bei SET für ".$name."/ Wert = ".$this->boolToString($value), "", 0);
           IPS_SemaphoreLeave('AutoSwitch_Set');
           exit();
       }
@@ -913,6 +865,10 @@ private function get_status_id($id, $name){
             $status_id=$child;
     }    
     return GetValueBoolean($status_id);
+}
+
+private function boolToString($boolVal){
+  return ($boolVal ? 'true' : 'false');
 }
 
 private function CreateCategorie($instID) {
