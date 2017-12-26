@@ -873,7 +873,7 @@ private function Set_PIIOC($value) {
 
 private function Set_Tasmota($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
-    $value ? Tasmota_setPower($instID, 'POWER', 1) : Tasmota_setPower($instID, 'POWER', 0);
+    $value ? @Tasmota_setPower($instID, 'POWER', 1) : Tasmota_setPower($instID, 'POWER', 0);
     //usleep(60000);
     sleep(1);
     //Tasmota_setPower($instID, 'POWER', $value);
@@ -890,7 +890,7 @@ private function Set_Tasmota($value) {
 
 private function Set_PIGPIO($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
-    I2GOUT_Set_Status($instID, $value);
+    @I2GOUT_Set_Status($instID, $value);
     //$result=I2GOUT_Get_Status($instID);
     usleep(100000);
     //sleep(1);
