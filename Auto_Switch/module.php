@@ -698,7 +698,8 @@ private function Set_LCN_Dim($value) {
         SetValueInteger($SliderID, 0);
     }
     $status_id= $this->get_status_id($instID,'Status');
-    //IPS_LogMessage('AutoSwitch_Set_LCN_Dim', 'Status für '.$instID.' = '.$this->boolToString($status_id));
+    $wert=$this->boolToString($status_id);
+    IPS_LogMessage('AutoSwitch_Set_LCN_Dim', 'Status für '.$instID.' = '.$wert);
     if($status_id==$value){
         SetValue($this->GetIDForIdent("Status"), $status_id);
         return 1;
