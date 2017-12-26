@@ -690,6 +690,7 @@ public function Set(bool $value, bool $anzeige) {
       }
       else{
           IPS_LogMessage('AutoSwitch_Set', 'Aktion fehlgeschlagen!');
+          WFC_PushNotification(33722, "Info AutoSwitchModul", "Fehler bei SET", "", 0);
           IPS_SemaphoreLeave('AutoSwitch_Set');
           exit();
       }
