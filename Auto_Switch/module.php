@@ -698,6 +698,7 @@ private function Set_LCN_Dim($value) {
         SetValueInteger($SliderID, 0);
     }
     $status_id= $this->get_status_id($instID,'Status');
+    IPS_LogMessage('AutoSwitch_Set_LCN_Dim', 'Status für '.$instID.' = '.$this->boolToString($status_id));
     if($status_id==$value){
         SetValue($this->GetIDForIdent("Status"), $status_id);
         return 1;
@@ -828,9 +829,7 @@ private function Set_PIIOC($value) {
 private function Set_Tasmota($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
     $value ? Tasmota_setPower($instID, 'POWER', 1) : Tasmota_setPower($instID, 'POWER', 0);
-    //usleep(60000);
     sleep(1);
-    //Tasmota_setPower($instID, 'POWER', $value);
     $status_id= $this->get_status_id($instID,'POWER');
     
     if($status_id==$value){
@@ -845,9 +844,7 @@ private function Set_Tasmota($value) {
 private function Set_PIGPIO($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
     I2GOUT_Set_Status($instID, $value);
-    //$result=I2GOUT_Get_Status($instID);
     usleep(100000);
-    //sleep(1);
     $status_id= $this->get_status_id($instID,'Status');
     if($status_id==$value){
         SetValue($this->GetIDForIdent("Status"), $status_id);
