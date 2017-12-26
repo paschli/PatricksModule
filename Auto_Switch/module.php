@@ -873,6 +873,7 @@ private function Set_Tasmota($value) {
     IPS_LogMessage('AutoSwitch_Set_Tasmota', 'Aktion ausgeführt'.$status_id);
     if($status_id){
         SetValue($this->GetIDForIdent("Status"), GetValueBoolean($status_id));
+        IPS_LogMessage('AutoSwitch_Set_Tasmota', 'Aktion ausgeführt='.GetValueBoolean($status_id)." !");
         return 1;
     }
     else {
