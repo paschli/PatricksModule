@@ -870,7 +870,7 @@ private function Set_Tasmota($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
     Tasmota_setPower($instID, "", $value);
     $status_id= $this->get_status_id($instID,'Power');
-    IPS_LogMessage('AutoSwitch_Set_Tasmota', 'Aktion ausgeführt');
+    IPS_LogMessage('AutoSwitch_Set_Tasmota', 'Aktion ausgeführt'.$status_id);
     if($status_id){
         SetValue($this->GetIDForIdent("Status"), GetValueBoolean($status_id));
         return 1;
