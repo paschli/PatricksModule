@@ -530,6 +530,11 @@ public function Set(bool $value, bool $anzeige) {
       $value_dim=0;
       $typ= $this->ReadPropertyInteger('Auswahl');
       IPS_LogMessage("AutoSwitch_".$func,"Set für ".$name." aufgerufen mit ". $this->boolToString($value)."!");
+      $EventID=@IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID);
+      if($EventID){
+          IPS_SetEventActive($EventID,false);
+          IPS_LogMessage("AutoSwitch_".$func,"Event für deaktivieren!");
+      }  
       switch($typ){
         case 0: break;
 
@@ -647,7 +652,10 @@ public function Set(bool $value, bool $anzeige) {
           IPS_SemaphoreLeave('AutoSwitch_Set');
           exit();
       }
-          
+      if($EventID){
+          IPS_SetEventActive($EventID,true);
+          IPS_LogMessage("AutoSwitch_".$func,"Event aktivieren!");
+      }    
       $AutoTimeID=@IPS_GetObjectIDByIdent('AutoTime', $CatID);
       if($AutoTimeID){
           $this->AutoTimeUpdate($CatID,1);
