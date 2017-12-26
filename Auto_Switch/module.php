@@ -529,7 +529,7 @@ public function Set(bool $value, bool $anzeige) {
       $CatID =IPS_GetCategoryIDByName('Konfig', $par);
       $value_dim=0;
       $typ= $this->ReadPropertyInteger('Auswahl');
-      //IPS_LogMessage("AutoSwitch_".$func,"Set für ".$name." aufgerufen mit". $this->boolToString($value)."!");
+      IPS_LogMessage("AutoSwitch_".$func,"Set für ".$name." aufgerufen mit". $this->boolToString($value)."!");
       switch($typ){
         case 0: break;
 
