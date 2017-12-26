@@ -739,8 +739,8 @@ private function Set_LCN_Dim($value) {
         SetValueInteger($SliderID, 0);
     }
     $status_id= $this->get_status_id($instID,'Status');
-    if($status_id){
-        SetValue($this->GetIDForIdent("Status"), GetValueBoolean($status_id));
+    if($status_id==$value){
+        SetValue($this->GetIDForIdent("Status"), $status_id);
         return 1;
     }
     else {
@@ -752,8 +752,8 @@ private function Set_LCN_Rel($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
     LCN_SwitchRelay($instID, $value);
     $status_id= $this->get_status_id($instID,'Status');
-    if($status_id){
-        SetValue($this->GetIDForIdent("Status"), GetValueBoolean($status_id));
+    if($status_id==$value){
+        SetValue($this->GetIDForIdent("Status"), $status_id);
         return 1;
     }
     else {
@@ -892,7 +892,7 @@ private function Set_PIGPIO($value) {
     sleep(1);
     $status_id= $this->get_status_id($instID,'Status');
     if($status_id==$value){
-        SetValue($this->GetIDForIdent("Status"), GetValueBoolean($status_id));
+        SetValue($this->GetIDForIdent("Status"), $status_id);
         return 1;
     }
     else {
