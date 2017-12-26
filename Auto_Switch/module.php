@@ -673,7 +673,8 @@ public function Set(bool $value, bool $anzeige) {
             break;
           case 8:
             for($i = 1 ; $i <= 3 ; $i++){
-                $this->Set_PIGPIO($value);  
+                $result=$this->Set_PIGPIO($value);
+                IPS_LogMessage('AutoSwitch_Set_PIGPIO', 'Aktion ausgeführt= '.$i."-mal");
                 if($result==1)
                     break;
             }
