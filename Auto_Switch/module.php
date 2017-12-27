@@ -523,7 +523,7 @@ protected function RegisterTimer($ident, $interval, $script) {
 public function Set(bool $value, bool $anzeige) {
     $func="Set";
     
-    if(IPS_SemaphoreEnter('AutoSwitch_Set', 1000)) {
+    if(IPS_SemaphoreEnter('AutoSwitch_Set', 5000)) {
       $par= IPS_GetParent(($this->GetIDForIdent('Status')));
       $name= IPS_GetName($par);
       $CatID =IPS_GetCategoryIDByName('Konfig', $par);
