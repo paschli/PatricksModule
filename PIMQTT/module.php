@@ -5,8 +5,8 @@ class PIMQTT extends IPSModule//TasmotaService
     public function Create()
     {
         //Never delete this line!
-        parent::Create();
-        $this->ConnectParent('{EE0D345A-CF31-428A-A613-33CE98E752DD}');
+        //parent::Create();
+        //$this->ConnectParent('{EE0D345A-CF31-428A-A613-33CE98E752DD}');
         $this->createVariablenProfiles();
         //Anzahl die in der Konfirgurationsform angezeigt wird - Hier Standard auf 1
         $this->RegisterPropertyString('Topic', '');
@@ -27,8 +27,8 @@ class PIMQTT extends IPSModule//TasmotaService
     public function ApplyChanges()
     {
         //Never delete this line!
-        parent::ApplyChanges();
-        $this->ConnectParent('{EE0D345A-CF31-428A-A613-33CE98E752DD}');
+        //parent::ApplyChanges();
+        //$this->ConnectParent('{EE0D345A-CF31-428A-A613-33CE98E752DD}');
         //Setze Filter fÃ¼r ReceiveData
         $this->setPowerOnState($this->ReadPropertyInteger('PowerOnState'));
         $topic = $this->ReadPropertyString('Topic');
