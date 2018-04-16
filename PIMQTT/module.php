@@ -88,11 +88,11 @@ class PIMQTT extends TasmotaService
         //$this->defineLanguage($this->ReadPropertyString("DeviceLanguage"));
         if (!empty($this->ReadPropertyString('Topic'))) {
             $this->SendDebug('ReceiveData JSON', $JSONString, 0);
-            //$data = json_decode($JSONString);
+            $data = json_decode($JSONString);
             // Buffer decodieren und in eine Variable schreiben
-            /*$Buffer = json_decode($data->Buffer);
+            $Buffer = json_decode($data->Buffer);
             $this->SendDebug('Topic', $Buffer->TOPIC, 0);
-            $off = $this->ReadPropertyString('Off');
+            /*$off = $this->ReadPropertyString('Off');
             $on = $this->ReadPropertyString('On');
             //PowerOnState Vairablen setzen
             if (fnmatch('*PowerOnState*', $Buffer->MSG)) {
