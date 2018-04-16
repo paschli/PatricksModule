@@ -23,9 +23,5 @@
 	  { "type": "CheckBox", "name": "State", "caption": "State" },
 	  { "type": "CheckBox", "name": "Sensoren", "caption": "Sensoren" },
 	  { "type": "CheckBox", "name": "Pow", "caption": "Pow" }
-    ],
-    "actions":
-    [
-	  { "type": "Button", "label": "Restart Tasmota Device", "onClick": "Tasmota_restart($id);" }
     ]
 }
