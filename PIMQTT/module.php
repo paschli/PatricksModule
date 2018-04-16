@@ -1,6 +1,6 @@
 <?
-require_once __DIR__ . '/../libs/TasmotaService.php';
-class PIMQTT extends TasmotaService
+//require_once __DIR__ . '/../libs/TasmotaService.php';
+class PIMQTT extends IPSModule//TasmotaService
 {
     public function Create()
     {

@@ -1,6 +1,6 @@
 {
   "id": "{56A2A23C-D638-4FE0-B08F-5C7D8BCD7219}",
-  "name": "PI-MQTT",
+  "name": "PIMQTT",
   "type": 3,
   "vendor": "Patrick",
   "aliases": [ "PIMQTT" ],
