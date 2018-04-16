@@ -1,13 +1,13 @@
 <?
 require_once __DIR__ . '/../libs/TasmotaService.php';
-class PIMQTT extends IPSModule//TasmotaService
+class PIMQTT extends TasmotaService
 {
     public function Create()
     {
         //Never delete this line!
         //parent::Create();
         //$this->ConnectParent('{EE0D345A-CF31-428A-A613-33CE98E752DD}');
-        $this->createVariablenProfiles();
+        //$this->createVariablenProfiles();
         //Anzahl die in der Konfirgurationsform angezeigt wird - Hier Standard auf 1
         $this->RegisterPropertyString('Topic', '');
         $this->RegisterPropertyString('On', '1');
@@ -30,13 +30,13 @@ class PIMQTT extends IPSModule//TasmotaService
         //parent::ApplyChanges();
         //$this->ConnectParent('{EE0D345A-CF31-428A-A613-33CE98E752DD}');
         //Setze Filter fÃ¼r ReceiveData
-        $this->setPowerOnState($this->ReadPropertyInteger('PowerOnState'));
+        //$this->setPowerOnState($this->ReadPropertyInteger('PowerOnState'));
         $topic = $this->ReadPropertyString('Topic');
-        $this->SetReceiveDataFilter('.*' . $topic . '.*');
+        //$this->SetReceiveDataFilter('.*' . $topic . '.*');
     }
     private function find_parent($array, $needle, $parent = null)
     {
-        foreach ($array as $key => $value) {
+        /*foreach ($array as $key => $value) {
             if (is_array($value)) {
                 $pass = $parent;
                 if (is_string($key)) {
@@ -50,11 +50,11 @@ class PIMQTT extends IPSModule//TasmotaService
                 return $parent;
             }
         }
-        return false;
+        return false;*/
     }
     private function traverseArray($array, $GesamtArray)
     {
-        foreach ($array as $key=> $value) {
+        /*foreach ($array as $key=> $value) {
             if (is_array($value)) {
                 $this->traverseArray($value, $GesamtArray);
             } else {
@@ -80,7 +80,7 @@ class PIMQTT extends IPSModule//TasmotaService
             }
                 }
             }
-        }
+        }*/
     }
     public function ReceiveData($JSONString)
     {
@@ -88,9 +88,9 @@ class PIMQTT extends IPSModule//TasmotaService
         //$this->defineLanguage($this->ReadPropertyString("DeviceLanguage"));
         if (!empty($this->ReadPropertyString('Topic'))) {
             $this->SendDebug('ReceiveData JSON', $JSONString, 0);
-            $data = json_decode($JSONString);
+            //$data = json_decode($JSONString);
             // Buffer decodieren und in eine Variable schreiben
-            $Buffer = json_decode($data->Buffer);
+            /*$Buffer = json_decode($data->Buffer);
             $this->SendDebug('Topic', $Buffer->TOPIC, 0);
             $off = $this->ReadPropertyString('Off');
             $on = $this->ReadPropertyString('On');
@@ -171,26 +171,26 @@ class PIMQTT extends IPSModule//TasmotaService
                     SetValue($this->GetIDForIdent('Tasmota_POWVoltage'), $myBuffer->ENERGY->Voltage);
                     SetValue($this->GetIDForIdent('Tasmota_POWFactor'), $myBuffer->ENERGY->Factor);
                 }
-            }
+            }*/
         }
     }
     public function RequestAction($Ident, $Value)
     {
-        $this->SendDebug(__FUNCTION__ . ' Ident', $Ident, 0);
+        /*$this->SendDebug(__FUNCTION__ . ' Ident', $Ident, 0);
         $this->SendDebug(__FUNCTION__ . ' Value', $Value, 0);
         if (strlen($Ident) != 13) {
             $power = substr($Ident, 13);
         } else {
             $power = 0;
         }
-        $result = $this->setPower($power, $Value);
+        $result = $this->setPower($power, $Value);*/
     }
     private function createVariablenProfiles()
     {
         //Online / Offline Profile
-        $this->RegisterProfileBooleanEx('Tasmota.DeviceStatus', 'Network', '', '', array(
+       /* $this->RegisterProfileBooleanEx('Tasmota.DeviceStatus', 'Network', '', '', array(
             array(false, 'Offline',  '', 0xFF0000),
             array(true, 'Online',  '', 0x00FF00)
-        ));
+        ));*/
     }
 }
