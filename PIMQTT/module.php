@@ -10,7 +10,7 @@ class PIMQTT extends TasmotaService
         //$this->createVariablenProfiles();
         //Anzahl die in der Konfirgurationsform angezeigt wird - Hier Standard auf 1
         $this->RegisterPropertyString('Topic', '');
-        $this->RegisterPropertyString('On', '1');
+        /*$this->RegisterPropertyString('On', '1');
         $this->RegisterPropertyString('Off', '0');
         $this->RegisterPropertyString('FullTopic', '%prefix%/%topic%');
         $this->RegisterPropertyInteger('PowerOnState', 3);
@@ -22,7 +22,7 @@ class PIMQTT extends TasmotaService
         //Debug Optionen
         $this->RegisterPropertyBoolean('Sensoren', false);
         $this->RegisterPropertyBoolean('State', false);
-        $this->RegisterPropertyBoolean('Pow', false);
+        $this->RegisterPropertyBoolean('Pow', false);*/
     }
     public function ApplyChanges()
     {
