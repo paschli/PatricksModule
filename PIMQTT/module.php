@@ -10,19 +10,17 @@ class PIMQTT extends TasmotaService
         //$this->createVariablenProfiles();
         //Anzahl die in der Konfirgurationsform angezeigt wird - Hier Standard auf 1
         $this->RegisterPropertyString('Topic', '');
-        $this->RegisterPropertyString('On', '1');
-        $this->RegisterPropertyString('Off', '0');
         $this->RegisterPropertyString('FullTopic', '%prefix%/%topic%');
-        $this->RegisterPropertyInteger('PowerOnState', 3);
+        //$this->RegisterPropertyInteger('PowerOnState', 3);
         //$this->RegisterPropertyString("DeviceLanguage","en");
-        $this->RegisterVariableFloat('Tasmota_RSSI', 'RSSI');
-        $this->RegisterVariableBoolean('Tasmota_DeviceStatus', 'Status', 'Tasmota.DeviceStatus');
+        //$this->RegisterVariableFloat('Tasmota_RSSI', 'RSSI');
+        //$this->RegisterVariableBoolean('Tasmota_DeviceStatus', 'Status', 'Tasmota.DeviceStatus');
         //Settings
-        $this->RegisterPropertyBoolean('Power1Deactivate', false);
+        //$this->RegisterPropertyBoolean('Power1Deactivate', false);
         //Debug Optionen
-        $this->RegisterPropertyBoolean('Sensoren', false);
-        $this->RegisterPropertyBoolean('State', false);
-        $this->RegisterPropertyBoolean('Pow', false);
+        //$this->RegisterPropertyBoolean('Sensoren', false);
+        //$this->RegisterPropertyBoolean('State', false);
+        //$this->RegisterPropertyBoolean('Pow', false);
     }
     public function ApplyChanges()
     {
@@ -30,7 +28,7 @@ class PIMQTT extends TasmotaService
         parent::ApplyChanges();
         $this->ConnectParent('{EE0D345A-CF31-428A-A613-33CE98E752DD}');
         //Setze Filter fÃ¼r ReceiveData
-        $this->setPowerOnState($this->ReadPropertyInteger('PowerOnState'));
+        //$this->setPowerOnState($this->ReadPropertyInteger('PowerOnState'));
         $topic = $this->ReadPropertyString('Topic');
         $this->SetReceiveDataFilter('.*' . $topic . '.*');
     }
