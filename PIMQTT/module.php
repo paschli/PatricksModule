@@ -92,7 +92,7 @@ class PIMQTT extends TasmotaService
             $MSG = json_decode($Buffer->MSG);
             $this->SendDebug('Topic', $Buffer->TOPIC, 0);
             //$this->SendDebug('MSG', $Buffer->MSG, 0);
-            //$this->SendDebug('MSG', $MSG, 0);
+            $this->SendDebug('MSG', $MSG, 0);
             $this->SendDebug('Modul', $MSG->Modul, 0);
             $this->SendDebug('Data', $MSG->Data, 0);
             /*$Buffer = json_decode($data->MSG);
