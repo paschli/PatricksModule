@@ -94,6 +94,7 @@ class PIMQTT extends TasmotaService
             $this->SendDebug('Buffer/Topic', $Buffer->TOPIC, 0);
             //$this->SendDebug('MSG', $Buffer->MSG, 0);
             $this->SendDebug('MSG', $MSG, 0);
+            IPS_LogMessage("PIMQTT",$MSG);
             $this->SendDebug('MSG/Modul', $MSG->Modul, 0);
             $this->SendDebug('MSG/Data', $MSG->Data, 0);
             $this->SendDebug('Ende', 'Ende', 0);
