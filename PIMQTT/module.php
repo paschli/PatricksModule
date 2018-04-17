@@ -99,7 +99,7 @@ class PIMQTT extends TasmotaService
             $Modul=$Buffer1->Modul;
             $Temp= floatval($Buffer1->Temperatur);
             $Humid=floatval($Buffer1->Humidity);
-            IPS_LogMessage(PIMQTT,$Modul."/".$Temp."/".$Humid);
+            IPS_LogMessage("PIMQTT",$Modul."/".$Temp."/".$Humid);
             //$Daten= json_decode($MSG->Data);
             //$this->SendDebug('Daten', $Buffer->MSG->Data, 0);
             //$this->SendDebug('Ende', 'Ende', 0);
