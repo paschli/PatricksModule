@@ -89,7 +89,7 @@ class PIMQTT extends TasmotaService
             $data = json_decode($JSONString);
             // Buffer decodieren und in eine Variable schreiben
             $Buffer = json_decode($data->Buffer);
-            $this->SendDebug('Buffer', $Buffer, 0);
+            $this->SendDebug('Buffer', $data->Buffer, 0);
             $this->SendDebug('Topic', $Buffer->TOPIC, 0);
             $this->SendDebug('MSG', $Buffer->MSG, 0);
             IPS_LogMessage("PIMQTT",$Buffer->MSG);
