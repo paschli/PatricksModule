@@ -108,7 +108,8 @@ class PIMQTT extends TasmotaService
             $this->SendDebug('Modul', $Message->Modul, 0);
             $this->SendDebug('Temp', $Message->Temperatur, 0);
             $this->SendDebug('Humid', $Message->Humidity, 0);
-            $Modul=$Message->Modul;
+            $Modul=strval($Message->Modul);
+            
             $ID_Modul=@IPS_GetObjectIDByIdent($Modul, $this->ReadPropertyInteger('$ID_Cat_Devices'));
             if($ID_Modul===FALSE){
                 $ID_Device= IPS_CreateCategory();
@@ -121,8 +122,8 @@ class PIMQTT extends TasmotaService
                 
             }
                 
-            $Temp= floatval($Message->Temperatur);
-            $Humid=floatval($Message->Humidity);
+            //$Temp= floatval($Message->Temperatur);
+            //$Humid=floatval($Message->Humidity);
             IPS_LogMessage("PIMQTT",$Modul."/".$Temp."/".$Humid);
             //$Daten= json_decode($MSG->Data);
             //$this->SendDebug('Daten', $Buffer->MSG->Data, 0);
