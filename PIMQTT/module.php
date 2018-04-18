@@ -111,7 +111,7 @@ class PIMQTT extends TasmotaService
             $Modul=strval($Message->Modul);
             IPS_LogMessage("PIMQTT",'Modul vorher '.$Modul);
             $Modul_Ident=str_replace ( ':' , '' , $Modul );
-            IPS_LogMessage("PIMQTT",'Modul nachher'.$Modul);
+            IPS_LogMessage("PIMQTT",'Modul nachher'.$Modul_Ident);
             $ID_Modul=@IPS_GetObjectIDByIdent($Modul_Ident, $this->ReadPropertyInteger('$ID_Cat_Devices'));
             if($ID_Modul===FALSE){
                 $ID_Module= IPS_CreateCategory();
