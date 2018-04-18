@@ -14,6 +14,7 @@ class PIMQTT extends TasmotaService
         $ID_Dummy=$this->RegisterVariableFloat('Tasmota_RSSI', 'RSSI');
         $ID_Parent=IPS_GetParent($ID_Dummy);
         IPS_LogMessage("PIMQTT","ID Parent=".$ID_Parent);
+        IPS_DeleteVariable($ID_Dummy);
         //$ID_Cat_Devices=@$this->GetIDForIdent('DEVICES');
         //if($ID_Cat_Devices===FALSE){
         //    $ID_Cat_Devices=IPS_CreateCategory();
