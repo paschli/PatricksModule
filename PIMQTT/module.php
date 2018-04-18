@@ -23,6 +23,7 @@ class PIMQTT extends TasmotaService
             IPS_SetName($ID_Cat_Devices, 'Devices');
         }
         $this->RegisterPropertyInteger('$ID_Cat_Devices',$ID_Cat_Devices);
+        $this->RegisterPropertyInteger('$ID_Instance', $ID_Parent);
         //$this->RegisterPropertyString("DeviceLanguage","en");
         //$this->RegisterVariableFloat('Tasmota_RSSI', 'RSSI');
         //$this->RegisterVariableBoolean('Tasmota_DeviceStatus', 'Status', 'Tasmota.DeviceStatus');
@@ -108,6 +109,14 @@ class PIMQTT extends TasmotaService
             $this->SendDebug('Temp', $Message->Temperatur, 0);
             $this->SendDebug('Humid', $Message->Humidity, 0);
             $Modul=$Message->Modul;
+            $ID_Modul=@IPS_GetObjectIDByIdent($Modul, $this->ReadPropertyInteger('$ID_Cat_Devices'));
+            if($ID_Modul===FALSE){
+                $ID_Device= IPS_CreateCategory();
+                IPS_SetName($ID_Device, $ID_Modul);
+                IPS_SetParent($ID_Device, $this->ReadPropertyInteger('$ID_Cat_Devices'));
+                IPS_SetIdent($ID_Device, $Modul);
+            }
+                
             $Temp= floatval($Message->Temperatur);
             $Humid=floatval($Message->Humidity);
             IPS_LogMessage("PIMQTT",$Modul."/".$Temp."/".$Humid);
