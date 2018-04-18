@@ -22,6 +22,7 @@ class PIMQTT extends TasmotaService
             IPS_SetParent($ID_Cat_Devices, $ID_Parent);
             IPS_SetName($ID_Cat_Devices, 'Devices');
         }
+        $this->RegisterPropertyInteger('$ID_Cat_Devices',$ID_Cat_Devices);
         //$this->RegisterPropertyString("DeviceLanguage","en");
         //$this->RegisterVariableFloat('Tasmota_RSSI', 'RSSI');
         //$this->RegisterVariableBoolean('Tasmota_DeviceStatus', 'Status', 'Tasmota.DeviceStatus');
