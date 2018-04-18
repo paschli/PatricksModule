@@ -110,14 +110,14 @@ class PIMQTT extends TasmotaService
             $this->SendDebug('Humid', $Message->Humidity, 0);
             $Modul=strval($Message->Modul);
             IPS_LogMessage("PIMQTT",'Modul vorher '.$Modul);
-            $Modul=str_replace ( ':' , '' , $Modul );
+            $Modul_Ident=str_replace ( ':' , '' , $Modul );
             IPS_LogMessage("PIMQTT",'Modul nachher'.$Modul);
-            $ID_Modul=@IPS_GetObjectIDByIdent($Modul, $this->ReadPropertyInteger('$ID_Cat_Devices'));
+            $ID_Modul=@IPS_GetObjectIDByIdent($Modul_Ident, $this->ReadPropertyInteger('$ID_Cat_Devices'));
             if($ID_Modul===FALSE){
                 $ID_Module= IPS_CreateCategory();
                 IPS_SetName($ID_Module, $Modul);
                 IPS_SetParent($ID_Module, $this->ReadPropertyInteger('$ID_Cat_Devices'));
-                IPS_SetIdent($ID_Module, $Modul);
+                IPS_SetIdent($ID_Module, $Modul_Ident);
                 IPS_LogMessage("PIMQTT",'Create Cat in'.$this->ReadPropertyInteger('$ID_Cat_Devices'));
                 IPS_LogMessage("PIMQTT",'Create Cat'.$Modul);
                 $this->SendDebug('Create Cat in', $this->ReadPropertyInteger('$ID_Cat_Devices'), 0);
