@@ -5,20 +5,20 @@ class PIMQTT extends TasmotaService
     public function Create()
     {
         //Never delete this line!
-        //parent::Create();
-        //$this->ConnectParent('{EE0D345A-CF31-428A-A613-33CE98E752DD}');
+        parent::Create();
+        $this->ConnectParent('{EE0D345A-CF31-428A-A613-33CE98E752DD}');
         //$this->createVariablenProfiles();
         //Anzahl die in der Konfirgurationsform angezeigt wird - Hier Standard auf 1
         $this->RegisterPropertyString('Topic', '');
         $this->RegisterPropertyString('FullTopic', '%prefix%/%topic%');
-        //$this->RegisterVariableBoolean('Test','Test','',1);
-        //$ID_Parent=$this->IPS_GetIDforIdent('Test');
-        //$ID_Cat_Devices=@$this->GetIDForIdent('DEVICES');
-        //if($ID_Cat_Devices===FALSE){
-        //    $ID_Cat_Devices=IPS_CreateCategory();
-        //    IPS_SetIdent($ID_Cat_Devices,'DEVICES');
-        //    IPS_SetParent($ID_Cat_Devices, $ID_Parent);
-        //    IPS_SetName($ID_Cat_Devices, 'Devices');
+        $this->RegisterVariableBoolean('Test','Test','',1);
+        $ID_Parent=$this->IPS_GetIDforIdent('Test');
+        $ID_Cat_Devices=@$this->GetIDForIdent('DEVICES');
+        if($ID_Cat_Devices===FALSE){
+            $ID_Cat_Devices=IPS_CreateCategory();
+            IPS_SetIdent($ID_Cat_Devices,'DEVICES');
+            IPS_SetParent($ID_Cat_Devices, $ID_Parent);
+            IPS_SetName($ID_Cat_Devices, 'Devices');
         }
         //$this->RegisterPropertyString("DeviceLanguage","en");
         //$this->RegisterVariableFloat('Tasmota_RSSI', 'RSSI');
