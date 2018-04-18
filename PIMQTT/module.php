@@ -11,6 +11,7 @@ class PIMQTT extends TasmotaService
         //Anzahl die in der Konfirgurationsform angezeigt wird - Hier Standard auf 1
         $this->RegisterPropertyString('Topic', '');
         $this->RegisterPropertyString('FullTopic', '%prefix%/%topic%');
+        $this->RegisterVariableFloat('Tasmota_RSSI', 'RSSI');
         //$ID_Cat_Devices=@$this->GetIDForIdent('DEVICES');
         //if($ID_Cat_Devices===FALSE){
         //    $ID_Cat_Devices=IPS_CreateCategory();
