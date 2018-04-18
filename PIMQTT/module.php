@@ -115,6 +115,10 @@ class PIMQTT extends TasmotaService
                 IPS_SetName($ID_Device, $ID_Modul);
                 IPS_SetParent($ID_Device, $this->ReadPropertyInteger('$ID_Cat_Devices'));
                 IPS_SetIdent($ID_Device, $Modul);
+                $this->SendDebug('Create Cat in', $this->$this->ReadPropertyInteger('$ID_Cat_Devices'), 0);
+                $this->SendDebug('Create Cat ', $Modul, 0);
+                $this->SendDebug('Cat Name ', $Modul, 0);
+                
             }
                 
             $Temp= floatval($Message->Temperatur);
