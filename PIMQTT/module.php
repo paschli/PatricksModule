@@ -11,7 +11,7 @@ class PIMQTT extends TasmotaService
         //Anzahl die in der Konfirgurationsform angezeigt wird - Hier Standard auf 1
         $this->RegisterPropertyString('Topic', '');
         $this->RegisterPropertyString('FullTopic', '%prefix%/%topic%');
-        $this->RegisterVariableBoolean('Test','Test',0);
+        $this->RegisterVariableBoolean('Test','Test','',1);
         $ID_Parent=$this->IPS_GetIDforIdent('Test');
         $ID_Cat_Devices=@$this->GetIDForIdent('DEVICES');
         if($ID_Cat_Devices===FALSE){
