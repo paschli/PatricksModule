@@ -109,6 +109,7 @@ class PIMQTT extends TasmotaService
             $this->SendDebug('Temp', $Message->Temperatur, 0);
             $this->SendDebug('Humid', $Message->Humidity, 0);
             $Modul=strval($Message->Modul);
+            IPS_LogMessage("PIMQTT",'Message: '.$Message);
             IPS_LogMessage("PIMQTT",'Modul vorher '.$Modul);
             $Modul_Ident=str_replace ( ':' , '' , $Modul );
             IPS_LogMessage("PIMQTT",'Modul nachher'.$Modul_Ident);
