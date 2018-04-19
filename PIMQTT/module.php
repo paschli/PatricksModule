@@ -104,12 +104,12 @@ class PIMQTT extends TasmotaService
             $this->SendDebug('Topic', $Buffer->TOPIC, 0);
             $this->SendDebug('MSG', $Buffer->MSG, 0);
             //Message decodieren und in Variable schreiben 
-            $Message=strval(json_decode($Buffer->MSG));
+            $Message=json_decode($Buffer->MSG);
             $this->SendDebug('Modul', $Message->Modul, 0);
             $this->SendDebug('Temp', $Message->Temperatur, 0);
             $this->SendDebug('Humid', $Message->Humidity, 0);
             $Modul=strval($Message->Modul);
-            IPS_LogMessage("PIMQTT",'Message: '.$Message);
+            //IPS_LogMessage("PIMQTT",'Message: '.$Message);
             IPS_LogMessage("PIMQTT",'Modul vorher '.$Modul);
             $Modul_Ident=str_replace ( ':' , '' , $Modul );
             IPS_LogMessage("PIMQTT",'Modul nachher'.$Modul_Ident);
@@ -122,7 +122,7 @@ class PIMQTT extends TasmotaService
                 IPS_LogMessage("PIMQTT",'Create Cat in'.$this->ReadPropertyInteger('$ID_Cat_Devices'));
                 IPS_LogMessage("PIMQTT",'Create Cat'.$Modul);
             }
-            if(fnmatch('Temperatur', $Message->Temperatur)){
+            if(fnmatch('Temperatur', $Buffer->MSG)){
                 IPS_LogMessage("PIMQTT",'fnMatch OK');
                 $ID_Temp=@IPS_GetObjectIDByIdent('Temperatur', $ID_Modul);
                 if($ID_Temp===FALSE){
