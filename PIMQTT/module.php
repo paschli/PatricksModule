@@ -114,14 +114,20 @@ class PIMQTT extends TasmotaService
             IPS_LogMessage("PIMQTT",'Modul nachher'.$Modul_Ident);
             $ID_Modul=@IPS_GetObjectIDByIdent($Modul_Ident, $this->ReadPropertyInteger('$ID_Cat_Devices'));
             if($ID_Modul===FALSE){
-                $ID_Module= IPS_CreateCategory();
-                IPS_SetName($ID_Module, $Modul);
-                IPS_SetParent($ID_Module, $this->ReadPropertyInteger('$ID_Cat_Devices'));
-                IPS_SetIdent($ID_Module, $Modul_Ident);
+                $ID_Modul= IPS_CreateCategory();
+                IPS_SetName($ID_Modul, $Modul);
+                IPS_SetParent($ID_Modul, $this->ReadPropertyInteger('$ID_Cat_Devices'));
+                IPS_SetIdent($ID_Modul, $Modul_Ident);
                 IPS_LogMessage("PIMQTT",'Create Cat in'.$this->ReadPropertyInteger('$ID_Cat_Devices'));
                 IPS_LogMessage("PIMQTT",'Create Cat'.$Modul);
             }
-                
+            if(fnmatch('Temperatur', $Message)){
+                $ID_Temp=@IPS_GetObjectIDByIdent('Temperatur', $ID_Modul);
+                if($ID_Temp===FALSE){
+                    $ID_Temp=$this->createVariable('Temperatur', $ID_Modul, 'Humidity');
+                }
+                SetValueFloat($ID_Temp, floatval($Message->Temperatur));
+            }    
             //$Temp= floatval($Message->Temperatur);
             //$Humid=floatval($Message->Humidity);
             IPS_LogMessage("PIMQTT",$Modul."/".$Temp."/".$Humid);
@@ -230,5 +236,14 @@ class PIMQTT extends TasmotaService
             array(false, 'Offline',  '', 0xFF0000),
             array(true, 'Online',  '', 0x00FF00)
         ));*/
+    }
+    private function createVariable($Name,$ParentID,$ProfilName)
+    {
+       $id= IPS_CreateVariable(1);
+       IPS_SetName($id, $Name);
+       IPS_SetParent($id, $ParentID);
+       IPS_SetVariableCustomProfile($id, $ProfileName);
+       IPS_SetIdent($id, $Name);
+       return $id;
     }
 }
