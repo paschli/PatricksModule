@@ -121,7 +121,7 @@ class PIMQTT extends TasmotaService
                 IPS_LogMessage("PIMQTT",'Create Cat in'.$this->ReadPropertyInteger('$ID_Cat_Devices'));
                 IPS_LogMessage("PIMQTT",'Create Cat'.$Modul);
             }
-            if(fnmatch('Temperatur', $Message)){
+            if(fnmatch('Temperatur', $Message->Temperatur)){
                 $ID_Temp=@IPS_GetObjectIDByIdent('Temperatur', $ID_Modul);
                 if($ID_Temp===FALSE){
                     $ID_Temp=$this->createVariable('Temperatur', $ID_Modul, 'Humidity');
