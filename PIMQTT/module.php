@@ -91,25 +91,8 @@ class PIMQTT extends TasmotaService
             
         }
     }
-    public function RequestAction($Ident, $Value)
-    {
-        /*$this->SendDebug(__FUNCTION__ . ' Ident', $Ident, 0);
-        $this->SendDebug(__FUNCTION__ . ' Value', $Value, 0);
-        if (strlen($Ident) != 13) {
-            $power = substr($Ident, 13);
-        } else {
-            $power = 0;
-        }
-        $result = $this->setPower($power, $Value);*/
-    }
-    private function createVariablenProfiles()
-    {
-        //Online / Offline Profile
-       /* $this->RegisterProfileBooleanEx('Tasmota.DeviceStatus', 'Network', '', '', array(
-            array(false, 'Offline',  '', 0xFF0000),
-            array(true, 'Online',  '', 0x00FF00)
-        ));*/
-    }
+    
+    
     private function createVariable($Name,$ParentID,$ProfilName)
     {
        $id= IPS_CreateVariable(2);
