@@ -96,7 +96,7 @@ class PIMQTT extends TasmotaService
        $id= IPS_CreateVariable(2);
        IPS_SetName($id, $Name);
        IPS_SetParent($id, $ParentID);
-       IPS_SetVariableCustomProfile($id, $ProfileName);
+       IPS_SetVariableCustomProfile($id, $ProfilName);
        IPS_SetIdent($id, $Name);
        return $id;
     }
