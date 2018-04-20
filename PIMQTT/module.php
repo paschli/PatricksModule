@@ -78,7 +78,15 @@ class PIMQTT extends TasmotaService
                     $ID_Humid=$this->createVariable('Humidity', $ID_Modul, 'Humidity');
                 }
                 SetValueFloat($ID_Humid, floatval($Message->Humidity));
-            }   
+            }
+            if(fnmatch('*Battery*', strval($Buffer->MSG))){ 
+                IPS_LogMessage("PIMQTT",'fnMatch OK');
+                $ID_Batt=@IPS_GetObjectIDByIdent('Battery', $ID_Modul);
+                if($ID_Humid===FALSE){
+                    $ID_Humid=$this->createVariable('Battery', $ID_Modul, 'Battery');
+                }
+                SetValueFloat($ID_Humid, floatval($Message->Humidity));
+            }
         }
     }
     
