@@ -68,7 +68,7 @@ class PIMQTT extends TasmotaService
                 IPS_LogMessage("PIMQTT",'fnMatch OK');
                 $ID_Temp=@IPS_GetObjectIDByIdent('Temperatur', $ID_Modul);
                 if($ID_Temp===FALSE){
-                    $ID_Temp=$this->createVariable('Temperatur', $ID_Modul, 'Humidity');
+                    $ID_Temp=$this->createVariable('Temperatur', $ID_Modul, 'RaumTemperature');
                 }
                 SetValueFloat($ID_Temp, floatval($Message->Temperatur));
             }   
