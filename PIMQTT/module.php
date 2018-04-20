@@ -24,74 +24,17 @@ class PIMQTT extends TasmotaService
         }
         $this->RegisterPropertyInteger('$ID_Cat_Devices',$ID_Cat_Devices);
         $this->RegisterPropertyInteger('$ID_Instance', $ID_Parent);
-        //$this->RegisterPropertyString("DeviceLanguage","en");
-        //$this->RegisterVariableFloat('Tasmota_RSSI', 'RSSI');
-        //$this->RegisterVariableBoolean('Tasmota_DeviceStatus', 'Status', 'Tasmota.DeviceStatus');
-        //Settings
-        //$this->RegisterPropertyBoolean('Power1Deactivate', false);
-        //Debug Optionen
-        //$this->RegisterPropertyBoolean('Sensoren', false);
-        //$this->RegisterPropertyBoolean('State', false);
-        //$this->RegisterPropertyBoolean('Pow', false);
+       
     }
     public function ApplyChanges()
     {
         //Never delete this line!
         parent::ApplyChanges();
         $this->ConnectParent('{EE0D345A-CF31-428A-A613-33CE98E752DD}');
-        //Setze Filter fÃ¼r ReceiveData
-        //$this->setPowerOnState($this->ReadPropertyInteger('PowerOnState'));
         $topic = $this->ReadPropertyString('Topic');
         $this->SetReceiveDataFilter('.*' . $topic . '.*');
     }
-    private function find_parent($array, $needle, $parent = null)
-    {
-        /*foreach ($array as $key => $value) {
-            if (is_array($value)) {
-                $pass = $parent;
-                if (is_string($key)) {
-                    $pass = $key;
-                }
-                $found = $this->find_parent($value, $needle, $pass);
-                if ($found !== false) {
-                    return $found;
-                }
-            } elseif ($value === $needle) {
-                return $parent;
-            }
-        }
-        return false;*/
-    }
-    private function traverseArray($array, $GesamtArray)
-    {
-        /*foreach ($array as $key=> $value) {
-            if (is_array($value)) {
-                $this->traverseArray($value, $GesamtArray);
-            } else {
-                $ParentKey = $this->find_parent($GesamtArray, $value);
-                $this->Debug('Rekursion Tasmota ' . $ParentKey . '_' . $key, "$key = $value", 'Sensoren');
-                if (is_int($value) or is_float($value)) {
-                    $ParentKey = str_replace('-', '_', $ParentKey);
-                    $key = str_replace('-', '_', $key);
-                    switch ($key) {
-            case 'Temperature':
-              $variablenID = $this->RegisterVariableFloat('Tasmota_' . $ParentKey . '_' . $key, $ParentKey . ' Temperatur', '~Temperature');
-              SetValue($this->GetIDForIdent('Tasmota_' . $ParentKey . '_' . $key), $value);
-              break;
-            case 'Humidity':
-              $variablenID = $this->RegisterVariableFloat('Tasmota_' . $ParentKey . '_' . $key, $ParentKey . ' Feuchte', '~Humidity.F');
-              SetValue($this->GetIDForIdent('Tasmota_' . $ParentKey . '_' . $key), $value);
-              break;
-            default:
-              if ($ParentKey != 'ENERGY') {
-                  $variablenID = $this->RegisterVariableFloat('Tasmota_' . $ParentKey . '_' . $key, $ParentKey . ' ' . $key);
-                  SetValue($this->GetIDForIdent('Tasmota_' . $ParentKey . '_' . $key), $value);
-              }
-            }
-                }
-            }
-        }*/
-    }
+  
     public function ReceiveData($JSONString)
     {
         $this->SendDebug('JSON', $JSONString, 0);
@@ -109,10 +52,9 @@ class PIMQTT extends TasmotaService
             $this->SendDebug('Temp', $Message->Temperatur, 0);
             $this->SendDebug('Humid', $Message->Humidity, 0);
             $Modul=strval($Message->Modul);
-            //IPS_LogMessage("PIMQTT",'Message: '.$Message);
-            IPS_LogMessage("PIMQTT",'Modul vorher '.$Modul);
             $Modul_Ident=str_replace ( ':' , '' , $Modul );
-            IPS_LogMessage("PIMQTT",'Modul nachher'.$Modul_Ident);
+            
+            
             $ID_Modul=@IPS_GetObjectIDByIdent($Modul_Ident, $this->ReadPropertyInteger('$ID_Cat_Devices'));
             if($ID_Modul===FALSE){
                 $ID_Modul= IPS_CreateCategory();
@@ -123,7 +65,7 @@ class PIMQTT extends TasmotaService
                 IPS_LogMessage("PIMQTT",'Create Cat'.$Modul);
             }
             IPS_LogMessage("PIMQTT",'Buffer -> MSG  '.strval($Buffer->MSG));
-            //if(strpos('Temperatur', strval($Buffer->MSG))!=FALSE){
+            
             if(($Message->Temperatur)!=NULL){    
                 IPS_LogMessage("PIMQTT",'fnMatch OK');
                 $ID_Temp=@IPS_GetObjectIDByIdent('Temperatur', $ID_Modul);
@@ -135,8 +77,7 @@ class PIMQTT extends TasmotaService
             else 
                 IPS_LogMessage("PIMQTT",'fnMatch nicht OK');
             
-            if(fnmatch('*Humidity*', strval($Buffer->MSG))){
-            //if(($Message->Humidity)!=NULL){    
+            if(fnmatch('*Humidity*', strval($Buffer->MSG))){ 
                 IPS_LogMessage("PIMQTT",'fnMatch OK');
                 $ID_Humid=@IPS_GetObjectIDByIdent('Humidity', $ID_Modul);
                 if($ID_Humid===FALSE){
@@ -146,94 +87,8 @@ class PIMQTT extends TasmotaService
             }   
             else 
                 IPS_LogMessage("PIMQTT",'fnMatch nicht OK');
-            //$Temp= floatval($Message->Temperatur);
-            //$Humid=floatval($Message->Humidity);
-            IPS_LogMessage("PIMQTT",$Modul."/".$Temp."/".$Humid);
-            //$Daten= json_decode($MSG->Data);
-            //$this->SendDebug('Daten', $Buffer->MSG->Data, 0);
-            //$this->SendDebug('Ende', 'Ende', 0);
-            /*$Buffer = json_decode($data->MSG);
-            $this->SendDebug('MSG', $Buffer->MSG, 0);
-            $off = $this->ReadPropertyString('Off');
-            $on = $this->ReadPropertyString('On');
-            //PowerOnState Vairablen setzen
-            if (fnmatch('*PowerOnState*', $Buffer->MSG)) {
-                $this->SendDebug('PowerOnState Topic', $Buffer->TOPIC, 0);
-                $this->SendDebug('PowerOnState MSG', $Buffer->MSG, 0);
-                $MSG = json_decode($Buffer->MSG);
-                if (property_exists($MSG, 'PowerOnState')) {
-                    $this->setPowerOnStateInForm($MSG->PowerOnState);
-                }
-            }
-            //Power Vairablen checken
-            if (property_exists($Buffer, 'TOPIC')) {
-                if (fnmatch('*POWER*', $Buffer->TOPIC)) {
-                    $this->SendDebug('Power Topic', $Buffer->TOPIC, 0);
-                    $this->SendDebug('Power', $Buffer->MSG, 0);
-                    $power = explode('/', $Buffer->TOPIC);
-                    end($power);
-                    $lastKey = key($power);
-                    $tmpPower = 'POWER1';
-                    if ($this->ReadPropertyBoolean('Power1Deactivate') == true) {
-                        $tmpPower = 'POWER';
-                    }
-                    if ($power[$lastKey] != $tmpPower) {
-                        $this->RegisterVariableBoolean('Tasmota_' . $power[$lastKey], $power[$lastKey], '~Switch');
-                        $this->EnableAction('Tasmota_' . $power[$lastKey]);
-                        switch ($Buffer->MSG) {
-                case $off:
-                  SetValue($this->GetIDForIdent('Tasmota_' . $power[$lastKey]), 0);
-                  break;
-                case $on:
-                SetValue($this->GetIDForIdent('Tasmota_' . $power[$lastKey]), 1);
-                break;
-              }
-                    }
-                }
-                //State checken
-                if (fnmatch('*STATE', $Buffer->TOPIC)) {
-                    $myBuffer = json_decode($Buffer->MSG);
-                    $this->Debug('State MSG', $Buffer->MSG, 'State');
-                    $this->Debug('State Wifi', $myBuffer->Wifi->RSSI, 'State');
-                    SetValue($this->GetIDForIdent('Tasmota_RSSI'), $myBuffer->Wifi->RSSI);
-                }
-                if (fnmatch('*LWT', $Buffer->TOPIC)) {
-                    $this->Debug('State MSG', $Buffer->MSG, 'State');
-                    if (strtolower($Buffer->MSG) == 'online') {
-                        SetValue($this->GetIDForIdent('Tasmota_DeviceStatus'), true);
-                    } else {
-                        SetValue($this->GetIDForIdent('Tasmota_DeviceStatus'), false);
-                    }
-                }
-                //Sensor Variablen checken
-                if (fnmatch('*SENSOR', $Buffer->TOPIC)) {
-                    $this->Debug('Sensor MSG', $Buffer->MSG, 'Sensoren');
-                    $this->Debug('Sensor Topic', $Buffer->TOPIC, 'Sensoren');
-                    $myBuffer = json_decode($Buffer->MSG, true);
-                    $this->traverseArray($myBuffer, $myBuffer);
-                }
-            }
-            //POW Variablen
-            if (fnmatch('*ENERGY*', $Buffer->MSG)) {
-                $myBuffer = json_decode($Buffer->MSG);
-                if (property_exists($myBuffer, 'ENERGY')) {
-                    $this->Debug('ENERGY MSG', $Buffer->MSG, 'Pow');
-                    $this->RegisterVariableFloat('Tasmota_POWTotal', 'Total', '~Electricity');
-                    $this->RegisterVariableFloat('Tasmota_POWYesterday', 'Yesterday', '~Electricity');
-                    $this->RegisterVariableFloat('Tasmota_POWToday', 'Today', '~Electricity');
-                    $this->RegisterVariableFloat('Tasmota_POWPower', 'Power', '~Watt.3680');
-                    $this->RegisterVariableFloat('Tasmota_POWFactor', 'Factor');
-                    $this->RegisterVariableFloat('Tasmota_POWVoltage', 'Voltage', '~Volt');
-                    $this->RegisterVariableFloat('Tasmota_POWCurrent', 'Current', '~Ampere');
-                    SetValue($this->GetIDForIdent('Tasmota_POWPower'), $myBuffer->ENERGY->Power);
-                    SetValue($this->GetIDForIdent('Tasmota_POWTotal'), $myBuffer->ENERGY->Total);
-                    SetValue($this->GetIDForIdent('Tasmota_POWToday'), $myBuffer->ENERGY->Today);
-                    SetValue($this->GetIDForIdent('Tasmota_POWYesterday'), $myBuffer->ENERGY->Yesterday);
-                    SetValue($this->GetIDForIdent('Tasmota_POWCurrent'), $myBuffer->ENERGY->Current);
-                    SetValue($this->GetIDForIdent('Tasmota_POWVoltage'), $myBuffer->ENERGY->Voltage);
-                    SetValue($this->GetIDForIdent('Tasmota_POWFactor'), $myBuffer->ENERGY->Factor);
-                }
-            }*/
+            
+            
         }
     }
     public function RequestAction($Ident, $Value)
