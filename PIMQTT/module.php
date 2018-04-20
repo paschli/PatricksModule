@@ -134,6 +134,18 @@ class PIMQTT extends TasmotaService
             }   
             else 
                 IPS_LogMessage("PIMQTT",'fnMatch nicht OK');
+            
+            if(fnmatch('*Humidity*', strval($Buffer->MSG))){
+            //if(($Message->Humidity)!=NULL){    
+                IPS_LogMessage("PIMQTT",'fnMatch OK');
+                $ID_Temp=@IPS_GetObjectIDByIdent('Humidity', $ID_Modul);
+                if($ID_Temp===FALSE){
+                    $ID_Temp=$this->createVariable('Humidity', $ID_Modul, 'Humidity');
+                }
+                SetValueFloat($ID_Temp, floatval($Message->Temperatur));
+            }   
+            else 
+                IPS_LogMessage("PIMQTT",'fnMatch nicht OK');
             //$Temp= floatval($Message->Temperatur);
             //$Humid=floatval($Message->Humidity);
             IPS_LogMessage("PIMQTT",$Modul."/".$Temp."/".$Humid);
