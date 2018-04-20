@@ -5,10 +5,8 @@ class PIMQTT extends TasmotaService
     public function Create()
     {
         //Never delete this line!
-        //parent::Create();
-        //$this->ConnectParent('{EE0D345A-CF31-428A-A613-33CE98E752DD}');
-        //$this->createVariablenProfiles();
-        //Anzahl die in der Konfirgurationsform angezeigt wird - Hier Standard auf 1
+        parent::Create();
+        $this->ConnectParent('{EE0D345A-CF31-428A-A613-33CE98E752DD}');
         $this->RegisterPropertyString('Topic', '');
         $this->RegisterPropertyString('FullTopic', '%prefix%/%topic%');
         $ID_Dummy=$this->RegisterVariableFloat('Tasmota_RSSI', 'RSSI');
