@@ -38,7 +38,6 @@ class PIMQTT extends TasmotaService
     public function ReceiveData($JSONString)
     {
         $this->SendDebug('JSON', $JSONString, 0);
-        //$this->defineLanguage($this->ReadPropertyString("DeviceLanguage"));
         if (!empty($this->ReadPropertyString('Topic'))) {
             $this->SendDebug('ReceiveData JSON', $JSONString, 0);
             $data = json_decode($JSONString);
@@ -49,8 +48,7 @@ class PIMQTT extends TasmotaService
             //Message decodieren und in Variable schreiben 
             $Message=json_decode($Buffer->MSG);
             $this->SendDebug('Modul', $Message->Modul, 0);
-            $this->SendDebug('Temp', $Message->Temperatur, 0);
-            $this->SendDebug('Humid', $Message->Humidity, 0);
+            
             $Modul=strval($Message->Modul);
             $Modul_Ident=str_replace ( ':' , '' , $Modul );
             
