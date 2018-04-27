@@ -109,9 +109,12 @@ class TasmotaService extends IPSModule
         $this->SendDebug('restart', $BufferJSON, 0);
         $this->SendDataToParent(json_encode(array('DataID' => '{018EF6B5-AB94-40C6-AA53-46943E824ACF}', 'Action' => 'Publish', 'Buffer' => $BufferJSON)));
     }
-    public function sendMQTTCommand(string $command, string $msg)
+    public function sendMQTTCommand(string $topic, string $msg)
     {
-        $BufferJSON = $this->MQTTCommand($command, $msg);
+        //$BufferJSON = $this->MQTTCommand($command, $msg);
+        $Buffer['Topic'] = $topic;
+        $Buffer['MSG'] = $msg;
+        $BufferJSON = json_encode($Buffer);
         $this->SendDebug('sendMQTTCommand', $BufferJSON, 0);
         $this->SendDataToParent(json_encode(array('DataID' => '{018EF6B5-AB94-40C6-AA53-46943E824ACF}', 'Action' => 'Publish', 'Buffer' => $BufferJSON)));
     }
