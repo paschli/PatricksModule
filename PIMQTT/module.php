@@ -64,9 +64,10 @@ class PIMQTT extends TasmotaService
             
             if($mode==1){
                 IPS_LogMessage("PIMQTT",'miflora execute!');
+                IPS_LogMessage("PIMQTT",'Buffer -> MSG  '.strval($Buffer->MSG));
                 if(fnmatch('*$announce*', $Topic)){    
                     IPS_LogMessage("PIMQTT",'announce received: '.$Topic);
-                    $Message=json_decode($Buffer->MSG);
+                    $Message=strval(json_decode($Buffer->MSG));
                     if($Message==''){
                         IPS_LogMessage("PIMQTT",'Message leer ');
                         return(0);
@@ -82,7 +83,7 @@ class PIMQTT extends TasmotaService
                         IPS_LogMessage("PIMQTT",'Create Cat in'.$this->ReadPropertyInteger('$ID_Cat_Devices'));
                         IPS_LogMessage("PIMQTT",'Create Cat'.$Modul);
                     }
-                    IPS_LogMessage("PIMQTT",'Buffer -> MSG  '.strval($Buffer->MSG));
+                    
                 }
             }
             
