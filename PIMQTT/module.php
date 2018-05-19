@@ -30,9 +30,7 @@ class PIMQTT extends TasmotaService
         parent::ApplyChanges();
         $this->ConnectParent('{EE0D345A-CF31-428A-A613-33CE98E752DD}');
         $topic = $this->ReadPropertyString('Topic');
-        //$this->SetReceiveDataFilter('.*' . $topic . '.*');
-        
-        $this->SetReceiveDataFilter('.*' . $topic . '*');
+        $this->SetReceiveDataFilter('.*' . $topic . '.*');
     }
   
     public function ReceiveData($JSONString)
