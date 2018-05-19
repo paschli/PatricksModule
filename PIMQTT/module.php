@@ -50,11 +50,11 @@ class PIMQTT extends TasmotaService
             IPS_LogMessage("PIMQTT",'Topic received: '.$Topic);
             
             if(fnmatch('*miflora*', $Topic)){    
-                IPS_LogMessage("PIMQTT",'announce received: '.$Topic);
+                IPS_LogMessage("PIMQTT",'miflora received: '.$Topic);
                 $mode=1;
             }
             if(fnmatch('*BLT_Temp_Sensor*', $Topic)){    
-                IPS_LogMessage("PIMQTT",'announce received: '.$Topic);
+                IPS_LogMessage("PIMQTT",'BLT_Temp_Sensor received: '.$Topic);
                 $mode=2;
             }
             if(fnmatch('*$announce*', $Topic)){    
