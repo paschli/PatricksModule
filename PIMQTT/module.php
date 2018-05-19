@@ -47,15 +47,15 @@ class PIMQTT extends TasmotaService
             $Topic = $Buffer->TOPIC;    
             IPS_LogMessage("PIMQTT",'Topic received: '.$Topic);
             
+            if(fnmatch('*$announce*', strval($Buffer->MSG))){    
+                IPS_LogMessage("PIMQTT",'announce received: '.$Topic);
+            }
             //Message decodieren und in Variable schreiben 
             $Message=json_decode($Buffer->MSG);
             
-            
-            
-            $Modul=strval($Message->Modul);
-            $Modul_Ident=str_replace ( ':' , '' , $Modul );
-            
-            if($Modul!=''){
+            if($Message->Modul!=''){
+                $Modul=strval($Message->Modul);
+                $Modul_Ident=str_replace ( ':' , '' , $Modul );
                 $this->SendDebug('Modul', $Message->Modul, 0);
                 $ID_Modul=@IPS_GetObjectIDByIdent($Modul_Ident, $this->ReadPropertyInteger('$ID_Cat_Devices'));
                 if($ID_Modul===FALSE){
