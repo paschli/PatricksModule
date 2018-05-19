@@ -47,7 +47,7 @@ class PIMQTT extends TasmotaService
             $Topic = $Buffer->TOPIC;    
             IPS_LogMessage("PIMQTT",'Topic received: '.$Topic);
             
-            if(fnmatch('*$announce*', strval($Buffer->MSG))){    
+            if(fnmatch('*$announce*', $Topic)){    
                 IPS_LogMessage("PIMQTT",'announce received: '.$Topic);
             }
             //Message decodieren und in Variable schreiben 
