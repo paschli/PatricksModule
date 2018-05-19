@@ -73,7 +73,7 @@ class PIMQTT extends TasmotaService
                         return(0);
                     }
                     //IPS_LogMessage("PIMQTT",'Message: '.$Message);
-                    if (array_key_exists('name_pretty', $Message)) {
+                    if (array_key_exists('Sensor2', $Message)) {
                         IPS_LogMessage("PIMQTT",'Gefunden!!! ');
                     }
                     else{
