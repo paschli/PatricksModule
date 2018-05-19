@@ -31,7 +31,7 @@ class PIMQTT extends TasmotaService
         $this->ConnectParent('{EE0D345A-CF31-428A-A613-33CE98E752DD}');
         $topic = $this->ReadPropertyString('Topic');
         //$this->SetReceiveDataFilter('.*' . $topic . '.*');
-        IPS_LogMessage("PIMQTT",'Topic '.$topic);
+        
         $this->SetReceiveDataFilter('.*' . $topic . '*');
     }
   
@@ -45,6 +45,7 @@ class PIMQTT extends TasmotaService
             $Buffer = json_decode($data->Buffer);
             $this->SendDebug('Topic', $Buffer->TOPIC, 0);
             $this->SendDebug('MSG', $Buffer->MSG, 0);
+            IPS_LogMessage("PIMQTT",'Topic received: '.$Buffer->TOPIC);
             //Message decodieren und in Variable schreiben 
             $Message=json_decode($Buffer->MSG);
             $this->SendDebug('Modul', $Message->Modul, 0);
