@@ -35,7 +35,8 @@ class PIMQTT extends TasmotaService
   
     public function ReceiveData($JSONString)
     {
-        
+        define('float', 2);
+        define('integer', 1);
         $this->SendDebug('JSON', $JSONString, 0);
         if (!empty($this->ReadPropertyString('Topic'))) {
             $this->SendDebug('ReceiveData JSON', $JSONString, 0);
@@ -115,11 +116,11 @@ class PIMQTT extends TasmotaService
 //                        }
 //                        SetValueInteger($ID_Bat, intval($value));
 //                    }
-                    $this->check_message($Message,'battery', $ID_Modul);
-                    $this->check_message($Message,'light', $ID_Modul);
-                    $this->check_message($Message,'moisture', $ID_Modul);
-                    $this->check_message($Message,'conductivity', $ID_Modul);
-                    $this->check_message($Message,'temperature', $ID_Modul,2);
+                    $this->check_message($Message,'battery', $ID_Modul,integer);
+                    $this->check_message($Message,'light', $ID_Modul,integer);
+                    $this->check_message($Message,'moisture', $ID_Modul,integer);
+                    $this->check_message($Message,'conductivity', $ID_Modul,integer);
+                    $this->check_message($Message,'temperature', $ID_Modul,float);
                 }    
                 
                 
