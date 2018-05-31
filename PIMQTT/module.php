@@ -116,6 +116,9 @@ class PIMQTT extends TasmotaService
 //                        SetValueInteger($ID_Bat, intval($value));
 //                    }
                     $this->check_message($Message,'battery', $ID_Modul);
+                    $this->check_message($Message,'light', $ID_Modul);
+                    $this->check_message($Message,'moisture', $ID_Modul);
+                    $this->check_message($Message,'conductivity', $ID_Modul);
                 }    
                 
                 
