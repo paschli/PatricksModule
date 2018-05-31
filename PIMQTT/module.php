@@ -73,15 +73,15 @@ class PIMQTT extends TasmotaService
                         return(0);
                     }
 //                    IPS_LogMessage("PIMQTT",'Name: '.strval($Message[1]));
-                    if (array_key_exists('Sensor2', $Message)) {
-                        IPS_LogMessage("PIMQTT",'Gefunden!!! ');
+                    if (array_key_exists('name_pretty', $Message)) {
+                        IPS_LogMessage("PIMQTT",'Namen gefunden!!! '.$Message['name_pretty']);
+                        $Sensor=$Message['name_pretty'];
                     }
                     else{
-                        IPS_LogMessage("PIMQTT",'Nicht Gefunden! ');
+                        IPS_LogMessage("PIMQTT",'Name nicht gefunden! ');
                     }
-                        
-                    $Sensor=current($Message);
-                    IPS_LogMessage("PIMQTT",'Sensor Name= '.array_shift($Sensor));
+                    
+                    IPS_LogMessage("PIMQTT",'Sensor Name= '.$Sensor);
 //                    $ID_Modul=@IPS_GetObjectIDByIdent($Modul_Ident, $this->ReadPropertyInteger('$ID_Cat_Devices'));
 //                    if($ID_Modul===FALSE){
 //                        $ID_Modul= IPS_CreateCategory();
@@ -93,6 +93,7 @@ class PIMQTT extends TasmotaService
 //                    }
                     
                 }
+                
             }
             
             
