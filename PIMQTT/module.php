@@ -49,7 +49,8 @@ class PIMQTT extends TasmotaService
             $Topic = $Buffer->TOPIC;    
             IPS_LogMessage("PIMQTT",'Topic received: '.$Topic);
             
-            if(fnmatch('*miflora_sensor*', $Topic)){    
+            if(fnmatch('*miflora_sensor*', $Topic)){  
+                
                 IPS_LogMessage("PIMQTT",'miflora received: '.$Topic);
                 $mode=1;
             }
@@ -80,7 +81,13 @@ class PIMQTT extends TasmotaService
                     else{
                         IPS_LogMessage("PIMQTT",'Name nicht gefunden! ');
                     }
-                    
+                }
+                else {
+                    $position=strpos($Topic,'/');        
+                    $Sensor= substr($Topic,$position);
+                    IPS_LogMessage("PIMQTT",'Namen gefunden!!! '.$Sensor);
+                }
+                   
 //                    IPS_LogMessage("PIMQTT",'Sensor Name= '.$Sensor);
 //                    $ID_Modul=@IPS_GetObjectIDByIdent($Modul_Ident, $this->ReadPropertyInteger('$ID_Cat_Devices'));
 //                    if($ID_Modul===FALSE){
@@ -92,7 +99,7 @@ class PIMQTT extends TasmotaService
 //                        IPS_LogMessage("PIMQTT",'Create Cat'.$Modul);
 //                    }
                     
-                }
+                
                 
             }
             
