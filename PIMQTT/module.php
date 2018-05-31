@@ -207,7 +207,11 @@ class PIMQTT extends TasmotaService
             if($ID_needle===FALSE){
                 $ID_needle=$this->createVariable($needle, $ID_Modul,'',$type);
             }
-            SetValueInteger($ID_needle, intval($value));
+            switch($type){
+                case integer: SetValueInteger($ID_needle, intval($value)); break;
+                case float: SetValueFloat($ID_needle, intval($value)); break;
+            }
+            
         }
     }
 }
