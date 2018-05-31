@@ -97,10 +97,25 @@ class PIMQTT extends TasmotaService
                         IPS_LogMessage("PIMQTT",'Create Cat'.$Sensor);
                     }
                     $Message=json_decode($Buffer->MSG,TRUE);
-                    if (array_key_exists('battery', $Message)) {
-                        IPS_LogMessage("PIMQTT",'Battery = '.$Message['battery']);
-                        $bat=$Message['battery'];
-                    }
+//                    if (array_key_exists('battery', $Message)) {
+//                        IPS_LogMessage("PIMQTT",'Battery = '.$Message['battery']);
+//                        $value=$Message['battery'];
+//                        $ID_Bat=@IPS_GetObjectIDByIdent('Battery', $ID_Modul);
+//                        if($ID_Bat===FALSE){
+//                            $ID_Bat=$this->createVariable('Battery', $ID_Modul, 'Battery');
+//                        }
+//                        SetValueInteger($ID_Bat, intval($value));
+//                    }
+//                    if (array_key_exists('light', $Message)) {
+//                        IPS_LogMessage("PIMQTT",'Battery = '.$Message['battery']);
+//                        $bat=$Message['battery'];
+//                        $ID_Bat=@IPS_GetObjectIDByIdent('Battery', $ID_Modul);
+//                        if($ID_Bat===FALSE){
+//                            $ID_Bat=$this->createVariable('Battery', $ID_Modul, 'Battery');
+//                        }
+//                        SetValueInteger($ID_Bat, intval($value));
+//                    }
+                    $this->check_message($Message,'battery', $ID_Modul);
                 }    
                 
                 
@@ -158,13 +173,33 @@ class PIMQTT extends TasmotaService
     }
     
     
-    private function createVariable($Name,$ParentID,$ProfilName)
+    private function createVariable($Name,$ParentID,$ProfilName,$type )
     {
-       $id= IPS_CreateVariable(2);
+       if(!isset($type)){
+           $type=2;
+       }
+       $id= IPS_CreateVariable($type);
        IPS_SetName($id, $Name);
        IPS_SetParent($id, $ParentID);
-       IPS_SetVariableCustomProfile($id, $ProfilName);
+       
+       if(isset($ProfilName)){
+           IPS_SetVariableCustomProfile($id, $ProfilName);
+       }    
+       
        IPS_SetIdent($id, $Name);
        return $id;
+    }
+    
+    private function check_message($Message,$needle,$ID_Modul)
+    {
+        if (array_key_exists($needle, $Message)) {
+            IPS_LogMessage("PIMQTT",$needle.'='.$Message[$needle]);
+            $value=$Message[$needle];
+            $ID_needle=@IPS_GetObjectIDByIdent($needle, $ID_Modul);
+            if($ID_needle===FALSE){
+                $ID_needle=$this->createVariable($needle, $ID_Modul);
+            }
+            SetValueInteger($ID_needle, intval($value));
+        }
     }
 }
