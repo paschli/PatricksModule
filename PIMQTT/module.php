@@ -94,7 +94,12 @@ class PIMQTT extends TasmotaService
                         IPS_SetParent($ID_Modul, $this->ReadPropertyInteger('$ID_Cat_Devices'));
                         IPS_SetIdent($ID_Modul, $Modul_Ident);
                         IPS_LogMessage("PIMQTT",'Create Cat in'.$this->ReadPropertyInteger('$ID_Cat_Devices'));
-                        IPS_LogMessage("PIMQTT",'Create Cat'.$Modul);
+                        IPS_LogMessage("PIMQTT",'Create Cat'.$Sensor);
+                    }
+                    $Message=json_decode($Buffer->MSG,TRUE);
+                    if (array_key_exists('battery', $Message)) {
+                        IPS_LogMessage("PIMQTT",'Battery = '.$Message['battery']);
+                        $bat=$Message['battery'];
                     }
                 }    
                 
