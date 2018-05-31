@@ -197,7 +197,7 @@ class PIMQTT extends TasmotaService
             $value=$Message[$needle];
             $ID_needle=@IPS_GetObjectIDByIdent($needle, $ID_Modul);
             if($ID_needle===FALSE){
-                $ID_needle=$this->createVariable($needle, $ID_Modul,1);
+                $ID_needle=$this->createVariable($needle, $ID_Modul,'',1);
             }
             SetValueInteger($ID_needle, intval($value));
         }
