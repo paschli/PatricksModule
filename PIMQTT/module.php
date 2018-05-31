@@ -209,7 +209,8 @@ class PIMQTT extends TasmotaService
             }
             switch($type){
                 case integer: SetValueInteger($ID_needle, intval($value)); break;
-                case float: SetValueFloat($ID_needle, intval($value)); break;
+                case float: SetValueFloat($ID_needle, floatval($value)); break;
+                default: SetValueInteger($ID_needle, intval($value)); break;
             }
             
         }
