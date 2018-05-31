@@ -200,6 +200,15 @@ class PIMQTT extends TasmotaService
             
         }
     }
+    private function createCategory($Sensor) {
+        $ID_Modul= IPS_CreateCategory();
+        IPS_SetName($ID_Modul, $Sensor);
+        IPS_SetParent($ID_Modul, $this->ReadPropertyInteger('$ID_Cat_Devices'));
+        IPS_SetIdent($ID_Modul, $Sensor);
+        IPS_LogMessage("PIMQTT",'Create Cat in'.$this->ReadPropertyInteger('$ID_Cat_Devices'));
+        IPS_LogMessage("PIMQTT",'Create Cat'.$Sensor);
+        return ($ID_Modul);
+    }
     
     private function proceed_miflora($Buffer) {
         $Topic = $Buffer->TOPIC;
@@ -213,13 +222,13 @@ class PIMQTT extends TasmotaService
                 return(0);
             }
 //                    IPS_LogMessage("PIMQTT",'Name: '.strval($Message[1]));
-            if (array_key_exists('name_pretty', $Message)) {
-                IPS_LogMessage("PIMQTT",'Namen gefunden!!! '.$Message['name_pretty']);
-                $Sensor=$Message['name_pretty'];
-            }
-            else{
-                IPS_LogMessage("PIMQTT",'Name nicht gefunden! ');
-            }
+//            if (array_key_exists('name_pretty', $Message)) {
+//                IPS_LogMessage("PIMQTT",'Namen gefunden!!! '.$Message['name_pretty']);
+//                $Sensor=$Message['name_pretty'];
+//            }
+//            else{
+//                IPS_LogMessage("PIMQTT",'Name nicht gefunden! ');
+//            }
         }
         else {
             $position=strpos($Topic,'/')+1;        
@@ -228,12 +237,13 @@ class PIMQTT extends TasmotaService
             $Modul_Ident=$Sensor;
             $ID_Modul=@IPS_GetObjectIDByIdent($Modul_Ident, $this->ReadPropertyInteger('$ID_Cat_Devices'));
             if($ID_Modul===FALSE){
-                $ID_Modul= IPS_CreateCategory();
-                IPS_SetName($ID_Modul, $Sensor);
-                IPS_SetParent($ID_Modul, $this->ReadPropertyInteger('$ID_Cat_Devices'));
-                IPS_SetIdent($ID_Modul, $Modul_Ident);
-                IPS_LogMessage("PIMQTT",'Create Cat in'.$this->ReadPropertyInteger('$ID_Cat_Devices'));
-                IPS_LogMessage("PIMQTT",'Create Cat'.$Sensor);
+                $ID_Modul=$this->createCategory($Sensor)
+//                $ID_Modul= IPS_CreateCategory();
+//                IPS_SetName($ID_Modul, $Sensor);
+//                IPS_SetParent($ID_Modul, $this->ReadPropertyInteger('$ID_Cat_Devices'));
+//                IPS_SetIdent($ID_Modul, $Modul_Ident);
+//                IPS_LogMessage("PIMQTT",'Create Cat in'.$this->ReadPropertyInteger('$ID_Cat_Devices'));
+//                IPS_LogMessage("PIMQTT",'Create Cat'.$Sensor);
             }
             
             $Message=json_decode($Buffer->MSG,TRUE);
