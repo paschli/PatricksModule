@@ -202,6 +202,7 @@ class PIMQTT extends TasmotaService
     }
     
     private function proceed_miflora($Buffer) {
+        $Topic = $Buffer->TOPIC;
         IPS_LogMessage("PIMQTT",'miflora execute!');
         IPS_LogMessage("PIMQTT",'Buffer -> MSG  '.strval($Buffer->MSG));
         if(fnmatch('*$announce*', $Topic)){    
