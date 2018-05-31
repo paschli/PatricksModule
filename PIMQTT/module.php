@@ -119,6 +119,7 @@ class PIMQTT extends TasmotaService
                     $this->check_message($Message,'light', $ID_Modul);
                     $this->check_message($Message,'moisture', $ID_Modul);
                     $this->check_message($Message,'conductivity', $ID_Modul);
+                    $this->check_message($Message,'temperature', $ID_Modul,2);
                 }    
                 
                 
@@ -193,14 +194,17 @@ class PIMQTT extends TasmotaService
        return $id;
     }
     
-    private function check_message($Message,$needle,$ID_Modul)
+    private function check_message($Message,$needle,$ID_Modul,$type)
     {
+        if(!isset($type)){
+            $type=1;
+        }
         if (array_key_exists($needle, $Message)) {
             IPS_LogMessage("PIMQTT",$needle.'='.$Message[$needle]);
             $value=$Message[$needle];
             $ID_needle=@IPS_GetObjectIDByIdent($needle, $ID_Modul);
             if($ID_needle===FALSE){
-                $ID_needle=$this->createVariable($needle, $ID_Modul,'',1);
+                $ID_needle=$this->createVariable($needle, $ID_Modul,'',$type);
             }
             SetValueInteger($ID_needle, intval($value));
         }
