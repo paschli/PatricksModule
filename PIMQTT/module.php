@@ -54,6 +54,7 @@ class PIMQTT extends TasmotaService
                 
                 IPS_LogMessage("PIMQTT",'miflora received: '.$Topic);
                 $mode=1;
+                $this->proceed_miflora($Buffer);
             }
             if(fnmatch('*BLT_Temp_Sensor*', $Topic)){    
                 IPS_LogMessage("PIMQTT",'BLT_Temp_Sensor received: '.$Topic);
@@ -65,6 +66,7 @@ class PIMQTT extends TasmotaService
             }
             
             if($mode==1){
+                
 //                IPS_LogMessage("PIMQTT",'miflora execute!');
 //                IPS_LogMessage("PIMQTT",'Buffer -> MSG  '.strval($Buffer->MSG));
 //                if(fnmatch('*$announce*', $Topic)){    
