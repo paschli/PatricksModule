@@ -65,63 +65,46 @@ class PIMQTT extends TasmotaService
             }
             
             if($mode==1){
-                IPS_LogMessage("PIMQTT",'miflora execute!');
-                IPS_LogMessage("PIMQTT",'Buffer -> MSG  '.strval($Buffer->MSG));
-                if(fnmatch('*$announce*', $Topic)){    
-                    IPS_LogMessage("PIMQTT",'announce received: '.$Topic);
-                    $Message=json_decode($Buffer->MSG,TRUE);
-                    if($Message==''){
-                        IPS_LogMessage("PIMQTT",'Message leer ');
-                        return(0);
-                    }
-//                    IPS_LogMessage("PIMQTT",'Name: '.strval($Message[1]));
-                    if (array_key_exists('name_pretty', $Message)) {
-                        IPS_LogMessage("PIMQTT",'Namen gefunden!!! '.$Message['name_pretty']);
-                        $Sensor=$Message['name_pretty'];
-                    }
-                    else{
-                        IPS_LogMessage("PIMQTT",'Name nicht gefunden! ');
-                    }
-                }
-                else {
-                    $position=strpos($Topic,'/')+1;        
-                    $Sensor= substr($Topic,$position);                  
-                    IPS_LogMessage("PIMQTT",'Sensor Name= '.$Sensor);
-                    $Modul_Ident=$Sensor;
-                    $ID_Modul=@IPS_GetObjectIDByIdent($Modul_Ident, $this->ReadPropertyInteger('$ID_Cat_Devices'));
-                    if($ID_Modul===FALSE){
-                        $ID_Modul= IPS_CreateCategory();
-                        IPS_SetName($ID_Modul, $Sensor);
-                        IPS_SetParent($ID_Modul, $this->ReadPropertyInteger('$ID_Cat_Devices'));
-                        IPS_SetIdent($ID_Modul, $Modul_Ident);
-                        IPS_LogMessage("PIMQTT",'Create Cat in'.$this->ReadPropertyInteger('$ID_Cat_Devices'));
-                        IPS_LogMessage("PIMQTT",'Create Cat'.$Sensor);
-                    }
-                    $Message=json_decode($Buffer->MSG,TRUE);
-//                    if (array_key_exists('battery', $Message)) {
-//                        IPS_LogMessage("PIMQTT",'Battery = '.$Message['battery']);
-//                        $value=$Message['battery'];
-//                        $ID_Bat=@IPS_GetObjectIDByIdent('Battery', $ID_Modul);
-//                        if($ID_Bat===FALSE){
-//                            $ID_Bat=$this->createVariable('Battery', $ID_Modul, 'Battery');
-//                        }
-//                        SetValueInteger($ID_Bat, intval($value));
+//                IPS_LogMessage("PIMQTT",'miflora execute!');
+//                IPS_LogMessage("PIMQTT",'Buffer -> MSG  '.strval($Buffer->MSG));
+//                if(fnmatch('*$announce*', $Topic)){    
+//                    IPS_LogMessage("PIMQTT",'announce received: '.$Topic);
+//                    $Message=json_decode($Buffer->MSG,TRUE);
+//                    if($Message==''){
+//                        IPS_LogMessage("PIMQTT",'Message leer ');
+//                        return(0);
 //                    }
-//                    if (array_key_exists('light', $Message)) {
-//                        IPS_LogMessage("PIMQTT",'Battery = '.$Message['battery']);
-//                        $bat=$Message['battery'];
-//                        $ID_Bat=@IPS_GetObjectIDByIdent('Battery', $ID_Modul);
-//                        if($ID_Bat===FALSE){
-//                            $ID_Bat=$this->createVariable('Battery', $ID_Modul, 'Battery');
-//                        }
-//                        SetValueInteger($ID_Bat, intval($value));
+////                    IPS_LogMessage("PIMQTT",'Name: '.strval($Message[1]));
+//                    if (array_key_exists('name_pretty', $Message)) {
+//                        IPS_LogMessage("PIMQTT",'Namen gefunden!!! '.$Message['name_pretty']);
+//                        $Sensor=$Message['name_pretty'];
 //                    }
-                    $this->check_message($Message,'battery', $ID_Modul,integer);
-                    $this->check_message($Message,'light', $ID_Modul,integer);
-                    $this->check_message($Message,'moisture', $ID_Modul,integer);
-                    $this->check_message($Message,'conductivity', $ID_Modul,integer);
-                    $this->check_message($Message,'temperature', $ID_Modul,float);
-                }    
+//                    else{
+//                        IPS_LogMessage("PIMQTT",'Name nicht gefunden! ');
+//                    }
+//                }
+//                else {
+//                    $position=strpos($Topic,'/')+1;        
+//                    $Sensor= substr($Topic,$position);                  
+//                    IPS_LogMessage("PIMQTT",'Sensor Name= '.$Sensor);
+//                    $Modul_Ident=$Sensor;
+//                    $ID_Modul=@IPS_GetObjectIDByIdent($Modul_Ident, $this->ReadPropertyInteger('$ID_Cat_Devices'));
+//                    if($ID_Modul===FALSE){
+//                        $ID_Modul= IPS_CreateCategory();
+//                        IPS_SetName($ID_Modul, $Sensor);
+//                        IPS_SetParent($ID_Modul, $this->ReadPropertyInteger('$ID_Cat_Devices'));
+//                        IPS_SetIdent($ID_Modul, $Modul_Ident);
+//                        IPS_LogMessage("PIMQTT",'Create Cat in'.$this->ReadPropertyInteger('$ID_Cat_Devices'));
+//                        IPS_LogMessage("PIMQTT",'Create Cat'.$Sensor);
+//                    }
+//                    $Message=json_decode($Buffer->MSG,TRUE);
+//
+//                    $this->check_message($Message,'battery', $ID_Modul,integer);
+//                    $this->check_message($Message,'light', $ID_Modul,integer);
+//                    $this->check_message($Message,'moisture', $ID_Modul,integer);
+//                    $this->check_message($Message,'conductivity', $ID_Modul,integer);
+//                    $this->check_message($Message,'temperature', $ID_Modul,float);
+//                }    
                 
                 
             }
@@ -215,4 +198,48 @@ class PIMQTT extends TasmotaService
             
         }
     }
+    
+    private function proceed_miflora($Buffer) {
+        IPS_LogMessage("PIMQTT",'miflora execute!');
+        IPS_LogMessage("PIMQTT",'Buffer -> MSG  '.strval($Buffer->MSG));
+        if(fnmatch('*$announce*', $Topic)){    
+            IPS_LogMessage("PIMQTT",'announce received: '.$Topic);
+            $Message=json_decode($Buffer->MSG,TRUE);
+            if($Message==''){
+                IPS_LogMessage("PIMQTT",'Message leer ');
+                return(0);
+            }
+//                    IPS_LogMessage("PIMQTT",'Name: '.strval($Message[1]));
+            if (array_key_exists('name_pretty', $Message)) {
+                IPS_LogMessage("PIMQTT",'Namen gefunden!!! '.$Message['name_pretty']);
+                $Sensor=$Message['name_pretty'];
+            }
+            else{
+                IPS_LogMessage("PIMQTT",'Name nicht gefunden! ');
+            }
+        }
+        else {
+            $position=strpos($Topic,'/')+1;        
+            $Sensor= substr($Topic,$position);                  
+            IPS_LogMessage("PIMQTT",'Sensor Name= '.$Sensor);
+            $Modul_Ident=$Sensor;
+            $ID_Modul=@IPS_GetObjectIDByIdent($Modul_Ident, $this->ReadPropertyInteger('$ID_Cat_Devices'));
+            if($ID_Modul===FALSE){
+                $ID_Modul= IPS_CreateCategory();
+                IPS_SetName($ID_Modul, $Sensor);
+                IPS_SetParent($ID_Modul, $this->ReadPropertyInteger('$ID_Cat_Devices'));
+                IPS_SetIdent($ID_Modul, $Modul_Ident);
+                IPS_LogMessage("PIMQTT",'Create Cat in'.$this->ReadPropertyInteger('$ID_Cat_Devices'));
+                IPS_LogMessage("PIMQTT",'Create Cat'.$Sensor);
+            }
+            $Message=json_decode($Buffer->MSG,TRUE);
+
+            $this->check_message($Message,'battery', $ID_Modul,integer);
+            $this->check_message($Message,'light', $ID_Modul,integer);
+            $this->check_message($Message,'moisture', $ID_Modul,integer);
+            $this->check_message($Message,'conductivity', $ID_Modul,integer);
+            $this->check_message($Message,'temperature', $ID_Modul,float);
+        }    
+    }
+    
 }
