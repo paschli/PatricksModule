@@ -503,6 +503,7 @@ protected function RegisterTimer($ident, $interval, $script) {
   
   
   public function Set_Timer(int $Laufzeit) {
+    IPS_LogMessage("AutoSwitch_Set_Timer","Laufzeit:".$Laufzeit);
     $par= IPS_GetParent(($this->GetIDForIdent("Status")));
     $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
     $TimerID=@$this->GetIDForIdent('AutoOffTimer');
