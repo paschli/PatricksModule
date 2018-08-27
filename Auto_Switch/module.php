@@ -1072,7 +1072,9 @@ $idf=IPS_GetEventIDByName('Clear_1', $CatID);
 if($value){ 
 //Dämmerungszeit Früh
     $ID_LocationControl= IPS_GetObjectIDByName('Location Control', 0);
+    IPS_LogMessage("AutoSwitch_AutoTimeUpdate","ID_Location=".$ID_LocationControl);
     $ID_Früh= IPS_GetObjectIDByIdent('Sunrise', $ID_LocationControl);
+    IPS_LogMessage("AutoSwitch_AutoTimeUpdate","ID_Früh=".$ID_Früh);
     $timestamp = GetValueInteger($ID_Früh);
     $Stunde = date("H", $timestamp);
     $Minute = date("i", $timestamp);
@@ -1093,6 +1095,7 @@ if($value){
     
 //Dämmerungszeit Spät
     $ID_Spät=@IPS_GetObjectIDByIdent('CivilTwilightEnd', $ID_LocationControl);
+    IPS_LogMessage("AutoSwitch_AutoTimeUpdate","ID_Spät=".$ID_Spät);
     $timestamp = GetValueInteger($ID_Spät);
     $Stunde = date("H", $timestamp);
     $Minute = date("i", $timestamp);
