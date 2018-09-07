@@ -668,7 +668,7 @@ public function Set(bool $value, bool $anzeige) {
           IPS_LogMessage("AutoSwitch_".$func,"WatchEvent aktivieren!");
       }    
       $AutoTimeID=@IPS_GetObjectIDByIdent('AutoTime', $CatID);
-      if($AutoTimeID){
+      if(GetValueBoolean($AutoTimeID)){
           $this->AutoTimeUpdate($CatID,1);
       }
       
@@ -1107,7 +1107,7 @@ if($value){
                 .(int)IPS_GetEvent($idf2)['EventActive']);
     if(IPS_GetEvent($idf2)['EventActive']){
         IPS_LogMessage("AutoSwitch_AutoTimeUpdate","Event = "
-                .$idf." Zeit = ".$Stunde.":".$Minute.":".$Sekunde);
+                .$idf2." Zeit = ".$Stunde.":".$Minute.":".$Sekunde);
         IPS_SetEventCyclicTimeFrom($ids, $Stunde, $Minute, $Sekunde);
         IPS_SetEventActive($ids, TRUE);
     }
