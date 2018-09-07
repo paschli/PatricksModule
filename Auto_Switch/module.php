@@ -1122,9 +1122,9 @@ if($value){
 }
 else{
     IPS_SetDisabled($idf, false);
-    IPS_SetEventActive($idf, FALSE);
+    //IPS_SetEventActive($idf, FALSE);
     IPS_SetDisabled($ids, false);
-    IPS_SetEventActive($ids, FALSE);
+    //IPS_SetEventActive($ids, FALSE);
 }
  
 }
