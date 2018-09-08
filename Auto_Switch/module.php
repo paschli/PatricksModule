@@ -668,8 +668,9 @@ public function Set(bool $value, bool $anzeige) {
           IPS_LogMessage("AutoSwitch_".$func,"WatchEvent aktivieren!");
       }    
       $AutoTimeID=@IPS_GetObjectIDByIdent('AutoTime', $CatID);
-      if(GetValueBoolean($AutoTimeID)){
-          $this->AutoTimeUpdate($CatID,1);
+      if(($AutoTimeID)){
+          if(GetValueBoolean($AutoTimeID))
+            $this->AutoTimeUpdate($CatID,1);
       }
       
       if($anzeige){
