@@ -12,6 +12,7 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyInteger('Auswahl', 0); //Auswahl des Typs
     $this->RegisterPropertyInteger('idLCNInstance', 0); //ID der zu schaltenden Instanz
     $this->RegisterPropertyInteger('LaempchenNr', 0); //Falls es Lämpchen sind
+    $this->RegisterPropertyInteger('idLightInstance', 0); //Falls es Lämpchen sind
     $this->RegisterPropertyInteger('Rampe', 2); // Rampe für das Schalten eines LCN Ausgangs
     $this->RegisterPropertyString('IPAddress', ''); //IP Adesse für remote schalten eines anderen IP-Symcon
     $this->RegisterPropertyString('Password', '');// Passwort für JSON-Verbindung
@@ -207,6 +208,7 @@ class AutSw extends IPSModule {
             { "label": "Lämpchen 12", "value": 12 }
           ]
         },
+        { "name": "idLightInstance", "type": "SelectInstance", "caption": "Instanz für Lamp Status" },
         { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
      
     $elements_entry_jsonZugriff=',
@@ -752,13 +754,40 @@ private function Set_LCN_Rel($value) {
 private function Set_LCN_Lamp($value) {
     $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
     $lampNo=$this->ReadPropertyInteger('LaempchenNr');
-    if($value){
-      LCN_SetLamp($lcn_instID,$lampNo,'E');  
+    $check=0;
+    if($this->ReadpropertyInteger('idLightInstance')){
+        $check=1;
+        $idcheckLamp=$this->ReadPropertyInteger('idLightInstance');
     }
-    else{
-      LCN_SetLamp($lcn_instID,$lampNo,'A');  
+    for ($i = 0; $i < 3; $i++) {
+        if($value){
+            LCN_SetLamp($lcn_instID,$lampNo,'E');
+            $lamp_status='E';
+        }
+        else{
+            LCN_SetLamp($lcn_instID,$lampNo,'A');
+            $lamp_status='A';
+        }
+        if(($check==0)||($this->Check_LCN_Lamp($idcheckLamp,$lampNo,$lamp_status))){
+            IPS_LogMessage("AutoSwitch_Set_LCN_Lamp","Befehl erfolgreich");
+            SetValue($this->GetIDForIdent("Status"), $value);
+            break;
+        }
+        else {
+            IPS_LogMessage("AutoSwitch_Set_LCN_Lamp","Befehl konnte nicht ausgeführt werden!");
+        }
     }
-    SetValue($this->GetIDForIdent("Status"), $value);
+    
+}
+
+private function Check_LCN_Lamp($idcheckLamp,$lampNo,$lamp_value) {
+    
+    foreach (IPS_GetChildrenIDs($idcheckLamp) as $element) {
+        if(strstr(IPS_GetName($element),'Tableau Licht '.(string)$lampNo)){
+            return 1;
+        }
+    }
+    return 0;
 }
 
 private function Set_JSON($value) {
