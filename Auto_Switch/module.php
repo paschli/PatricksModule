@@ -786,11 +786,11 @@ private function Set_LCN_Lamp($value) {
 }
 
 private function Check_LCN_Lamp($idcheckLamp,$lampNo,$lamp_value) {
-    
+    LCN_RequestLights($idcheckLamp);
     foreach (IPS_GetChildrenIDs($idcheckLamp) as $element) {
         IPS_LogMessage("AutoSwitch_Check_LCN_Lamp","Checke:".IPS_GetName($element)." - Tableau Licht ".(string)$lampNo);
         if(strstr(IPS_GetName($element),'Tableau Licht '.(string)$lampNo)){
-            IPS_LogMessage("AutoSwitch_Check_LCN_Lamp","checke Wert:".GetValueString($element)."/".$lamp_value);
+            IPS_LogMessage("AutoSwitch_Check_LCN_Lamp","checke Wert:".GetValueString($element)."-".$lamp_value);
             if(GetValueString($element)==$lamp_value){
                 
               return 1;  
