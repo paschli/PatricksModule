@@ -9,34 +9,19 @@ class AutSw extends IPSModule {
     
   public function Create() {
     parent::Create();
-    $this->RegisterPropertyInteger('Auswahl', 0); //Auswahl des Typs
-    $this->RegisterPropertyInteger('idLCNInstance', 0); //ID der zu schaltenden Instanz
-    $this->RegisterPropertyInteger('LaempchenNr', 0); //Falls es Lämpchen sind
-    $this->RegisterPropertyInteger('Rampe', 2); // Rampe für das Schalten eines LCN Ausgangs
-    $this->RegisterPropertyString('IPAddress', ''); //IP Adesse für remote schalten eines anderen IP-Symcon
-    $this->RegisterPropertyString('Password', '');// Passwort für JSON-Verbindung
-    $this->RegisterPropertyInteger('ZielID', 0);// ID des zu schaltenden entfernten Objekts
-    $this->RegisterPropertyString('Name','');//Otionaler Name für die erstellte Instanz
-    $this->RegisterPropertyInteger('State', 0); //Status der Instanz
-    $this->RegisterPropertyBoolean('AutoOff_Switch', FALSE);
+    $this->RegisterPropertyInteger('JalMasterID', 0); //ID für den Jalousiemaster
+    $this->RegisterPropertyString('Name','');//Name für die Jalousie, die gesteuert werden soll
     $this->RegisterPropertyBoolean('Timer_Switch', FALSE);
-    $this->RegisterPropertyBoolean('WatchTarget',FALSE);
-    $this->RegisterPropertyBoolean('SelAutoOff',FALSE);
     $this->RegisterPropertyBoolean('SelTimer',FALSE);
-    $this->RegisterPropertyInteger('SliderAnz',0);
     $this->RegisterPropertyBoolean('TimerMsg',FALSE);
     $this->RegisterPropertyBoolean('AutoTime',FALSE);
-    $this->RegisterVariableBoolean('Status','Status','~Switch');//
-    $this->RegisterPropertyBoolean('Status', FALSE);
-    IPS_SetIcon($this->GetIDForIdent('Status'), 'Light');
-    
-    
- //   $this->RegisterPropertyInteger('AutoOffCatID', 0); //Status der Instanz
+//    IPS_SetIcon($this->GetIDForIdent('Status'), 'Light');
+
     
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
-    $this->EnableAction("Status");
+//    $this->EnableAction("Status");
     $instID= IPS_GetParent($this->GetIDforIdent('Status'));  
     if($this->ReadPropertyString('Name')!='')
         IPS_SetName($instID, $this->ReadPropertyString('Name'));
@@ -93,15 +78,7 @@ class AutSw extends IPSModule {
         $TimerSelID=IPS_GetObjectIDByIdent('Timer_Switch', $CatID);
         IPS_SetHidden($TimerSelID, TRUE);
     }
-    
- /*   if(!$this->ReadPropertyBoolean('WatchTarget')||!$this->ReadPropertyBoolean('SelAutoOff')){
-        $typ=0;
-        $EventID=@IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID);
-        if($EventID){
-            IPS_SetEventActive($EventID,FALSE);
-        }
-    }    
- */       
+         
 //Zusätzliche Aktionen für spezielle Typen    
     switch($typ){
             case 0: //falls Instanz nicht gewählt wurde
@@ -668,9 +645,8 @@ public function Set(bool $value, bool $anzeige) {
           IPS_LogMessage("AutoSwitch_".$func,"WatchEvent aktivieren!");
       }    
       $AutoTimeID=@IPS_GetObjectIDByIdent('AutoTime', $CatID);
-      if(($AutoTimeID)){
-          if(GetValueBoolean($AutoTimeID))
-            $this->AutoTimeUpdate($CatID,1);
+      if($AutoTimeID){
+          $this->AutoTimeUpdate($CatID,1);
       }
       
       if($anzeige){
@@ -1072,8 +1048,8 @@ $ids=IPS_GetEventIDByName('Set_2', $CatID);
 $idf=IPS_GetEventIDByName('Clear_1', $CatID);
 if($value){ 
 //Dämmerungszeit Früh
-    $ID_LocationControl=IPS_GetObjectIDByName('Location Control', 0);
-    //$ID_LocationControl=33556;
+    //$ID_LocationControl=IPS_GetObjectIDByName('Location Control', 0);
+    $ID_LocationControl=33556;
     IPS_LogMessage("AutoSwitch_AutoTimeUpdate","ID_Location=".$ID_LocationControl);
     $ID_Früh= IPS_GetObjectIDByIdent('Sunrise', $ID_LocationControl);
     IPS_LogMessage("AutoSwitch_AutoTimeUpdate","ID_Früh=".$ID_Früh);
@@ -1108,7 +1084,7 @@ if($value){
                 .(int)IPS_GetEvent($idf2)['EventActive']);
     if(IPS_GetEvent($idf2)['EventActive']){
         IPS_LogMessage("AutoSwitch_AutoTimeUpdate","Event = "
-                .$idf2." Zeit = ".$Stunde.":".$Minute.":".$Sekunde);
+                .$idf." Zeit = ".$Stunde.":".$Minute.":".$Sekunde);
         IPS_SetEventCyclicTimeFrom($ids, $Stunde, $Minute, $Sekunde);
         IPS_SetEventActive($ids, TRUE);
     }
@@ -1123,9 +1099,9 @@ if($value){
 }
 else{
     IPS_SetDisabled($idf, false);
-    //IPS_SetEventActive($idf, FALSE);
+    IPS_SetEventActive($idf, FALSE);
     IPS_SetDisabled($ids, false);
-    //IPS_SetEventActive($ids, FALSE);
+    IPS_SetEventActive($ids, FALSE);
 }
  
 }

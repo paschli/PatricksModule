@@ -1,0 +1,11 @@
+{
+  "id": "{56A2A23C-D638-4FE0-B08F-5C7D8BCD7219}",
+  "name": "PIMQTT",
+  "type": 3,
+  "vendor": "Patrick",
+  "aliases": [ "PIMQTT" ],
+  "parentRequirements": ["{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"],
+  "childRequirements": ["{018EF6B5-AB94-40C6-AA53-46943E824ACF}"],
+  "implemented": [],
+  "prefix": "PIMQTT"
+}
