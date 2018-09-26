@@ -763,10 +763,13 @@ private function Set_LCN_Lamp($value) {
     
     for ($i = 0; $i < 3; $i++) {
         if($value){
+            IPS_LogMessage("AutoSwitch_Set_LCN_Lamp","Schreibe: Id:".$lcn_instID."Lamp:".$lampNo." - E");
             LCN_SetLamp($lcn_instID,$lampNo,'E');
             $lamp_status='E';
+            
         }
         else{
+            IPS_LogMessage("AutoSwitch_Set_LCN_Lamp","Schreibe: Id:".$lcn_instID."Lamp:".$lampNo." - A");
             LCN_SetLamp($lcn_instID,$lampNo,'A');
             $lamp_status='A';
         }
