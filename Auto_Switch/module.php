@@ -758,7 +758,9 @@ private function Set_LCN_Lamp($value) {
     if($this->ReadpropertyInteger('idLightInstance')){
         $check=1;
         $idcheckLamp=$this->ReadPropertyInteger('idLightInstance');
+        IPS_LogMessage("AutoSwitch_Set_LCN_Lamp","Mit Check!");
     }
+    
     for ($i = 0; $i < 3; $i++) {
         if($value){
             LCN_SetLamp($lcn_instID,$lampNo,'E');
