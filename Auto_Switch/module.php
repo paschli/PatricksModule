@@ -290,6 +290,7 @@ public function EventTrigger(int $par,bool $value) {
 }
 
  public function RequestAction($ident, $value) {
+    if(IPS_SemaphoreEnter('AutoSwitch_RequestAction', 5000)) {
      $par= IPS_GetParent(($this->GetIDForIdent('Status')));
 //     $name=@IPS_GetName($this->GetIDForIdent($ident));
      $CatID =IPS_GetCategoryIDByName('Konfig', $par);
@@ -369,6 +370,11 @@ public function EventTrigger(int $par,bool $value) {
                
          
      }
+    IPS_SemaphoreLeave('AutoSwitch_RequestAction');
+    } 
+    else {
+      IPS_LogMessage('AutoSwitch_RequestAction', 'Semaphore Timeout');
+    }
      
 //Neuen Wert in die Statusvariable schreiben
       
