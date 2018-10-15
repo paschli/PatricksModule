@@ -763,23 +763,26 @@ private function Set_LCN_Lamp($value) {
     
     for ($i = 0; $i < 3; $i++) {
         if($value){
-            IPS_LogMessage("AutoSwitch_Set_LCN_Lamp","Schreibe: Id:".$lcn_instID."Lamp:".$lampNo." - E");
+            IPS_LogMessage("AutoSwitch_Set_LCN_Lamp","Schreibe: Id: ".$lcn_instID." - Tableau Licht: ".$lampNo." = E");
             LCN_SetLamp($lcn_instID,$lampNo,'E');
             $lamp_status='E';
             
         }
         else{
-            IPS_LogMessage("AutoSwitch_Set_LCN_Lamp","Schreibe: Id:".$lcn_instID."Lamp:".$lampNo." - A");
+            IPS_LogMessage("AutoSwitch_Set_LCN_Lamp","Schreibe: Id: ".$lcn_instID." - Tableau Licht: ".$lampNo." = A");
             LCN_SetLamp($lcn_instID,$lampNo,'A');
             $lamp_status='A';
         }
-        if(($check==0)||($this->Check_LCN_Lamp($idcheckLamp,$lampNo,$lamp_status))){
-            IPS_LogMessage("AutoSwitch_Set_LCN_Lamp","Befehl erfolgreich");
+        if($check==0){
+            IPS_LogMessage("AutoSwitch_Set_LCN_Lamp","Befehl ohne Check ausgeführt");
+        }
+        else if(($this->Check_LCN_Lamp($idcheckLamp,$lampNo,$lamp_status))){
+            IPS_LogMessage("AutoSwitch_Set_LCN_Lamp","Befehl erfolgreich ausgeführt! (".$i." Versuch(e))");
             SetValue($this->GetIDForIdent("Status"), $value);
             break;
         }
         else {
-            IPS_LogMessage("AutoSwitch_Set_LCN_Lamp","Befehl konnte nicht ausgeführt werden!");
+            IPS_LogMessage("AutoSwitch_Set_LCN_Lamp","Befehl konnte nicht erfolgreich ausgeführt werden!");
         }
     }
     
