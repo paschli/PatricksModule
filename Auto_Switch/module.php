@@ -783,7 +783,7 @@ private function Set_LCN_Lamp($value) {
             IPS_LogMessage("AutoSwitch_Set_LCN_Lamp","Befehl ohne Check ausgeführt");
         }
         else if(($this->Check_LCN_Lamp($idcheckLamp,$lampNo,$lamp_status))){
-            IPS_LogMessage("AutoSwitch_Set_LCN_Lamp","Befehl erfolgreich ausgeführt! (".$i." Versuch(e))");
+            IPS_LogMessage("AutoSwitch_Set_LCN_Lamp","Befehl erfolgreich ausgeführt! (".($i+1)." Versuch(e))");
             SetValue($this->GetIDForIdent("Status"), $value);
             break;
         }
