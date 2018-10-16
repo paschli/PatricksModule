@@ -158,8 +158,7 @@ class AutSw extends IPSModule {
              { "code": 102, "icon": "active", "caption": "Instanz aktiv" },
              { "code": 200, "icon": "error", "caption": "Instanz fehlerhaft" }'; 
      
-     /*,
-            { "label": "PIGPIO_Output", "value": 8 }*/
+     
     $elements_entry_device='
         { "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
         "options":[
@@ -270,7 +269,7 @@ class AutSw extends IPSModule {
     if($this->ReadPropertyBoolean('SelTimer'))
         $elements_entry=$elements_entry.$elements_entry_TimerMsg;
     
-    $form='{ "status":['.$status_entry.'],"elements":['.$elements_entry.'],"actions":['.$action_entry.'],}';
+    $form='{ "status":['.$status_entry.'],"elements":['.$elements_entry.'],"actions":['.$action_entry.']}';
     return $form;
       
 } 
