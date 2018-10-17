@@ -32,8 +32,6 @@ class AutSw extends IPSModule {
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Light');
     
     
- //   $this->RegisterPropertyInteger('AutoOffCatID', 0); //Status der Instanz
-    
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
@@ -95,14 +93,7 @@ class AutSw extends IPSModule {
         IPS_SetHidden($TimerSelID, TRUE);
     }
     
- /*   if(!$this->ReadPropertyBoolean('WatchTarget')||!$this->ReadPropertyBoolean('SelAutoOff')){
-        $typ=0;
-        $EventID=@IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID);
-        if($EventID){
-            IPS_SetEventActive($EventID,FALSE);
-        }
-    }    
- */       
+      
 //Zusätzliche Aktionen für spezielle Typen    
     switch($typ){
             case 0: //falls Instanz nicht gewählt wurde
@@ -291,15 +282,9 @@ public function EventTrigger(int $par,bool $value) {
  public function RequestAction($ident, $value) {
     if(IPS_SemaphoreEnter('AutoSwitch_RequestAction', 5000)) {
      $par= IPS_GetParent(($this->GetIDForIdent('Status')));
-//     $name=@IPS_GetName($this->GetIDForIdent($ident));
+
      $CatID =IPS_GetCategoryIDByName('Konfig', $par);
-//     if(!$name){
-//         $CatID =IPS_GetCategoryIDByName('Konfig', $par);
-//         echo($CatID);
-//         if($CatID){
-//            $name=IPS_GetName(IPS_GetObjectIDByIdent($ident, $CatID)); 
-//         }   
-//     }
+
      
      if($ident=='AutoOff_Switch'){
         IPS_LogMessage("AutoSwitch_RequestAction","AutoOff Einstellung geändert");
@@ -317,9 +302,7 @@ public function EventTrigger(int $par,bool $value) {
             $timerID= @IPS_GetObjectIDByIdent('AutoOffTimer', $par);
             if($timerID)
                 IPS_SetEventActive($timerID, FALSE);
-/*            $eventID= @IPS_GetObjectIDByIdent('WatchTarget', $par);
-            if($eventID)
-                IPS_SetEventActive($eventID, FALSE);*/
+
         }
      } 
      else if($ident=='Timer_Switch'){
@@ -389,18 +372,12 @@ public function Toggle(){
 
 public function SetOn() {
       $this->Set(True,TRUE);
- /*     if($this->ReadPropertyBoolean('TimerMsg')){
-          $par= IPS_GetParent(($this->GetIDForIdent('Status')));
-          WFC_PushNotification(33722, "Info AutoSwitchModul", IPS_GetName($par) . " erfolgreich eingeschaltet", "", 0); 
-      } */          
+           
 }
 
 public function SetOff() {
       $this->Set(False,TRUE);
-/*      if($this->ReadPropertyBoolean('TimerMsg')){
-          $par= IPS_GetParent(($this->GetIDForIdent('Status')));
-          WFC_PushNotification(33722, "Info AutoSwitchModul", IPS_GetName($par) . " erfolgreich ausgeschaltet", "", 0); 
-      }*/
+
 }
 
 private function checkVerb($wahl) {
@@ -428,7 +405,6 @@ private function checkVerb($wahl) {
         } 
       catch (Exception $e) {
           IPS_LogMessage("AutoSwitch_checkVerb","Verbindung konnte nicht verifiziert werden! IP- oder Passwort Problem!");
-          //echo 'Server Problem: ',  $e->getMessage(), "\n";
           return 0;
         }
         IPS_LogMessage("AutoSwitch_checkVerb","Verbindung verifiziert!");
@@ -581,55 +557,13 @@ public function Set(bool $value, bool $anzeige) {
           }
         break;
         
-        case 5: /*$lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
-          if($value){
-              IPS_LogMessage("AutoSwitch_Set","Aufruf AN Schalter_Set ID=".$lcn_instID);
-              Schalter_Set($lcn_instID,1);  
-          }
-          else{
-              IPS_LogMessage("AutoSwitch_Set","Aufruf AUS Schalter_Set ID=".$lcn_instID);
-              Schalter_Set($lcn_instID,0);
-          }
-          SetValue($this->GetIDForIdent("Status"), $value);*/
+        case 5: 
           $this->Set_Schalter($value);
           $result=1;
            
         break; 
     
         case 6: 
-          /*$password= $this->ReadPropertyString('Password'); 
-          $IPAddr= $this->ReadPropertyString('IPAddress');
-          $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
-          $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
-          IPS_LogMessage("AutoSwitch_Set","Aufruf".$mes);
-          IPS_LogMessage("AutoSwitch_Set","Target ID".$TargetID);
-          try{
-              $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
-              if($value){
-                  //IPS_LogMessage(Modul,"Value = True => Relais An");
-                  $rpc->PIIOC_set($TargetID);
-              }           
-              else{
-                  //IPS_LogMessage(Modul,"Value = False => Relais Aus");
-                  $rpc->PIIOC_clear($TargetID);
-              }
-
-          }
-          catch (JSONRPCException $e) {
-              echo 'RPC Problem', "\n";
-              IPS_SemaphoreLeave('AutoSwitch_Set');
-              IPS_LogMessage('AutoSwitch_Set', 'RPC Fehler');
-              return 0;
-          } 
-          catch (Exception $e) {
-             echo 'Server Problem',"\n";
-             IPS_SemaphoreLeave('AutoSwitch_Set');
-             IPS_LogMessage('AutoSwitch_Set', 'Verbindungsfehler');
-             return 0;
-          }
-
-          SetValue($this->GetIDForIdent("Status"), $value);
-          IPS_LogMessage('AutoSwitch_Set', 'Verbindung erfolgreich!');*/
           $this->Set_PIIOC($value);
           $result=1;
         break;
