@@ -163,9 +163,9 @@ class PIMQTT extends TasmotaService
                     IPS_LogMessage("PIMQTT",'fnMatch OK');
                     $ID_Time=@IPS_GetObjectIDByIdent('Time', $ID_Modul);
                     if($ID_Time===FALSE){
-                        $ID_Time=$this->createVariable('Time', $ID_Modul, 'Time');
+                        $ID_Time=$this->createVariable('Time', $ID_Modul,'',3);
                     }
-                    SetValueString($ID_Time, $Message->Battery);
+                    SetValueString($ID_Time, $Message->Time);
                 }
             }
         }
