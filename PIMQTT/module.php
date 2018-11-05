@@ -158,6 +158,15 @@ class PIMQTT extends TasmotaService
                     }
                     SetValueFloat($ID_Batt, floatval($Message->Battery));
                 }
+                
+               if(fnmatch('*Time*', strval($Buffer->MSG))){ 
+                    IPS_LogMessage("PIMQTT",'fnMatch OK');
+                    $ID_Time=@IPS_GetObjectIDByIdent('Time', $ID_Modul);
+                    if($ID_Time===FALSE){
+                        $ID_Time=$this->createVariable('Time', $ID_Modul, 'Time');
+                    }
+                    SetValueString($ID_Time, $Message->Battery);
+                }
             }
         }
     }
