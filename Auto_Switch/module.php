@@ -507,7 +507,7 @@ protected function RegisterTimer($ident, $interval, $script) {
 public function Set(bool $value, bool $anzeige) {
     $func="Set";
     
-    if(IPS_SemaphoreEnter('AutoSwitch_Set', 5000)) {
+    if(IPS_SemaphoreEnter('AutoSwitch_Set', 15000)) {
       $par= IPS_GetParent(($this->GetIDForIdent('Status')));
       $name= IPS_GetName($par);
       $CatID =IPS_GetCategoryIDByName('Konfig', $par);
@@ -643,6 +643,7 @@ public function Set(bool $value, bool $anzeige) {
      } 
      else {
       IPS_LogMessage('AutoSwitch_Set', 'Semaphore Timeout');
+      WFC_PushNotification(33722, "Info AutoSwitchModul", $name . " Semaphore Timeout", "", 0);
     }
    }
 
