@@ -506,8 +506,8 @@ protected function RegisterTimer($ident, $interval, $script) {
   
 public function Set(bool $value, bool $anzeige) {
     $func="Set";
-    
-    if(IPS_SemaphoreEnter('AutoSwitch_Set', 15000)) {
+    $sem_id='AutoSwitch_Set'.$this->ReadPropertyInteger('idLCNInstance');
+    if(IPS_SemaphoreEnter($sem_id, 15000)) {
       $par= IPS_GetParent(($this->GetIDForIdent('Status')));
       $name= IPS_GetName($par);
       $CatID =IPS_GetCategoryIDByName('Konfig', $par);
@@ -639,7 +639,7 @@ public function Set(bool $value, bool $anzeige) {
            IPS_LogMessage("AutoSwitch_Set","Laufzeit verbergen"); 
         }
       }    
-      IPS_SemaphoreLeave('AutoSwitch_Set');
+      IPS_SemaphoreLeave($sem_id);
      } 
      else {
       IPS_LogMessage('AutoSwitch_Set', 'Semaphore Timeout');
