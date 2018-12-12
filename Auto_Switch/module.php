@@ -506,7 +506,7 @@ protected function RegisterTimer($ident, $interval, $script) {
   
 public function Set(bool $value, bool $anzeige) {
     $func="Set";
-//    $sem_id='AutoSwitch_Set'.$this->ReadPropertyInteger('idLCNInstance');
+    $sem_id='AutoSwitch_Set_'.trim($this->ReadPropertyInteger('idLCNInstance'));
     if(IPS_SemaphoreEnter('AutoSwitch_Set', 15000)) {
       $par= IPS_GetParent(($this->GetIDForIdent('Status')));
       $name= IPS_GetName($par);
