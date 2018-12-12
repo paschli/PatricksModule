@@ -645,6 +645,7 @@ public function Set(bool $value, bool $anzeige) {
       IPS_SemaphoreLeave($sem_id);
       IPS_LogMessage("AutoSwitch_".$func,"Semaphore: ".$sem_id." verlassen!");
      } 
+     
      else {
       IPS_LogMessage('AutoSwitch_Set', 'Semaphore Timeout');
       WFC_PushNotification(33722, "Info AutoSwitchModul", $name . " Semaphore Timeout", "", 0);
