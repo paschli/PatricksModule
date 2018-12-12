@@ -510,6 +510,7 @@ public function Set(bool $value, bool $anzeige) {
     IPS_LogMessage("AutoSwitch_".$func,"Semaphore: ".$sem_id." gesetzt!");
 //    if(IPS_SemaphoreEnter('AutoSwitch_Set', 15000)) {
     if(IPS_SemaphoreEnter($sem_id, 15000)) {    
+      IPS_LogMessage("AutoSwitch_".$func,"Semaphore: ".$sem_id." gesetzt!");
       $par= IPS_GetParent(($this->GetIDForIdent('Status')));
       $name= IPS_GetName($par);
       $CatID =IPS_GetCategoryIDByName('Konfig', $par);
@@ -643,6 +644,7 @@ public function Set(bool $value, bool $anzeige) {
       }    
 //      IPS_SemaphoreLeave('AutoSwitch_Set');
       IPS_SemaphoreLeave($sem_id);
+      IPS_LogMessage("AutoSwitch_".$func,"Semaphore: ".$sem_id." verlassen!");
      } 
      else {
       IPS_LogMessage('AutoSwitch_Set', 'Semaphore Timeout');
