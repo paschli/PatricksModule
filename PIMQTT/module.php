@@ -162,7 +162,7 @@ class PIMQTT extends TasmotaService
                         $ID_Batt=$this->createVariable('Battery', $ID_Modul, 'Battery');
                     }
                     SetValueFloat($ID_Batt, floatval($Message->Battery));
-                    $this->SendDebug('Set Humid', floatval($Message->Battery).'to'.$ID_Batt, 0);
+                    $this->SendDebug('Set Battery', floatval($Message->Battery).'to'.$ID_Batt, 0);
                 }
                 
                if(fnmatch('*Time*', strval($Buffer->MSG))){ 
@@ -172,7 +172,7 @@ class PIMQTT extends TasmotaService
                         $ID_Time=$this->createVariable('Time', $ID_Modul,'',3);
                     }
                     SetValueString($ID_Time, $Message->Time);
-                    $this->SendDebug('Set Humid', floatval($Message->Time).'to'.$ID_Time, 0);
+                    $this->SendDebug('Set Time', floatval($Message->Time).'to'.$ID_Time, 0);
                 }
             }
         }
