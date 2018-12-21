@@ -58,11 +58,13 @@ class PIMQTT extends TasmotaService
             }
             if(fnmatch('*BLT_Temp_Sensor*', $Topic)){    
                 IPS_LogMessage("PIMQTT",'BLT_Temp_Sensor received: '.$Topic);
+                $this->SendDebug('Decode Topic', 'BLT_Temp...', 0);
                 $mode=2;
             }
             
             if(!$mode){
                 IPS_LogMessage("PIMQTT",'unknown topic!');
+                $this->SendDebug('Decode Topic', 'unknow topic!', 0);
             }
             
             if($mode==1){
@@ -120,8 +122,9 @@ class PIMQTT extends TasmotaService
 
                 if($Message->Modul!=''){
                     $Modul=strval($Message->Modul);
-                    $Modul_Ident=str_replace ( ':' , '' , $Modul );
+                    $Modul_Ident=str_replace( ':' , '' , $Modul );
                     $this->SendDebug('Modul', $Message->Modul, 0);
+                    $this->SendDebug('Modul ident', $Modul_Ident, 0);
                     $ID_Modul=@IPS_GetObjectIDByIdent($Modul_Ident, $this->ReadPropertyInteger('$ID_Cat_Devices'));
                     if($ID_Modul===FALSE){
                         $ID_Modul= IPS_CreateCategory();
@@ -134,38 +137,42 @@ class PIMQTT extends TasmotaService
                     IPS_LogMessage("PIMQTT",'Buffer -> MSG  '.strval($Buffer->MSG));
                 }
                 if(fnmatch('*Temperatur*', strval($Buffer->MSG))){    
-                    IPS_LogMessage("PIMQTT",'fnMatch OK');
+                    IPS_LogMessage("PIMQTT",'fnMatch Temperatur');
                     $ID_Temp=@IPS_GetObjectIDByIdent('Temperatur', $ID_Modul);
                     if($ID_Temp===FALSE){
                         $ID_Temp=$this->createVariable('Temperatur', $ID_Modul, 'RaumTemperature');
                     }
                     SetValueFloat($ID_Temp, floatval($Message->Temperatur));
+                    $this->SendDebug('Set Temp', floatval($Message->Temperatur).'to'.$ID_Temp, 0);
                 }   
 
                 if(fnmatch('*Humidity*', strval($Buffer->MSG))){ 
-                    IPS_LogMessage("PIMQTT",'fnMatch OK');
+                    IPS_LogMessage("PIMQTT",'fnMatch Humidity');
                     $ID_Humid=@IPS_GetObjectIDByIdent('Humidity', $ID_Modul);
                     if($ID_Humid===FALSE){
                         $ID_Humid=$this->createVariable('Humidity', $ID_Modul, 'Humidity');
                     }
                     SetValueFloat($ID_Humid, floatval($Message->Humidity));
+                    $this->SendDebug('Set Humid', floatval($Message->Humidity).'to'.$ID_Humid, 0);
                 }
                 if(fnmatch('*Battery*', strval($Buffer->MSG))){ 
-                    IPS_LogMessage("PIMQTT",'fnMatch OK');
+                    IPS_LogMessage("PIMQTT",'fnMatch Battery');
                     $ID_Batt=@IPS_GetObjectIDByIdent('Battery', $ID_Modul);
                     if($ID_Batt===FALSE){
                         $ID_Batt=$this->createVariable('Battery', $ID_Modul, 'Battery');
                     }
                     SetValueFloat($ID_Batt, floatval($Message->Battery));
+                    $this->SendDebug('Set Humid', floatval($Message->Battery).'to'.$ID_Batt, 0);
                 }
                 
                if(fnmatch('*Time*', strval($Buffer->MSG))){ 
-                    IPS_LogMessage("PIMQTT",'fnMatch OK');
+                    IPS_LogMessage("PIMQTT",'fnMatch Time');
                     $ID_Time=@IPS_GetObjectIDByIdent('Time', $ID_Modul);
                     if($ID_Time===FALSE){
                         $ID_Time=$this->createVariable('Time', $ID_Modul,'',3);
                     }
                     SetValueString($ID_Time, $Message->Time);
+                    $this->SendDebug('Set Humid', floatval($Message->Time).'to'.$ID_Time, 0);
                 }
             }
         }
