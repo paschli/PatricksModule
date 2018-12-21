@@ -142,29 +142,29 @@ class PIMQTT extends TasmotaService
                         IPS_LogMessage("PIMQTT",'fnMatch Temperatur');
                         $ID_Temp=@IPS_GetObjectIDByIdent('Temperatur', $ID_Modul);
                         if($ID_Temp===FALSE){
-                            $ID_Temp=$this->createVariable('Temperatur', $ID_Modul, 'RaumTemperature');
+                            $ID_Temp=$this->createVariable('Temperatur', $ID_Modul, 'RaumTemperature',2);
                         }
                         SetValueFloat($ID_Temp, floatval($Message->Temperatur));
-                        $this->SendDebug('Set Temp', floatval($Message->Temperatur).'to'.$ID_Temp, 0);
+                        $this->SendDebug('Set Temp', floatval($Message->Temperatur).' to '.$ID_Temp, 0);
                     }   
 
                     if(fnmatch('*Humidity*', strval($Buffer->MSG))){ 
                         IPS_LogMessage("PIMQTT",'fnMatch Humidity');
                         $ID_Humid=@IPS_GetObjectIDByIdent('Humidity', $ID_Modul);
                         if($ID_Humid===FALSE){
-                            $ID_Humid=$this->createVariable('Humidity', $ID_Modul, 'Humidity');
+                            $ID_Humid=$this->createVariable('Humidity', $ID_Modul, 'Humidity',2);
                         }
                         SetValueFloat($ID_Humid, floatval($Message->Humidity));
-                        $this->SendDebug('Set Humid', floatval($Message->Humidity).'to'.$ID_Humid, 0);
+                        $this->SendDebug('Set Humid', floatval($Message->Humidity).' to '.$ID_Humid, 0);
                     }
                     if(fnmatch('*Battery*', strval($Buffer->MSG))){ 
                         IPS_LogMessage("PIMQTT",'fnMatch Battery');
                         $ID_Batt=@IPS_GetObjectIDByIdent('Battery', $ID_Modul);
                         if($ID_Batt===FALSE){
-                            $ID_Batt=$this->createVariable('Battery', $ID_Modul, 'Battery');
+                            $ID_Batt=$this->createVariable('Battery', $ID_Modul, 'Battery',2);
                         }
                         SetValueFloat($ID_Batt, floatval($Message->Battery));
-                        $this->SendDebug('Set Battery', floatval($Message->Battery).'to'.$ID_Batt, 0);
+                        $this->SendDebug('Set Battery', floatval($Message->Battery).' to '.$ID_Batt, 0);
                     }
 
                    if(fnmatch('*Time*', strval($Buffer->MSG))){ 
@@ -174,7 +174,7 @@ class PIMQTT extends TasmotaService
                             $ID_Time=$this->createVariable('Time', $ID_Modul,'',3);
                         }
                         SetValueString($ID_Time, $Message->Time);
-                        $this->SendDebug('Set Time', floatval($Message->Time).'to'.$ID_Time, 0);
+                        $this->SendDebug('Set Time', floatval($Message->Time).' to '.$ID_Time, 0);
                     }
                     IPS_SemaphoreLeave('BLT_Temp_Sensor');
                     $this->SendDebug('Semaphore', 'Leave', 0);
