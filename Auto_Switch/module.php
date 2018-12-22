@@ -846,7 +846,7 @@ private function Set_PIIOC($value) {
 
 private function Set_Tasmota($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
-    $value ? Tasmota_setPower($instID, 'POWER', 1) : Tasmota_setPower($instID, 'POWER', 0);
+    $value ? Tasmota_setPower($instID, 1, 1) : Tasmota_setPower($instID, 1, 0);
     sleep(1);
     $status_id= $this->get_status_id($instID,'POWER');
     
