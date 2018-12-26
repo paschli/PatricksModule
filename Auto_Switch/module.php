@@ -506,7 +506,8 @@ protected function RegisterTimer($ident, $interval, $script) {
   
 public function Set(bool $value, bool $anzeige) {
     $func="Set_";
-    $sem_id='AutoSwitch_Set_'.trim($this->ReadPropertyInteger('idLCNInstance'));
+    $typ= $this->ReadPropertyInteger('Auswahl');
+    $sem_id='AutoSwitch_Set_'.$typ;
 //    if(IPS_SemaphoreEnter('AutoSwitch_Set', 15000)) {
     if(IPS_SemaphoreEnter($sem_id, 15000)) {    
 //      IPS_LogMessage("AutoSwitch_".$func,"Semaphore: ".$sem_id." gesetzt!");
@@ -516,7 +517,7 @@ public function Set(bool $value, bool $anzeige) {
       IPS_LogMessage("AutoSwitch_".$func,"Semaphore: ".$sem_id." gesetzt!");
       $CatID =IPS_GetCategoryIDByName('Konfig', $par);
       $value_dim=0;
-      $typ= $this->ReadPropertyInteger('Auswahl');
+      
       IPS_LogMessage("AutoSwitch_".$func,"Set für ".$name." aufgerufen mit ". $this->boolToString($value)."!");
       $EventID=@IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID);
       if($EventID){
