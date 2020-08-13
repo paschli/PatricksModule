@@ -180,6 +180,11 @@ class AutSw extends IPSModule {
         { "name": "idLCNInstance", "type": "SelectInstance", "caption": "PIGPIO_Output Instanz" },
         { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
      
+    $elements_entry_MQTT=',
+    { "name": "idLCNInstance", "type": "SelectInstance", "caption": "MQTT_Set Instanz" },
+    { "name": "idStatus", "type": "SelectInstance", "caption": "MQTT_Output Instanz" },
+    { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
+     
     $elements_entry_lcnLämpchen=',
         { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
         { "name": "LaempchenNr", "type": "Select", "caption": "Lämpchen Nr.", 
@@ -233,6 +238,7 @@ class AutSw extends IPSModule {
         case 6:  $elements_entry=$elements_entry_device.$elements_entry_jsonZugriff; break;
         case 7:  $elements_entry=$elements_entry_device.$elements_entry_Sonoff; break;
         case 8:  $elements_entry=$elements_entry_device.$elements_entry_PIGPIO; break;
+        case 9:  $elements_entry=$elements_entry_device.$elements_entry_MQTT; break;
         
     }
 //Option für WatchEvent - geht nur bei LCN-Instanz, LCN-Relais, Switch_Modul 
@@ -589,6 +595,13 @@ public function Set(bool $value, bool $anzeige) {
               if($result==1)
                   break;
           }
+        case 9:
+        for($i = 1 ; $i <= 3 ; $i++){
+            $result=$this->Set_MQTT($value);
+            IPS_LogMessage('AutoSwitch_Set_MQTT', 'Aktion ausgeführt= '.$i."-mal");
+            if($result==1)
+                break;
+        }
         break;
         
         default: 
@@ -874,6 +887,28 @@ private function Set_PIGPIO($value) {
     }
     //return $result;
 }
+private function Set_MQTT($value) {
+        $SetID=IPS_GetChildrenIDs(ReadPropertyInteger('idLCNInstance'))[0];
+        $StatusID=$this->ReadPropertyInteger('idStatus');
+        switch($value){
+            case 0: $commandValue="OFF";
+                break;
+            case 1: $commandValue="ON";
+                break;
+            default: $commandValue="OFF";
+        }
+        RequestAction($SetID, $commandValue);
+        usleep(100000);
+        $StatusValue=GetValueString(IPS_GetChildrenIDs($StatusID)[0]);
+        if($StatusValue==$commandValue){
+            SetValue($this->GetIDForIdent("Status"), $value);
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+    
 private function get_status_id($id, $name){
     $arr=IPS_GetChildrenIDs($id);
     $status_id=0;
@@ -881,6 +916,16 @@ private function get_status_id($id, $name){
         if(IPS_GetName($child)==$name) 
             $status_id=$child;
     }    
+    return GetValueBoolean($status_id);
+}
+    
+private function get_mqtt_status($id, $name){
+    $arr=IPS_GetChildrenIDs($id);
+    $status_id=0;
+    foreach($arr as $child){
+        if(IPS_GetName($child)==$name)
+            $status_id=$child;
+    }
     return GetValueBoolean($status_id);
 }
 
