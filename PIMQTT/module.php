@@ -58,11 +58,13 @@ class PIMQTT extends TasmotaService
             }
             if(fnmatch('*BLT_Temp_Sensor*', $Topic)){    
                 IPS_LogMessage("PIMQTT",'BLT_Temp_Sensor received: '.$Topic);
+                $this->SendDebug('Decode Topic', 'BLT_Temp...', 0);
                 $mode=2;
             }
             
             if(!$mode){
                 IPS_LogMessage("PIMQTT",'unknown topic!');
+                $this->SendDebug('Decode Topic', 'unknow topic!', 0);
             }
             
             if($mode==1){
@@ -114,50 +116,73 @@ class PIMQTT extends TasmotaService
             
             
             if($mode==2){//falls nicht miflora empfangen wurde
-                IPS_LogMessage("PIMQTT",'BLT_Temp_Sensor execute');
-                //Message decodieren und in Variable schreiben 
-                $Message=json_decode($Buffer->MSG);
+                if(IPS_SemaphoreEnter('BLT_Temp_Sensor', 15000)) {
+                    $this->SendDebug('Semaphore', 'Enter', 0);
+                    IPS_LogMessage("PIMQTT",'BLT_Temp_Sensor execute');
+                    //Message decodieren und in Variable schreiben 
+                    $Message=json_decode($Buffer->MSG);
 
-                if($Message->Modul!=''){
-                    $Modul=strval($Message->Modul);
-                    $Modul_Ident=str_replace ( ':' , '' , $Modul );
-                    $this->SendDebug('Modul', $Message->Modul, 0);
-                    $ID_Modul=@IPS_GetObjectIDByIdent($Modul_Ident, $this->ReadPropertyInteger('$ID_Cat_Devices'));
-                    if($ID_Modul===FALSE){
-                        $ID_Modul= IPS_CreateCategory();
-                        IPS_SetName($ID_Modul, $Modul);
-                        IPS_SetParent($ID_Modul, $this->ReadPropertyInteger('$ID_Cat_Devices'));
-                        IPS_SetIdent($ID_Modul, $Modul_Ident);
-                        IPS_LogMessage("PIMQTT",'Create Cat in'.$this->ReadPropertyInteger('$ID_Cat_Devices'));
-                        IPS_LogMessage("PIMQTT",'Create Cat'.$Modul);
+                    if($Message->Modul!=''){
+                        $Modul=strval($Message->Modul);
+                        $Modul_Ident=str_replace( ':' , '' , $Modul );
+                        $this->SendDebug('Modul', $Message->Modul, 0);
+                        $this->SendDebug('Modul ident', $Modul_Ident, 0);
+                        $ID_Modul=@IPS_GetObjectIDByIdent($Modul_Ident, $this->ReadPropertyInteger('$ID_Cat_Devices'));
+                        if($ID_Modul===FALSE){
+                            $ID_Modul= IPS_CreateCategory();
+                            IPS_SetName($ID_Modul, $Modul);
+                            IPS_SetParent($ID_Modul, $this->ReadPropertyInteger('$ID_Cat_Devices'));
+                            IPS_SetIdent($ID_Modul, $Modul_Ident);
+                            IPS_LogMessage("PIMQTT",'Create Cat in'.$this->ReadPropertyInteger('$ID_Cat_Devices'));
+                            IPS_LogMessage("PIMQTT",'Create Cat'.$Modul);
+                        }
+                        IPS_LogMessage("PIMQTT",'Buffer -> MSG  '.strval($Buffer->MSG));
                     }
-                    IPS_LogMessage("PIMQTT",'Buffer -> MSG  '.strval($Buffer->MSG));
-                }
-                if(fnmatch('*Temperatur*', strval($Buffer->MSG))){    
-                    IPS_LogMessage("PIMQTT",'fnMatch OK');
-                    $ID_Temp=@IPS_GetObjectIDByIdent('Temperatur', $ID_Modul);
-                    if($ID_Temp===FALSE){
-                        $ID_Temp=$this->createVariable('Temperatur', $ID_Modul, 'RaumTemperature');
-                    }
-                    SetValueFloat($ID_Temp, floatval($Message->Temperatur));
-                }   
+                    if(fnmatch('*Temperatur*', strval($Buffer->MSG))){    
+                        IPS_LogMessage("PIMQTT",'fnMatch Temperatur');
+                        $ID_Temp=@IPS_GetObjectIDByIdent('Temperatur', $ID_Modul);
+                        if($ID_Temp===FALSE){
+                            $ID_Temp=$this->createVariable('Temperatur', $ID_Modul, 'RaumTemperature',2);
+                        }
+                        SetValueFloat($ID_Temp, floatval($Message->Temperatur));
+                        $this->SendDebug('Set Temp', floatval($Message->Temperatur).' to '.$ID_Temp, 0);
+                    }   
 
-                if(fnmatch('*Humidity*', strval($Buffer->MSG))){ 
-                    IPS_LogMessage("PIMQTT",'fnMatch OK');
-                    $ID_Humid=@IPS_GetObjectIDByIdent('Humidity', $ID_Modul);
-                    if($ID_Humid===FALSE){
-                        $ID_Humid=$this->createVariable('Humidity', $ID_Modul, 'Humidity');
+                    if(fnmatch('*Humidity*', strval($Buffer->MSG))){ 
+                        IPS_LogMessage("PIMQTT",'fnMatch Humidity');
+                        $ID_Humid=@IPS_GetObjectIDByIdent('Humidity', $ID_Modul);
+                        if($ID_Humid===FALSE){
+                            $ID_Humid=$this->createVariable('Humidity', $ID_Modul, 'Humidity',2);
+                        }
+                        SetValueFloat($ID_Humid, floatval($Message->Humidity));
+                        $this->SendDebug('Set Humid', floatval($Message->Humidity).' to '.$ID_Humid, 0);
                     }
-                    SetValueFloat($ID_Humid, floatval($Message->Humidity));
-                }
-                if(fnmatch('*Battery*', strval($Buffer->MSG))){ 
-                    IPS_LogMessage("PIMQTT",'fnMatch OK');
-                    $ID_Batt=@IPS_GetObjectIDByIdent('Battery', $ID_Modul);
-                    if($ID_Batt===FALSE){
-                        $ID_Batt=$this->createVariable('Battery', $ID_Modul, 'Battery');
+                    if(fnmatch('*Battery*', strval($Buffer->MSG))){ 
+                        IPS_LogMessage("PIMQTT",'fnMatch Battery');
+                        $ID_Batt=@IPS_GetObjectIDByIdent('Battery', $ID_Modul);
+                        if($ID_Batt===FALSE){
+                            $ID_Batt=$this->createVariable('Battery', $ID_Modul, 'Battery',2);
+                        }
+                        SetValueFloat($ID_Batt, floatval($Message->Battery));
+                        $this->SendDebug('Set Battery', floatval($Message->Battery).' to '.$ID_Batt, 0);
                     }
-                    SetValueFloat($ID_Batt, floatval($Message->Battery));
+
+                   if(fnmatch('*Time*', strval($Buffer->MSG))){ 
+                        IPS_LogMessage("PIMQTT",'fnMatch Time');
+                        $ID_Time=@IPS_GetObjectIDByIdent('Time', $ID_Modul);
+                        if($ID_Time===FALSE){
+                            $ID_Time=$this->createVariable('Time', $ID_Modul,'',3);
+                        }
+                        SetValueString($ID_Time, $Message->Time);
+                        $this->SendDebug('Set Time', floatval($Message->Time).' to '.$ID_Time, 0);
+                    }
+                    IPS_SemaphoreLeave('BLT_Temp_Sensor');
+                    $this->SendDebug('Semaphore', 'Leave', 0);
                 }
+            else{
+                    IPS_LogMessage('PIMQTT', 'Semaphore Timeout');
+                    $this->SendDebug('Semaphore', 'Timeout!!!', 0);
+                }               
             }
         }
     }
