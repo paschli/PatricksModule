@@ -163,7 +163,8 @@ class AutSw extends IPSModule {
             { "label": "Schalter", "value": 5 },
             { "label": "PIIOC", "value": 6 },
             { "label": "Sonoff", "value": 7 },
-            { "label": "PI_GPIO_Output", "value": 8}
+            { "label": "PI_GPIO_Output", "value": 8},
+            { "label": "PI_MQTT_Output", "value": 9}
           ]
         }';
     $elements_entry_lcnOutput=',
@@ -180,7 +181,7 @@ class AutSw extends IPSModule {
         { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
     
     $elements_entry_PIGPIO=',
-        { "name": "idLCNInstance", "type": "SelectInstance", "caption": "PIGPIO_Output Instanz" },
+        { "name": "idLCNInstance", "type": "SelectInstance", "caption": "PIGPIO_OutputX Instanz" },
         { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
      
     $elements_entry_MQTT=',
