@@ -892,7 +892,7 @@ private function Set_PIGPIO($value) {
     //return $result;
 }
 private function Set_MQTT($value) {
-        $SetID=IPS_GetChildrenIDs(ReadPropertyInteger('idLCNInstance'))[0];
+        $SetID=IPS_GetChildrenIDs($this->ReadPropertyInteger('idLCNInstance'))[0];
         $StatusID=$this->ReadPropertyInteger('idStatus');
         switch($value){
             case 0: $commandValue="OFF";
