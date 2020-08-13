@@ -11,6 +11,7 @@ class AutSw extends IPSModule {
     parent::Create();
     $this->RegisterPropertyInteger('Auswahl', 0); //Auswahl des Typs
     $this->RegisterPropertyInteger('idLCNInstance', 0); //ID der zu schaltenden Instanz
+    $this->RegisterPropertyInteger('idStatus', 0); //ID der zu schaltenden Instanz
     $this->RegisterPropertyInteger('LaempchenNr', 0); //Falls es Lämpchen sind
     $this->RegisterPropertyInteger('idLightInstance', 0); //Falls es Lämpchen sind
     $this->RegisterPropertyInteger('Rampe', 2); // Rampe für das Schalten eines LCN Ausgangs
@@ -126,6 +127,8 @@ class AutSw extends IPSModule {
                 break;
             case 8:
                 break;
+            case 9:
+            break;
             default:
                 break;
         }
