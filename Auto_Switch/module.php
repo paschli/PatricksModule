@@ -124,6 +124,7 @@ class AutSw extends IPSModule {
             case 6:
                 break;
             case 7:
+                $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
                 break;
             case 8:
                 break;
@@ -903,7 +904,7 @@ private function Set_MQTT($value) {
         }
         RequestAction($SetID, $commandValue);
         usleep(500000);
-        $StatusValue=GetValueString(IPS_GetChildrenIDs($StatusID)[0]);
+        $StatusValue=GetVƒalueString(IPS_GetChildrenIDs($StatusID)[0]);
         if($StatusValue==$commandValue){
             SetValue($this->GetIDForIdent("Status"), $value);
             return 1;
