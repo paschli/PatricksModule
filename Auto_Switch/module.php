@@ -987,9 +987,9 @@ private function FindTargetStatusofDevices($type) {
 //Children dieser Instanz ermitteln    
     $ID_Children=IPS_GetChildrenIds($ZielID);
     switch($type){
-            case 1: $target="Status"
+            case 1: $target="Status";
                     break;
-            case 2: $target="POWER"
+            case 2: $target="POWER";
                     break;
     }
 //Children durchsuchen
