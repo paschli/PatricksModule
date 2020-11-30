@@ -624,7 +624,7 @@ public function Set(bool $value, bool $anzeige) {
           IPS_LogMessage('AutoSwitch_Set', 'Aktion fehlgeschlagen!');
           $wert=$this->boolToString($value);
           WFC_PushNotification(33722, "Info AutoSwitchModul", "Fehler bei SET für ".$name."/ Sollwert= ".$wert." / Typ=".$typ, "", 0);
-          IPS_SemaphoreLeave($sem_id);
+          IPS_SemaphoreLeave('AutoSwitch_Set');
           exit();
       }
       if($EventID){
