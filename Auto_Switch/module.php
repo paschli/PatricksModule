@@ -100,7 +100,7 @@ class AutSw extends IPSModule {
             case 0: //falls Instanz nicht gewählt wurde
                 break;
             case 1: //falls Instanz LCN Ausgang
-                $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
+                $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 if(!@IPS_GetObjectIDByIdent('SliderAnz', $instID)){
                     $script='<?'.chr(13).
                             'SetValue($_IPS["VARIABLE"], $_IPS["VALUE"]);'.chr(13).
@@ -111,7 +111,7 @@ class AutSw extends IPSModule {
                 }
                 break;
             case 2: //falls Instanz LCN Relais
-                $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
+                $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
                 break;
             case 3: //falls Instanz LCN Lämpchen
                 break;
@@ -119,12 +119,12 @@ class AutSw extends IPSModule {
                 
                 break;
             case 5: //falls Instanz Switch-Modul
-                $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
+                $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
                 break;
             case 6:
                 break;
             case 7:
-                $this->CheckEvent($scriptDevice);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
+                $this->CheckEvent($scriptDevice,2);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
                 break;
             case 8:
                 break;
@@ -981,15 +981,21 @@ private function CreateWahlVar($ident,$name,$icon,$par, $pos){
 }
         
 
-private function FindTargetStatusofDevices() {
+private function FindTargetStatusofDevices($type) {
 // ID der zu steuernden Instanz ermitteln    
     $ZielID= $this->ReadPropertyInteger('idLCNInstance');
 //Children dieser Instanz ermitteln    
     $ID_Children=IPS_GetChildrenIds($ZielID);
+    switch($type){
+            case 1: $target="Status"
+                    break;
+            case 2: $target="POWER"
+                    break;
+    }
 //Children durchsuchen
     for($i=0;$i<=count($ID_Children)-1;$i++){
 //Falls "Status" gefunden wird
-        if(IPS_GetName($ID_Children[$i])=="Status"){
+        if(IPS_GetName($ID_Children[$i])==$target){
             $test_variable=$ID_Children[$i];
             IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Variable = "
                 .$ID_Children[$i]." Typ = ".$test_variable['VariableType']);
@@ -1003,12 +1009,12 @@ private function FindTargetStatusofDevices() {
     return(-1);
 }
 
-private function CheckEvent($script) {
+private function CheckEvent($script,$type) {
     $EventID=@IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID);
     if($EventID){
         IPS_DeleteEvent($EventID);
     }    
-    $ID=$this->FindTargetStatusofDevices();
+    $ID=$this->FindTargetStatusofDevices($type);
     $EventID=$this->RegisterEvent('WatchEvent', $ID, $script);
     //IPS_SetEventActive($EventID, FALSE);
 }
