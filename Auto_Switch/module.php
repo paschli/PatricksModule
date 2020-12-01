@@ -566,7 +566,7 @@ public function Set(bool $value, bool $anzeige) {
       
         case 4: 
           for($i = 1 ; $i <= 3 ; $i++){
-              $result=$this->Set_JSON($value); 
+              $result=$this->Set_JSON($value,$sem_id);
               IPS_LogMessage('AutoSwitch_Set_JSON', 'Aktion ausgeführt= '.$i."-mal");
               if($result==1)
                   break;
@@ -580,7 +580,7 @@ public function Set(bool $value, bool $anzeige) {
         break; 
     
         case 6: 
-          $this->Set_PIIOC($value);
+          $this->Set_PIIOC($value,$sem_id);
           $result=1;
         break;
       
@@ -624,7 +624,7 @@ public function Set(bool $value, bool $anzeige) {
           IPS_LogMessage('AutoSwitch_Set', 'Aktion fehlgeschlagen!');
           $wert=$this->boolToString($value);
           WFC_PushNotification(33722, "Info AutoSwitchModul", "Fehler bei SET für ".$name."/ Sollwert= ".$wert." / Typ=".$typ, "", 0);
-          IPS_SemaphoreLeave('AutoSwitch_Set');
+          IPS_SemaphoreLeave($sem_id);
           exit();
       }
       if($EventID){
@@ -771,7 +771,7 @@ private function Check_LCN_Lamp($idcheckLamp,$lampNo,$lamp_value) {
     return 0;
 }
 
-private function Set_JSON($value) {
+private function Set_JSON($value,$sem_id) {
     $password= $this->ReadPropertyString('Password'); 
     $IPAddr= $this->ReadPropertyString('IPAddress');
     $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
@@ -791,13 +791,15 @@ private function Set_JSON($value) {
     }
     catch (JSONRPCException $e) {
         echo 'RPC Problem', "\n";
-        IPS_SemaphoreLeave('AutoSwitch_Set');
+        //IPS_SemaphoreLeave('AutoSwitch_Set');
+        IPS_SemaphoreLeave($sem_id);
         IPS_LogMessage('AutoSwitch_Set', 'RPC Fehler');
         return 0;
     } 
     catch (Exception $e) {
        echo 'Server Problem',"\n";
-       IPS_SemaphoreLeave('AutoSwitch_Set');
+       //IPS_SemaphoreLeave('AutoSwitch_Set');
+       IPS_SemaphoreLeave($sem_id);
        IPS_LogMessage('AutoSwitch_Set', 'Verbindungsfehler');
        return 0;
     }
@@ -827,7 +829,7 @@ private function Set_Schalter($value) {
     SetValue($this->GetIDForIdent("Status"), $value);
 }
 
-private function Set_PIIOC($value) {
+private function Set_PIIOC($value,$sem_id) {
     $password= $this->ReadPropertyString('Password'); 
     $IPAddr= $this->ReadPropertyString('IPAddress');
     $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
@@ -848,13 +850,15 @@ private function Set_PIIOC($value) {
     }
     catch (JSONRPCException $e) {
         echo 'RPC Problem', "\n";
-        IPS_SemaphoreLeave('AutoSwitch_Set');
+        //IPS_SemaphoreLeave('AutoSwitch_Set');
+        IPS_SemaphoreLeave($sem_id);
         IPS_LogMessage('AutoSwitch_Set', 'RPC Fehler');
         return 0;
     } 
     catch (Exception $e) {
        echo 'Server Problem',"\n";
-       IPS_SemaphoreLeave('AutoSwitch_Set');
+       //IPS_SemaphoreLeave('AutoSwitch_Set');
+       IPS_SemaphoreLeave($sem_id);
        IPS_LogMessage('AutoSwitch_Set', 'Verbindungsfehler');
        return 0;
     }
