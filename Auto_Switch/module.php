@@ -11,6 +11,7 @@ class AutSw extends IPSModule {
     parent::Create();
     $this->RegisterPropertyInteger('Auswahl', 0); //Auswahl des Typs
     $this->RegisterPropertyInteger('idLCNInstance', 0); //ID der zu schaltenden Instanz
+    $this->RegisterPropertyInteger('idVariable', 0); //ID der zu schaltenden Instanz
     $this->RegisterPropertyInteger('idStatus', 0); //ID der zu schaltenden Instanz
     $this->RegisterPropertyInteger('LaempchenNr', 0); //Falls es Lämpchen sind
     $this->RegisterPropertyInteger('idLightInstance', 0); //Falls es Lämpchen sind
@@ -165,7 +166,8 @@ class AutSw extends IPSModule {
             { "label": "PIIOC", "value": 6 },
             { "label": "Sonoff", "value": 7 },
             { "label": "PI_GPIO_Output", "value": 8},
-            { "label": "PI_MQTT_Output", "value": 9}
+            { "label": "PI_MQTT_Output", "value": 9},
+            { "label": "Zigbee2MQTT", "value": 10}
           ]
         }';
     $elements_entry_lcnOutput=',
@@ -185,11 +187,15 @@ class AutSw extends IPSModule {
         { "name": "idLCNInstance", "type": "SelectInstance", "caption": "PIGPIO_OutputX Instanz" },
         { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
      
-    $elements_entry_MQTT=',
+    $elements_entry_pi_MQTT=',
     { "name": "idLCNInstance", "type": "SelectInstance", "caption": "MQTT_Set Instanz" },
     { "name": "idStatus", "type": "SelectInstance", "caption": "MQTT_Output Instanz" },
     { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
-     
+
+  $elements_entry_pi_Zig2MQTT=',
+    { "name": "idLCNInstance", "type": "SelectVariable", "caption": "MQTT_Set Variable" },
+    { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';    
+
     $elements_entry_lcnLämpchen=',
         { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
         { "name": "LaempchenNr", "type": "Select", "caption": "Lämpchen Nr.", 
@@ -243,7 +249,8 @@ class AutSw extends IPSModule {
         case 6:  $elements_entry=$elements_entry_device.$elements_entry_jsonZugriff; break;
         case 7:  $elements_entry=$elements_entry_device.$elements_entry_Sonoff; break;
         case 8:  $elements_entry=$elements_entry_device.$elements_entry_PIGPIO; break;
-        case 9:  $elements_entry=$elements_entry_device.$elements_entry_MQTT; break;
+        case 9:  $elements_entry=$elements_entry_device.$elements_entry_pi_MQTT; break;
+        case 10: $elements_entry=$elements_entry_device.$elements_entry_Zig2MQTT; break; 
         
     }
 //Option für WatchEvent - geht nur bei LCN-Instanz, LCN-Relais, Switch_Modul 
