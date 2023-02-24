@@ -936,8 +936,9 @@ private function Set_MQTT($value) {
     }
 
     private function Set_Zig2MQTT($value) {
-        $SetID=IPS_GetChildrenIDs($this->ReadPropertyInteger('idLCNInstance'))[0];
-        $StatusID=$this->ReadPropertyInteger('idStatus');
+        //$SetID=IPS_GetChildrenIDs($this->ReadPropertyInteger('idLCNInstance'))[0];
+        $SetID=$this->ReadPropertyInteger('idLCNInstance');
+        //$StatusID=$this->ReadPropertyInteger('idStatus');
         /*switch($value){
             case 0: $commandValue="OFF";
                 break;
@@ -947,14 +948,14 @@ private function Set_MQTT($value) {
         }*/
         RequestAction($SetID, $value);
         usleep(500000);
-        $StatusValue=GetValueString(IPS_GetChildrenIDs($StatusID)[0]);
-        if($StatusValue==$value){
-            SetValue($this->GetIDForIdent("Status"), $value);
+        //$StatusValue=GetValueString(IPS_GetChildrenIDs($StatusID)[0]);
+        //if($StatusValue==$value){
+        //    SetValue($this->GetIDForIdent("Status"), $value);
             return 1;
-        }
-        else {
+        //}
+        /*else {
             return 0;
-        }
+        }*/
     }
     
 private function get_status_id($id, $name){
