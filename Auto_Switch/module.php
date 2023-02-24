@@ -194,7 +194,7 @@ class AutSw extends IPSModule {
     { "name": "idStatus", "type": "SelectInstance", "caption": "MQTT_Output Instanz" },
     { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
 
-  $elements_entry_pi_Zig2MQTT=',
+  $elements_entry_Zig2MQTT=',
     { "name": "idLCNInstance", "type": "SelectVariable", "caption": "MQTT_Set Variable","validVariableTypes": [0],
         "requiredAction": 1},
     { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';    
