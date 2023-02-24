@@ -57,8 +57,9 @@ class AutSw extends IPSModule {
 //Aktion, falls zu schaltendes Objekt von anderen Instanzen oder Schaltern geschaltet wird
     $scriptDevice="\$id = \$_IPS['TARGET'];\n".
                     'AutSw_EventTrigger($id,$id, GetValueBoolean(IPS_GetEvent($_IPS["EVENT"])["TriggerVariableID"]));';
-    if($this->ReadPropertyInteger('idLCNInstance'))
+    if($this->ReadPropertyInteger('idLCNInstance')){
         $typ= $this->ReadPropertyInteger('Auswahl');
+    }
     else if($this->ReadPropertyInteger('ZielID'))
         $typ= $this->ReadPropertyInteger('Auswahl');
     else 
@@ -112,7 +113,7 @@ class AutSw extends IPSModule {
                 }
                 break;
             case 2: //falls Instanz LCN Relais
-                $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
+                $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 break;
             case 3: //falls Instanz LCN Lämpchen
                 break;
@@ -120,17 +121,20 @@ class AutSw extends IPSModule {
                 
                 break;
             case 5: //falls Instanz Switch-Modul
-                $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
+                $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 break;
             case 6:
                 break;
             case 7:
-                $this->CheckEvent($scriptDevice,2);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
+                $this->CheckEvent($scriptDevice,2);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 break;
             case 8:
                 break;
             case 9:
             break;
+            case 10:
+               $this->CheckEvent($scriptDevice,2);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
+                break;
             default:
                 break;
         }
@@ -1037,18 +1041,27 @@ private function FindTargetStatusofDevices($type) {
                     break;
     }
 //Children durchsuchen
-    for($i=0;$i<=count($ID_Children)-1;$i++){
-//Falls "Status" gefunden wird
-        if(IPS_GetName($ID_Children[$i])==$target){
-            $test_variable=$ID_Children[$i];
-            IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Variable = "
-                .$ID_Children[$i]." Typ = ".$test_variable['VariableType']);
-            return($test_variable); 
-        }
-        else {
-            
-        }
+    if(!empty($ID_Children)){
+        for($i=0;$i<=count($ID_Children)-1;$i++){
+        //Falls "Status" gefunden wird
+            if(IPS_GetName($ID_Children[$i])==$target){
+                $test_variable=$ID_Children[$i];
+                IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Variable = "
+                    .$ID_Children[$i]." Typ = ".$test_variable['VariableType']);
+                return($test_variable); 
+            }
+            else {
                 
+            }
+                
+        }
+    }
+    else{
+            $test_variable=$ZielID;
+            IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Variable = "
+                .$ZielID." Typ = ".$test_variable['VariableType']);
+            return($test_variable);
+
     }
     return(-1);
 }
