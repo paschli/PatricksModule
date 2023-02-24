@@ -56,7 +56,7 @@ class AutSw extends IPSModule {
     }
 //Aktion, falls zu schaltendes Objekt von anderen Instanzen oder Schaltern geschaltet wird
     $scriptDevice="\$id = \$_IPS['TARGET'];\n".
-                    'AutSw_EventTrigger($id,$id, GetValueBoolean(IPS_GetEvent($_IPS["EVENT"])["TriggerVariableID"]));';
+                    'AutSw_EventTrigger($id, GetValueBoolean(IPS_GetEvent($_IPS["EVENT"])["TriggerVariableID"]));';
     if($this->ReadPropertyInteger('idLCNInstance')){
         $typ= $this->ReadPropertyInteger('Auswahl');
     }
@@ -133,7 +133,7 @@ class AutSw extends IPSModule {
             case 9:
             break;
             case 10:
-               $this->CheckEvent($scriptDevice,2);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
+               $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 break;
             default:
                 break;
@@ -952,14 +952,14 @@ private function Set_MQTT($value) {
         }*/
         RequestAction($SetID, $value);
         usleep(500000);
-        //$StatusValue=GetValueString(IPS_GetChildrenIDs($StatusID)[0]);
-        //if($StatusValue==$value){
-        //    SetValue($this->GetIDForIdent("Status"), $value);
+        $StatusValue=GetValueBoolean($SetID);
+        if($StatusValue==$value){
+            SetValue($this->GetIDForIdent("Status"), $value);
             return 1;
-        //}
-        /*else {
+        }
+        else {
             return 0;
-        }*/
+        }
     }
     
 private function get_status_id($id, $name){
