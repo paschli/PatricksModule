@@ -1058,7 +1058,7 @@ private function FindTargetStatusofDevices($type) {
     }
     else{
             IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Variable = "
-                .$ZielID." Typ = ".$ZielID['VariableType']);
+                .$ZielID);
             return($ZielID);
 
     }
