@@ -188,12 +188,15 @@ class AutSw extends IPSModule {
         { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
      
     $elements_entry_pi_MQTT=',
-    { "name": "idLCNInstance", "type": "SelectInstance", "caption": "MQTT_Set Instanz" },
+    { "name": "idLCNInstance", "type": "SelectInstance", "caption": "MQTT_Set Instanz", "validVariableTypes": [1, 2],
+        "requiredAction": 1,
+        "requiredLogging": 1 },
     { "name": "idStatus", "type": "SelectInstance", "caption": "MQTT_Output Instanz" },
     { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
 
   $elements_entry_pi_Zig2MQTT=',
-    { "name": "idLCNInstance", "type": "SelectVariable", "caption": "MQTT_Set Variable" },
+    { "name": "idLCNInstance", "type": "SelectVariable", "caption": "MQTT_Set Variable","validVariableTypes": [0],
+        "requiredAction": 1},
     { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';    
 
     $elements_entry_lcnLämpchen=',
