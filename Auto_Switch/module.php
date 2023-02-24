@@ -618,7 +618,14 @@ public function Set(bool $value, bool $anzeige) {
                 break;
         }
         break;
-        
+        case 10:
+        for($i = 1 ; $i <= 3 ; $i++){
+            $result=$this->Set_Zig2MQTT($value);
+            IPS_LogMessage('AutoSwitch_Set_Zig2MQTT', 'Aktion ausgeführt= '.$i."-mal");
+            if($result==1)
+                break;
+        }
+        break;
         default: 
           $result=0;
         break;
@@ -920,6 +927,28 @@ private function Set_MQTT($value) {
         usleep(500000);
         $StatusValue=GetValueString(IPS_GetChildrenIDs($StatusID)[0]);
         if($StatusValue==$commandValue){
+            SetValue($this->GetIDForIdent("Status"), $value);
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    private function Set_Zig2MQTT($value) {
+        $SetID=IPS_GetChildrenIDs($this->ReadPropertyInteger('idLCNInstance'))[0];
+        $StatusID=$this->ReadPropertyInteger('idStatus');
+        /*switch($value){
+            case 0: $commandValue="OFF";
+                break;
+            case 1: $commandValue="ON";
+                break;
+            default: $commandValue="OFF";
+        }*/
+        RequestAction($SetID, $value);
+        usleep(500000);
+        $StatusValue=GetValueString(IPS_GetChildrenIDs($StatusID)[0]);
+        if($StatusValue==$value){
             SetValue($this->GetIDForIdent("Status"), $value);
             return 1;
         }
