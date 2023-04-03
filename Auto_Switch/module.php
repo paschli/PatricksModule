@@ -295,22 +295,27 @@ public function EventTrigger(int $par,bool $value) {
      $par= IPS_GetParent(($this->GetIDForIdent('Status')));
 
      $CatID =IPS_GetCategoryIDByName('Konfig', $par);
-
      
      if($ident=='AutoOff_Switch'){
-        IPS_LogMessage("AutoSwitch_RequestAction","AutoOff Einstellung geändert");
+        IPS_LogMessage("AutoSwitch_RequestAction","AutoOff Einstellung geändert".$value);
         SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value);
+        $timerID= @IPS_GetObjectIDByIdent('AutoOffTimer', $par);            //ID vom Timer_Event
         if($value){
-            $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);
-            $Laufzeit= GetValueInteger($LaufzeitID);
-            $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
-            SetValueInteger($IDLaufz, $Laufzeit);
-            $eventID= @IPS_GetObjectIDByIdent('WatchTarget', $par);
-            if($eventID)
-                IPS_SetEventActive($eventID, True);
+            $LaufzeitID= IPS_GetVariableIDByName('Set Laufzeit', $CatID);   //Variable mit eingestellter Laufzeit finden
+            $Laufzeit= GetValueInteger($LaufzeitID);                        //Laufzeit auslesen
+            $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);            //ID für Zählervariable finden
+            SetValueInteger($IDLaufz, $Laufzeit);                           //Laufzeit im Zähler setzen
+            $eventID= @IPS_GetObjectIDByIdent('WatchTarget', $par);         //ID von event
+            if($eventID){
+                IPS_SetEventActive($eventID, True);                         //Event aktivieren
+            }
+            $ID_Status= @IPS_GetObjectIDByIdent('Status', $par);            //ID vom Timer_Event
+            if(GetValueBoolean($ID_Status)){
+                IPS_SetEventActive($timerID, TRUE);
+            }
         }
         else{
-            $timerID= @IPS_GetObjectIDByIdent('AutoOffTimer', $par);
+            //$timerID= @IPS_GetObjectIDByIdent('AutoOffTimer', $par);      //wird bereits vor IF ermittelt
             if($timerID)
                 IPS_SetEventActive($timerID, FALSE);
 
