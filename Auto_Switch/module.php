@@ -323,9 +323,9 @@ public function EventTrigger(int $par,bool $value) {
             if($eventID){
                 IPS_SetEventActive($eventID, True);                         //Event aktivieren
             }
-            $ID_Status= @IPS_GetObjectIDByIdent('Status', $par);            //ID vom Timer_Event
-            if(GetValueBoolean($ID_Status)){
-                IPS_SetEventActive($timerID, TRUE);
+            $ID_Status= @IPS_GetObjectIDByIdent('Status', $par);            //ID vom Status
+            if(GetValueBoolean($ID_Status)){                                //Falls Gerät an,
+                IPS_SetEventActive($timerID, TRUE);                         //Aktiviere Timer
             }
         }
         else{
