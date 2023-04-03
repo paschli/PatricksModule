@@ -325,7 +325,7 @@ public function EventTrigger(int $par,bool $value) {
             }
             $ID_Status= @IPS_GetObjectIDByIdent('Status', $par);            //ID vom Status
             if(GetValueBoolean($ID_Status)){                                //Falls Gerät an,
-                IPS_SetEventActive($timerID, TRUE);                         //Aktiviere Timer 
+                IPS_SetEventActive($timerID, TRUE);                         //Aktiviere Timer
             }
         }
         else{
@@ -1051,8 +1051,8 @@ private function FindTargetStatusofDevices($type) {
         //Falls "Status" gefunden wird
             if(IPS_GetName($ID_Children[$i])==$target){
                 $test_variable=$ID_Children[$i];
-                IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Variable = "
-                    .$ID_Children[$i]." Typ = ".$test_variable['VariableType']);
+//                IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Variable = "
+//                    .$ID_Children[$i]." Typ = ".$test_variable['VariableType']);
                 return($test_variable); 
             }
             else {
