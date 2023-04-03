@@ -11,6 +11,7 @@ class AutSw extends IPSModule {
     parent::Create();
     $this->RegisterPropertyInteger('Auswahl', 0); //Auswahl des Typs
     $this->RegisterPropertyInteger('idLCNInstance', 0); //ID der zu schaltenden Instanz
+    $this->RegisterPropertyInteger('idVariable', 0); //ID der zu schaltenden Instanz
     $this->RegisterPropertyInteger('idStatus', 0); //ID der zu schaltenden Instanz
     $this->RegisterPropertyInteger('LaempchenNr', 0); //Falls es Lämpchen sind
     $this->RegisterPropertyInteger('idLightInstance', 0); //Falls es Lämpchen sind
@@ -55,9 +56,10 @@ class AutSw extends IPSModule {
     }
 //Aktion, falls zu schaltendes Objekt von anderen Instanzen oder Schaltern geschaltet wird
     $scriptDevice="\$id = \$_IPS['TARGET'];\n".
-                    'AutSw_EventTrigger($id,$id, GetValueBoolean(IPS_GetEvent($_IPS["EVENT"])["TriggerVariableID"]));';
-    if($this->ReadPropertyInteger('idLCNInstance'))
+                    'AutSw_EventTrigger($id, $id, GetValueBoolean(IPS_GetEvent($_IPS["EVENT"])["TriggerVariableID"]));';
+    if($this->ReadPropertyInteger('idLCNInstance')){
         $typ= $this->ReadPropertyInteger('Auswahl');
+    }
     else if($this->ReadPropertyInteger('ZielID'))
         $typ= $this->ReadPropertyInteger('Auswahl');
     else 
@@ -111,7 +113,7 @@ class AutSw extends IPSModule {
                 }
                 break;
             case 2: //falls Instanz LCN Relais
-                $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
+                $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 break;
             case 3: //falls Instanz LCN Lämpchen
                 break;
@@ -119,17 +121,20 @@ class AutSw extends IPSModule {
                 
                 break;
             case 5: //falls Instanz Switch-Modul
-                $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
+                $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 break;
             case 6:
                 break;
             case 7:
-                $this->CheckEvent($scriptDevice,2);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Staus der Instanz
+                $this->CheckEvent($scriptDevice,2);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 break;
             case 8:
                 break;
             case 9:
             break;
+            case 10:
+               $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
+                break;
             default:
                 break;
         }
@@ -165,7 +170,8 @@ class AutSw extends IPSModule {
             { "label": "PIIOC", "value": 6 },
             { "label": "Sonoff", "value": 7 },
             { "label": "PI_GPIO_Output", "value": 8},
-            { "label": "PI_MQTT_Output", "value": 9}
+            { "label": "PI_MQTT_Output", "value": 9},
+            { "label": "Zigbee2MQTT", "value": 10}
           ]
         }';
     $elements_entry_lcnOutput=',
@@ -185,11 +191,18 @@ class AutSw extends IPSModule {
         { "name": "idLCNInstance", "type": "SelectInstance", "caption": "PIGPIO_OutputX Instanz" },
         { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
      
-    $elements_entry_MQTT=',
-    { "name": "idLCNInstance", "type": "SelectInstance", "caption": "MQTT_Set Instanz" },
+    $elements_entry_pi_MQTT=',
+    { "name": "idLCNInstance", "type": "SelectInstance", "caption": "MQTT_Set Instanz", "validVariableTypes": [1, 2],
+        "requiredAction": 1,
+        "requiredLogging": 1 },
     { "name": "idStatus", "type": "SelectInstance", "caption": "MQTT_Output Instanz" },
     { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
-     
+
+  $elements_entry_Zig2MQTT=',
+    { "name": "idLCNInstance", "type": "SelectVariable", "caption": "MQTT_Set Variable","validVariableTypes": [0],
+        "requiredAction": 1},
+    { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';    
+
     $elements_entry_lcnLämpchen=',
         { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
         { "name": "LaempchenNr", "type": "Select", "caption": "Lämpchen Nr.", 
@@ -243,7 +256,8 @@ class AutSw extends IPSModule {
         case 6:  $elements_entry=$elements_entry_device.$elements_entry_jsonZugriff; break;
         case 7:  $elements_entry=$elements_entry_device.$elements_entry_Sonoff; break;
         case 8:  $elements_entry=$elements_entry_device.$elements_entry_PIGPIO; break;
-        case 9:  $elements_entry=$elements_entry_device.$elements_entry_MQTT; break;
+        case 9:  $elements_entry=$elements_entry_device.$elements_entry_pi_MQTT; break;
+        case 10: $elements_entry=$elements_entry_device.$elements_entry_Zig2MQTT; break; 
         
     }
 //Option für WatchEvent - geht nur bei LCN-Instanz, LCN-Relais, Switch_Modul 
@@ -613,7 +627,14 @@ public function Set(bool $value, bool $anzeige) {
                 break;
         }
         break;
-        
+        case 10:
+        for($i = 1 ; $i <= 3 ; $i++){
+            $result=$this->Set_Zig2MQTT($value);
+            IPS_LogMessage('AutoSwitch_Set_Zig2MQTT', 'Aktion ausgeführt= '.$i."-mal");
+            if($result==1)
+                break;
+        }
+        break;
         default: 
           $result=0;
         break;
@@ -922,6 +943,29 @@ private function Set_MQTT($value) {
             return 0;
         }
     }
+
+    private function Set_Zig2MQTT($value) {
+        //$SetID=IPS_GetChildrenIDs($this->ReadPropertyInteger('idLCNInstance'))[0];
+        $SetID=$this->ReadPropertyInteger('idLCNInstance');
+        //$StatusID=$this->ReadPropertyInteger('idStatus');
+        /*switch($value){
+            case 0: $commandValue="OFF";
+                break;
+            case 1: $commandValue="ON";
+                break;
+            default: $commandValue="OFF";
+        }*/
+        RequestAction($SetID, $value);
+        usleep(500000);
+        $StatusValue=GetValueBoolean($SetID);
+        if($StatusValue==$value){
+            SetValue($this->GetIDForIdent("Status"), $value);
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
     
 private function get_status_id($id, $name){
     $arr=IPS_GetChildrenIDs($id);
@@ -1002,18 +1046,26 @@ private function FindTargetStatusofDevices($type) {
                     break;
     }
 //Children durchsuchen
-    for($i=0;$i<=count($ID_Children)-1;$i++){
-//Falls "Status" gefunden wird
-        if(IPS_GetName($ID_Children[$i])==$target){
-            $test_variable=$ID_Children[$i];
-            IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Variable = "
-                .$ID_Children[$i]." Typ = ".$test_variable['VariableType']);
-            return($test_variable); 
-        }
-        else {
-            
-        }
+    if(!empty($ID_Children)){
+        for($i=0;$i<=count($ID_Children)-1;$i++){
+        //Falls "Status" gefunden wird
+            if(IPS_GetName($ID_Children[$i])==$target){
+                $test_variable=$ID_Children[$i];
+                IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Variable = "
+                    .$ID_Children[$i]." Typ = ".$test_variable['VariableType']);
+                return($test_variable); 
+            }
+            else {
                 
+            }
+                
+        }
+    }
+    else{
+            IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Variable = "
+                .$ZielID);
+            return($ZielID);
+
     }
     return(-1);
 }
