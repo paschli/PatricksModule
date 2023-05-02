@@ -109,7 +109,8 @@ class DBLClick extends IPSModule {
       IPS_LogMessage('DBLClick_ScriptCreate',"Skript erstellt mit ID=".$scriptID);
       return($scriptID);
   }
-  
+ 
+/*
   protected function Script_IDbyName($instThisID,$name) {
       $children=IPS_GetChildrenIDs($instThisID);
       
@@ -129,7 +130,29 @@ class DBLClick extends IPSModule {
       IPS_LogMessage('DBLClick_IDbyName',"gefunden ID =".$scriptID."(".$child_Name.")");
       return($scriptID);
   }
-  
+*/
+    protected function Script_IDbyName($parent,$name) {//sucht das passende Script zu Taste, die gedrückt wurde
+        $children=IPS_GetChildrenIDs($instThisID);
+        @$script_ID=IPS_GetObjectIDByIdent($name, $parent);
+        if(!$scriptID){
+                foreach ($children as $child) {
+                    $child_Name= IPS_GetName($child);
+                    IPS_LogMessage('DBLClick_IDbyName',"Child =".$child_Name);
+                    $child_Name_8=substr($child_Name, 0, 8);
+                    IPS_LogMessage('DBLClick_IDbyName',"Child_8 =".$child_Name_8." zu Name=".$name);
+                    if(strstr($child_Name_8, $name)===FALSE){
+                       $scriptID=0;
+                    }
+                    else{
+                        $scriptID=$child;
+                        IPS_SetIdent($scriptID,$name);
+                        break;
+                    }
+                }
+            }
+        IPS_LogMessage('DBLClick_IDbyName',"gefunden ID =".$scriptID."(".IPS_GetNAme($scriptID).")");
+        return($scriptID);
+    }
   
   public function Check() {
 //IPS_LogMessage('DBLClick',"Setze Semaphore");
