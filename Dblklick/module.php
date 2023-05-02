@@ -132,7 +132,7 @@ class DBLClick extends IPSModule {
   }
 */
     protected function Script_IDbyName($parent,$name) {//sucht das passende Script zu Taste, die gedrückt wurde
-        $children=IPS_GetChildrenIDs($instThisID);
+        $children=IPS_GetChildrenIDs($parent);
         @$script_ID=IPS_GetObjectIDByIdent($name, $parent);
         if(!$scriptID){
                 foreach ($children as $child) {
