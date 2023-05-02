@@ -1,5 +1,5 @@
 <?
-//Teil 2 Modul schaltet einen Ausgang (LCN-Ausgang, LCN-Lämpchen, LCN-Relais, entfernte Variable (JSON Zugriff)
+//Teil 2: Modul schaltet einen Ausgang (LCN-Ausgang, LCN-Lämpchen, LCN-Relais, entfernte Variable (JSON Zugriff)
 
 
 class AutSw2 extends IPSModule {
@@ -32,7 +32,6 @@ class AutSw2 extends IPSModule {
     $this->RegisterVariableBoolean('Status','Status','~Switch');//
     $this->RegisterPropertyBoolean('Status', FALSE);
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Light');
-      IPS_SetIcon($this->GetIDForIdent('Status'), 'Light');
     
   }
   public function ApplyChanges() {
