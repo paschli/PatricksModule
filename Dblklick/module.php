@@ -79,8 +79,8 @@ class DBLClick extends IPSModule {
   
   protected function Script_Create($DBLClickDetectID,$lastUpdID,$source_taste,$instancethisID,$OneClick) {
       IPS_LogMessage('DBLClick_ScriptCreate',"Skript erstellen!");
-      if($this->ReadPropertyBoolean('CheckOneCLick'))
-        if($OneClick){
+//    if($this->ReadPropertyBoolean('CheckOneCLick'))
+      if($OneClick){
           $string_OneClick="define('OneClick', 1);";
       }
       else{
