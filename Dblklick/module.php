@@ -199,7 +199,7 @@ class DBLClick extends IPSModule {
       }
       else{
 // Prüfen, ob ein Aktion bei Einfachklick gewünscht ist (bei Lichtschaltern)
-	if($this->ReadPropertyBoolean('OneCLick')){
+	if($this->ReadPropertyBoolean('OneClick')){
 //        if(1){
             IPS_LogMessage('DBLClick',"Einfachklick-Aktion starten");
             IPS_RunScript($scriptID);
