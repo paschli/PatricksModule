@@ -1052,7 +1052,8 @@ private function CreateTimerVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
     $eventScript="\$id = \$_IPS['TARGET'];\n".'$idp = IPS_GetParent($id);';
     $esOn="\n".'AutSw_SetOn($idp);';
     $esOff="\n".'AutSw_SetOff($idp);';
-    if(str_contains($name,'An')){
+    
+    if(str_pos($name,'An')){
         $eventScript=$eventScript.$esOn;
     }
     else{
