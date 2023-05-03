@@ -1110,7 +1110,7 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
          
         $PRG1_An_ID=@IPS_GetObjectIDByIdent('PRG1_An', $CatID);
         if(!$PRG1_An_ID){
-            $this->CreateAnzVar('PRG1_An','PRG1_An','PRG1_An', $CatID, 40,'Hourglass','','TIMER' );CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script,$profil)
+            $this->CreateAnzVar('PRG1_An','PRG1_An','PRG1_An', $CatID, 40,'Hourglass','','TIMER' );
         }
         else
             IPS_SetHidden ($PRG1_An_ID, FALSE);
