@@ -1142,18 +1142,23 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
     ."\nswitch(\$_IPS['VALUE']){"
     ."\n   case 0: IPS_LogMessage('Timer_Set_Test','Zeit stellen');"
     ."\n           IPS_SetHidden (\$wertID, TRUE);"
+    ."\n            IPS_SetEventActive (\$eventID,TRUE);"
     ."\n       break;"
     ."\n   case 1: \$Zeit= GetValue(51772);"
+    ."\n            IPS_SetEventActive (\$eventID,TRUE);"
     ."\n       break;"
     ."\n   case 2: \$Zeit= GetValue(48995);"
+    ."\n            IPS_SetEventActive (\$eventID,TRUE);"
+    ."\n       break;"
+    ."\n   case 3: \$Zeit= 0;"
+    ."\n            IPS_SetEventActive (\$eventID,False);"
     ."\n       break;"
     ."\n   default: break;\n"
     ."}"
     ."\n\$Stunde=date('H',\$Zeit);"
     ."\n\$Minute=date('i',\$Zeit);"
     ."\n\$Sekunde=date('s',\$Zeit);"
-    ."\n\IPS_SetEventCyclicTimeFrom (\$eventID, \$Stunde, \$Minute, \$Sekunde);"
-    ."\nIPS_SetEventActive (\$eventID,TRUE);";
+    ."\n\IPS_SetEventCyclicTimeFrom (\$eventID, \$Stunde, \$Minute, \$Sekunde);";
 
     /*$esOn="\n".'AutSw2_SetOn($idp);';
     $esOff="\n".'AutSw2_SetOff($idp);';
