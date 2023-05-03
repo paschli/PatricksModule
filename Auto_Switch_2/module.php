@@ -1219,19 +1219,28 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
         $PRG1_Aus_ID=@IPS_GetObjectIDByIdent('PRG1_Aus', $CatID);
         if($PRG1_Aus_ID){
             IPS_SetHidden ($PRG1_Aus_ID, TRUE);
-            //IPS_SetEventActive($Clear_1_ID, FALSE);
+            $PRG1_AusEventID=@IPS_GetObjectIDByIdent('PRG1_AusEvent', $PRG1_Aus_ID);
+            if($PRG1_AusEventID){
+                IPS_SetEventActive($PRG1_AusEventID, FALSE);
+            }
         }
         
          $PRG2_An_ID=@IPS_GetObjectIDByIdent('PRG2_An', $CatID);
          if($PRG2_An_ID){
              IPS_SetHidden ($PRG2_An_ID, TRUE);
-             //IPS_SetEventActive($Set_1_ID, FALSE);
+             $PRG2_AnEventID=@IPS_GetObjectIDByIdent('PRG2_AnEvent', $PRG2_An_ID);
+             if($PRG2_AnEventID){
+                 IPS_SetEventActive($PRG2_AnEventID, FALSE);
+             }
          }
          
          $PRG2_Aus_ID=@IPS_GetObjectIDByIdent('PRG2_Aus', $CatID);
          if($PRG2_Aus_ID){
              IPS_SetHidden ($PRG2_Aus_ID, TRUE);
-             //IPS_SetEventActive($Clear_1_ID, FALSE);
+             $PRG2_AusEventID=@IPS_GetObjectIDByIdent('PRG2_AusEvent', $PRG2_Aus_ID);
+             if($PRG2_AusEventID){
+                 IPS_SetEventActive($PRG2_AusEventID, FALSE);
+             }
          }
     }
     
