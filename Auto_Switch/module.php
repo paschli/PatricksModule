@@ -1049,7 +1049,7 @@ private function FindTargetStatusofDevices($type) {
     if(!empty($ID_Children)){
         for($i=0;$i<=count($ID_Children)-1;$i++){
         //Falls "Status" gefunden wird
-            if(IPS_GetName($ID_Children[$i])==$target){
+            if(IPS_GetName($ID_Children[$i])==$target){//Suche nach Child mit Bezeichnung Status oder Power
                 $test_variable=$ID_Children[$i];
 //                IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Variable = "
 //                    .$ID_Children[$i]." Typ = ".$test_variable['VariableType']);
@@ -1067,7 +1067,7 @@ private function FindTargetStatusofDevices($type) {
             return($ZielID);
 
     }
-    return(-1);
+    return(0);
 }
 
 private function CheckEvent($script,$type) {
@@ -1076,7 +1076,10 @@ private function CheckEvent($script,$type) {
         IPS_DeleteEvent($EventID);
     }    
     $ID=$this->FindTargetStatusofDevices($type);
-    $EventID=$this->RegisterEvent('WatchEvent', $ID, $script);
+    if($ID){
+        $EventID=$this->RegisterEvent('WatchEvent', $ID, $script);
+    }
+    
     //IPS_SetEventActive($EventID, FALSE);
 }
 
