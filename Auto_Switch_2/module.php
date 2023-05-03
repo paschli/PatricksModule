@@ -1173,7 +1173,7 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
             //IPS_SetEventActive($Set_1_ID, FALSE);
         }
         
-        $PRG1_Aus_ID=@IPS_GetObjectIDByIdent('$PRG1_Aus', $CatID);
+        $PRG1_Aus_ID=@IPS_GetObjectIDByIdent('PRG1_Aus', $CatID);
         if($PRG1_Aus_ID){
             IPS_SetHidden ($PRG1_Aus_ID, TRUE);
             //IPS_SetEventActive($Clear_1_ID, FALSE);
@@ -1185,7 +1185,7 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
              //IPS_SetEventActive($Set_1_ID, FALSE);
          }
          
-         $PRG2_Aus_ID=@IPS_GetObjectIDByIdent('$PRG2_Aus', $CatID);
+         $PRG2_Aus_ID=@IPS_GetObjectIDByIdent('PRG2_Aus', $CatID);
          if($PRG2_Aus_ID){
              IPS_SetHidden ($PRG2_Aus_ID, TRUE);
              //IPS_SetEventActive($Clear_1_ID, FALSE);
