@@ -1049,7 +1049,8 @@ private function CreateTimerVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
         IPS_SetHidden($VarID, True);
     }
     
-    $this->CreateAnzVar($name.'Wert',$name.'Wert',$VarID,1,'Clock','','~UnixTimestampTime');
+    $wertID=$this->CreateAnzVar($name.'Wert',$name.'Wert',$VarID,1,'Clock','','~UnixTimestampTime');
+    IPS_SetHidden ($wertID, FALSE);
     return($VarID);
 }
 
@@ -1127,10 +1128,13 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
     ."\n\$wertID=IPS_GetObjectIDByIdent(\$ident,\$par);"
     ."\nswitch(\$_IPS['VALUE']){"
     ."\n   case 0: IPS_LogMessage('Timer_Set_Test','Zeit stellen');"
+    ."\n           IPS_SetHidden (\$wertID, TRUE);"
     ."\n       break;"
     ."\n   case 1: SetValue(\$wertID, GetValue(51772));"
+    ."\n           IPS_SetHidden (\$wertID, FALSE);"
     ."\n       break;"
     ."\n   case 2: SetValue(\$wertID, GetValue(48995));"
+    ."\n           IPS_SetHidden (\$wertID, FALSE);"
     ."\n       break;"
     ."\n   default: break;\n"
     ."}";
