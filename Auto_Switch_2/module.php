@@ -1053,7 +1053,7 @@ private function CreateTimerVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
     $esOn="\n".'AutSw_SetOn($idp);';
     $esOff="\n".'AutSw_SetOff($idp);';
     
-    if(str_pos($name,'An')){
+    if(strpos($name,'An')){
         $eventScript=$eventScript.$esOn;
     }
     else{
