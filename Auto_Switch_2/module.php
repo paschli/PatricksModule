@@ -1005,6 +1005,9 @@ private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
     IPS_SetIcon($VarID, $icon);
     IPS_SetParent($VarID,$CatID );
     IPS_SetIdent($VarID,$ident);
+    if ($profil!=''){
+        IPS_SetVariableCustomProfile($VarID, $profil);
+    }
     if($script){
         $SkriptID=IPS_CreateScript(0);
         IPS_SetName($SkriptID,'control');
