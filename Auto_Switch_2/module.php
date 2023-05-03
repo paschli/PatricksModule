@@ -1232,7 +1232,8 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
 
 private function CreateTimeEvent($ident, $parentID, $Position, $content){
     $eid= IPS_CreateEvent(1);
-    IPS_SetEventCyclic($eid, 3, 1, 127, 1, 0, 2);
+    //IPS_SetEventCyclic($eid, 3, 1, 127, 1, 0, 2);
+    IPS_SetEventCyclic($eid, 0, 0, 0, 0, 0, 2);
     IPS_SetParent($eid, $parentID);
     IPS_SetIcon($eid, 'Clock');
     IPS_SetIdent($eid, $ident);
