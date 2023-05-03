@@ -1137,20 +1137,23 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
     $script="<?php"
     ."\nSetValue(\$_IPS['VARIABLE'], \$_IPS['VALUE']);"
     ."\n\$par=IPS_GetParent(\$_IPS['SELF']);"
-    ."\n\$ident=IPS_GetName(\$par).'Wert';"
-    ."\n\$wertID=IPS_GetObjectIDByIdent(\$ident,\$par);"
+    ."\n\$ident=IPS_GetName(\$par).'Event';"
+    ."\n\$eventID=IPS_GetObjectIDByIdent(\$ident,\$par);"
     ."\nswitch(\$_IPS['VALUE']){"
     ."\n   case 0: IPS_LogMessage('Timer_Set_Test','Zeit stellen');"
     ."\n           IPS_SetHidden (\$wertID, TRUE);"
     ."\n       break;"
-    ."\n   case 1: SetValue(\$wertID, GetValue(51772));"
-    ."\n           IPS_SetHidden (\$wertID, FALSE);"
+    ."\n   case 1: \$Zeit= GetValue(51772);"
     ."\n       break;"
-    ."\n   case 2: SetValue(\$wertID, GetValue(48995));"
-    ."\n           IPS_SetHidden (\$wertID, FALSE);"
+    ."\n   case 2: \$Zeit= GetValue(48995);"
     ."\n       break;"
     ."\n   default: break;\n"
-    ."}";
+    ."}"
+    ."\n\$Stunde=date('H',\$Zeit);"
+    ."\n\$Minute=date('i',$Zeit);"
+    ."\n\$Sekunde=date('s',$Zeit);"
+    ."\n\IPS_SetEventCyclicTimeFrom (\$eventID, \$Stunde, \$Minute, \$Sekunde);"
+    ."\nIPS_SetEventActive (\$eventID,TRUE);";
 
     /*$esOn="\n".'AutSw2_SetOn($idp);';
     $esOff="\n".'AutSw2_SetOff($idp);';
