@@ -1157,28 +1157,28 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
          
         $PRG1_An_ID=@IPS_GetObjectIDByIdent('PRG1_An', $CatID);
         if(!$PRG1_An_ID){
-            $this->CreateTimerVar('PRG1_An','PRG1_An', $CatID, 40,'Hourglass',$script,'Timer' );
+            $this->CreateTimerVar('PRG1_An','PRG1_An', $CatID, 40,'Clock',$script,'Timer' );
         }
         else
             IPS_SetHidden ($PRG1_An_ID, FALSE);
         
        $PRG1_Aus_ID=@IPS_GetObjectIDByIdent('PRG1_Aus', $CatID);
         if(!$PRG1_Aus_ID){
-            $this->CreateTimerVar('PRG1_Aus','PRG1_Aus', $CatID, 50,'Hourglass',$script,'Timer');
+            $this->CreateTimerVar('PRG1_Aus','PRG1_Aus', $CatID, 50,'Clock',$script,'Timer');
         }
         else
             IPS_SetHidden ($PRG1_Aus_ID, FALSE);
         
          $PRG2_An_ID=@IPS_GetObjectIDByIdent('PRG2_An', $CatID);
          if(!$PRG2_An_ID){
-             $this->CreateTimerVar('PRG2_An','PRG2_An', $CatID, 60,'Hourglass',$script,'Timer');
+             $this->CreateTimerVar('PRG2_An','PRG2_An', $CatID, 60,'Clock',$script,'Timer');
          }
          else
              IPS_SetHidden ($PRG2_An_ID, FALSE);
          
         $PRG2_Aus_ID=@IPS_GetObjectIDByIdent('PRG2_Aus', $CatID);
          if(!$PRG2_Aus_ID){
-             $this->CreateTimerVar('PRG2_Aus','PRG2_Aus', $CatID, 70,'Hourglass',$script,'Timer');
+             $this->CreateTimerVar('PRG2_Aus','PRG2_Aus', $CatID, 70,'Clock',$script,'Timer');
          }
          else
              IPS_SetHidden ($PRG2_Aus_ID, FALSE);
