@@ -1062,8 +1062,8 @@ private function CreateTimerVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
     
     $eventID=$this->CreateTimeEvent($name.'Event', $VarID, 1, $eventScript);
     
-//    $wertID=$this->CreateAnzVar($name.'Wert',$name.'Wert',$VarID,1,'Clock','','~UnixTimestampTime');
-//    IPS_SetHidden ($wertID, FALSE);
+    $wertID=$this->CreateAnzVar($name.'Wert',$name.'Wert',$VarID,1,'Clock','','~UnixTimestampTime');
+    IPS_SetHidden ($wertID, TRUE);
     return($VarID);
 }
 
@@ -1138,7 +1138,9 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
     ."\nSetValue(\$_IPS['VARIABLE'], \$_IPS['VALUE']);"
     ."\n\$par=IPS_GetParent(\$_IPS['SELF']);"
     ."\n\$ident=IPS_GetName(\$par).'Event';"
+    ."\n\$identWert=IPS_GetName(\$par).'Wert';"
     ."\n\$eventID=IPS_GetObjectIDByIdent(\$ident,\$par);"
+    ."\n\$wertID=IPS_GetObjectIDByIdent(\$identWert,\$par);"
     ."\nswitch(\$_IPS['VALUE']){"
     ."\n   case 0: \$Zeit= 0;"
     ."\n            IPS_SetEventActive (\$eventID,False);"
@@ -1157,7 +1159,8 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
     ."\n\$Stunde=date('H',\$Zeit);"
     ."\n\$Minute=date('i',\$Zeit);"
     ."\n\$Sekunde=date('s',\$Zeit);"
-    ."\n\IPS_SetEventCyclicTimeFrom (\$eventID, \$Stunde, \$Minute, \$Sekunde);";
+    ."\n\IPS_SetEventCyclicTimeFrom (\$eventID, \$Stunde, \$Minute, \$Sekunde);"
+    ."\n\SetValue(\$Zeit);";
 
     /*$esOn="\n".'AutSw2_SetOn($idp);';
     $esOff="\n".'AutSw2_SetOff($idp);';
