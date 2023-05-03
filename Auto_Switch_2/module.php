@@ -1,11 +1,11 @@
 <?
-//Teil 2: Modul schaltet einen Ausgang (LCN-Ausgang, LCN-Lämpchen, LCN-Relais, entfernte Variable (JSON Zugriff)
+//Modul schaltet einen Ausgang (LCN-Ausgang, LCN-Lämpchen, LCN-Relais, entfernte Variable (JSON Zugriff)
 
 
 class AutSw2 extends IPSModule {
   
   
-  //var $jsontest=0;  
+  //var $jsontest=0;
     
   public function Create() {
     parent::Create();
@@ -33,24 +33,25 @@ class AutSw2 extends IPSModule {
     $this->RegisterPropertyBoolean('Status', FALSE);
     IPS_SetIcon($this->GetIDForIdent('Status'), 'Light');
     
+    
   }
   public function ApplyChanges() {
     parent::ApplyChanges();
     $this->EnableAction("Status");
-    $instID= IPS_GetParent($this->GetIDforIdent('Status'));  
+    $instID= IPS_GetParent($this->GetIDforIdent('Status'));
     if($this->ReadPropertyString('Name')!='')
         IPS_SetName($instID, $this->ReadPropertyString('Name'));
     $CatID = @IPS_GetCategoryIDByName('Konfig', $instID);
-    if(!$CatID){    
-//Kategorie erstellen 
-    $CatID= $this->CreateCategorie($instID);    
+    if(!$CatID){
+//Kategorie erstellen
+    $CatID= $this->CreateCategorie($instID);
 //Auswahlvariable für Laufzeit erstellen
     $this->CreateAnzVar('SetLaufzeit','Set Laufzeit',$CatID,20,'Hourglass','<?SetValue($_IPS["VARIABLE"],$_IPS["VALUE"]); ?>','');
 //Laufzeit Anzeige erstellen
     $this->CreateAnzVar('Laufzeit','Laufzeit',$instID,10,'Hourglass','','');
 //Wahlschalter "AutoOff" erstellen
     $this->CreateWahlVar('AutoOff_Switch', 'Auto Off', '~Switch', $CatID, 10);
-//Wahlschalter "Timer" erstellen        
+//Wahlschalter "Timer" erstellen
     $this->CreateWahlVar('Timer_Switch', 'Timer', '~Switch', $CatID, 30);
     }
 //Aktion, falls zu schaltendes Objekt von anderen Instanzen oder Schaltern geschaltet wird
@@ -61,7 +62,7 @@ class AutSw2 extends IPSModule {
     }
     else if($this->ReadPropertyInteger('ZielID'))
         $typ= $this->ReadPropertyInteger('Auswahl');
-    else 
+    else
         $typ=0;
     
     
@@ -78,7 +79,7 @@ class AutSw2 extends IPSModule {
     else{
         $TimerID=@$this->GetIDforIdent('AutoOffTimer');
         if($TimerID){
-            IPS_SetEventActive($TimerID, False);   
+            IPS_SetEventActive($TimerID, False);
         }
         $AutoOffID=IPS_GetObjectIDByIdent('AutoOff_Switch', $CatID);
         $LaufzeitID= IPS_GetObjectIDByIdent('SetLaufzeit', $CatID);
@@ -96,7 +97,7 @@ class AutSw2 extends IPSModule {
     }
     
       
-//Zusätzliche Aktionen für spezielle Typen    
+//Zusätzliche Aktionen für spezielle Typen
     switch($typ){
             case 0: //falls Instanz nicht gewählt wurde
                 break;
@@ -122,16 +123,16 @@ class AutSw2 extends IPSModule {
             case 5: //falls Instanz Switch-Modul
                 $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 break;
-            case 6:
+            case 6://falls Instanz PIIOC
                 break;
-            case 7:
+            case 7://falls Instanz Sonoff
                 $this->CheckEvent($scriptDevice,2);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 break;
-            case 8:
+            case 8://falls Instanz PI_GPIO_Output
                 break;
-            case 9:
-            break;
-            case 10:
+            case 9://falls Instanz PI_MQTT_Output
+                break;
+            case 10://falls Instanz Zigbee2MQTT
                $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 break;
             default:
@@ -144,9 +145,9 @@ class AutSw2 extends IPSModule {
             IPS_DeleteVariable($SliderID);
         }
             
-    }     
+    }
     
-    $this->GetConfigurationForm(); 
+    $this->GetConfigurationForm();
   }
   
  
@@ -155,11 +156,11 @@ class AutSw2 extends IPSModule {
      
     $status_entry='{ "code": 101, "icon": "inactive", "caption": "Instanz wird erstellt" },
              { "code": 102, "icon": "active", "caption": "Instanz aktiv" },
-             { "code": 200, "icon": "error", "caption": "Instanz fehlerhaft" }'; 
+             { "code": 200, "icon": "error", "caption": "Instanz fehlerhaft" }';
      
      
     $elements_entry_device='
-        { "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ", 
+        { "name": "Auswahl", "type": "Select", "caption": "Schalt-Typ",
         "options":[
             { "label": "LCN Ausgang", "value": 1 },
             { "label": "LCN Relais", "value": 2 },
@@ -200,11 +201,11 @@ class AutSw2 extends IPSModule {
   $elements_entry_Zig2MQTT=',
     { "name": "idLCNInstance", "type": "SelectVariable", "caption": "MQTT_Set Variable","validVariableTypes": [0],
         "requiredAction": 1},
-    { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';    
+    { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
 
     $elements_entry_lcnLämpchen=',
         { "name": "idLCNInstance", "type": "SelectInstance", "caption": "LCN Instanz" },
-        { "name": "LaempchenNr", "type": "Select", "caption": "Lämpchen Nr.", 
+        { "name": "LaempchenNr", "type": "Select", "caption": "Lämpchen Nr.",
         "options":[
             { "label": "Lämpchen 1", "value": 1 },
             { "label": "Lämpchen 2", "value": 2 },
@@ -233,9 +234,9 @@ class AutSw2 extends IPSModule {
     
     $elements_entry_Timer=',{ "type": "CheckBox", "name": "SelTimer", "caption": "Timer Funktion" }';
     
-    $elements_entry_AutoOffWatch=',{ "type": "CheckBox", "name": "WatchTarget", "caption": "Ziel überwachen" }'; 
+    $elements_entry_AutoOffWatch=',{ "type": "CheckBox", "name": "WatchTarget", "caption": "Ziel überwachen" }';
     
-    $elements_entry_TimerMsg=',{ "type": "CheckBox", "name": "TimerMsg", "caption": "Nachricht bei Timer Event" }'; 
+    $elements_entry_TimerMsg=',{ "type": "CheckBox", "name": "TimerMsg", "caption": "Nachricht bei Timer Event" }';
             
     $action_entry='';
     $action_entry1='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" },
@@ -256,17 +257,17 @@ class AutSw2 extends IPSModule {
         case 7:  $elements_entry=$elements_entry_device.$elements_entry_Sonoff; break;
         case 8:  $elements_entry=$elements_entry_device.$elements_entry_PIGPIO; break;
         case 9:  $elements_entry=$elements_entry_device.$elements_entry_pi_MQTT; break;
-        case 10: $elements_entry=$elements_entry_device.$elements_entry_Zig2MQTT; break; 
+        case 10: $elements_entry=$elements_entry_device.$elements_entry_Zig2MQTT; break;
         
     }
-//Option für WatchEvent - geht nur bei LCN-Instanz, LCN-Relais, Switch_Modul 
+//Option für WatchEvent - geht nur bei LCN-Instanz, LCN-Relais, Switch_Modul
     if($this->ReadPropertyBoolean('SelAutoOff')&&($wahl!=3)&&($wahl!=4)&&($wahl!=6)){
-        $elements_entry_AutoOff=$elements_entry_AutoOff.$elements_entry_AutoOffWatch; 
-    } 
+        $elements_entry_AutoOff=$elements_entry_AutoOff.$elements_entry_AutoOffWatch;
+    }
     else{
         $elements_entry_AutoOff=$elements_entry_AutoOff;
     }
-//Option für AutoOff und Timer CheckBoxen        
+//Option für AutoOff und Timer CheckBoxen
     if($this->ReadPropertyInteger('idLCNInstance')){
         $action_entry=$action_entry1;
         $elements_entry=$elements_entry.$elements_entry_AutoOff.$elements_entry_Timer;
@@ -287,7 +288,7 @@ class AutSw2 extends IPSModule {
     $form='{ "status":['.$status_entry.'],"elements":['.$elements_entry.'],"actions":['.$action_entry.']}';
     return $form;
       
-} 
+}
 
 public function EventTrigger(int $par,bool $value) {
     IPS_LogMessage("AutoSwitch_EventTrigger","Name: ".IPS_GetName($par)." Value: ".$value);
@@ -299,7 +300,7 @@ public function EventTrigger(int $par,bool $value) {
         return 1;
     }
     IPS_LogMessage("AutoSwitch_EventTrigger","Set ausführen ohne Anzeige");
-    $this->Set($value,False);  
+    $this->Set($value,False);
     
 }
 
@@ -333,11 +334,11 @@ public function EventTrigger(int $par,bool $value) {
                 IPS_SetEventActive($timerID, FALSE);
 
         }
-     } 
+     }
      else if($ident=='Timer_Switch'){
          IPS_LogMessage("AutoSwitch_RequestAction","Zeitplan Erreignis");
          SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value);
-         $this->TimerSwitchAction($CatID); 
+         $this->TimerSwitchAction($CatID);
         //$this->Set($value);
      }
      else if($ident=='Status'){
@@ -364,7 +365,7 @@ public function EventTrigger(int $par,bool $value) {
      }
      else if($ident=='SliderAnz'){
          IPS_LogMessage("AutoSwitch_RequestAction","Slider Anzeige ".$value);
-        SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value); 
+        SetValue(IPS_GetObjectIDByIdent($ident, $CatID),$value);
         $instID=$this->ReadPropertyInteger('idLCNInstance');
         LCN_SetIntensity($instID, $value, 0);
      }
@@ -382,7 +383,7 @@ public function EventTrigger(int $par,bool $value) {
          
      }
     IPS_SemaphoreLeave('AutoSwitch_RequestAction');
-    } 
+    }
     else {
       IPS_LogMessage('AutoSwitch_RequestAction', 'Semaphore Timeout');
     }
@@ -410,7 +411,7 @@ public function SetOff() {
 }
 
 private function checkVerb($wahl) {
-      $password= $this->ReadPropertyString('Password'); 
+      $password= $this->ReadPropertyString('Password');
       $IPAddr= $this->ReadPropertyString('IPAddress');
       $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
       $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
@@ -426,12 +427,12 @@ private function checkVerb($wahl) {
             IPS_LogMessage("AutoSwitch_checkVerb","Verbindung konnte nicht verifiziert werden! Aufrufparameter falsch!");
             return 0;
           }
-        } 
+        }
       catch (JSONRPCException $e) {
           IPS_LogMessage("AutoSwitch_checkVerb","Verbindung konnte nicht verifiziert werden! RPC Problem!");
           //echo 'RPC Problem: ',  $e->getMessage(), "\n";
           return 0;
-        } 
+        }
       catch (Exception $e) {
           IPS_LogMessage("AutoSwitch_checkVerb","Verbindung konnte nicht verifiziert werden! IP- oder Passwort Problem!");
           return 0;
@@ -440,7 +441,7 @@ private function checkVerb($wahl) {
         return 1;
         
            
-}     
+}
       
 public function AutoOff() {
     $par= IPS_GetParent(($this->GetIDForIdent('Status')));
@@ -455,7 +456,7 @@ public function AutoOff() {
         $timerID= IPS_GetObjectIDByIdent('AutoOffTimer', $par);
         IPS_SetEventActive($timerID, FALSE);
         $this->Set(FALSE,TRUE);
-    } 
+    }
     if(!GetValueBoolean($this->GetIDForIdent('Status'))){
         IPS_SetHidden($IDLaufz, TRUE);
         $timerID= IPS_GetObjectIDByIdent('AutoOffTimer', $par);
@@ -485,7 +486,7 @@ protected function RegisterTimer($ident, $interval, $script) {
     if (!($interval > 0)) {
         IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, 1);
         IPS_SetEventActive($id, false);
-    } 
+    }
     else {
         IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $interval);
         IPS_SetEventActive($id, true);
@@ -500,7 +501,7 @@ protected function RegisterTimer($ident, $interval, $script) {
     }
     if (!$id) {
       $id = IPS_CreateEvent(0);
-      IPS_SetEventTrigger($id, 1, $ZielID); //Bei Update von der gewählten Variable 
+      IPS_SetEventTrigger($id, 1, $ZielID); //Bei Update von der gewählten Variable
       IPS_SetEventActive($id, true);             //Ereignis aktivieren
       IPS_SetParent($id, $this->InstanceID);
       IPS_SetIdent($id, $ident);
@@ -538,7 +539,7 @@ public function Set(bool $value, bool $anzeige) {
     $typ= $this->ReadPropertyInteger('Auswahl');
     $sem_id='AutoSwitch_Set_'.$typ;
 //    if(IPS_SemaphoreEnter('AutoSwitch_Set', 15000)) {
-    if(IPS_SemaphoreEnter($sem_id, 15000)) {    
+    if(IPS_SemaphoreEnter($sem_id, 15000)) {
 //      IPS_LogMessage("AutoSwitch_".$func,"Semaphore: ".$sem_id." gesetzt!");
       $par= IPS_GetParent(($this->GetIDForIdent('Status')));
       $name= IPS_GetName($par);
@@ -552,37 +553,37 @@ public function Set(bool $value, bool $anzeige) {
       if($EventID){
           IPS_SetEventActive($EventID,false);
           IPS_LogMessage("AutoSwitch_".$func,"WatchEvent deaktivieren!");
-      }  
+      }
       switch($typ){
-        case 0: 
+        case 0:
             $result=0;
         break;
 
-        case 1: 
+        case 1:
           for($i = 1 ; $i <= 3 ; $i++){
-              $result=$this->Set_LCN_Dim($value); 
+              $result=$this->Set_LCN_Dim($value);
               IPS_LogMessage('AutoSwitch_Set_LCN_Out', 'Aktion ausgeführt= '.$i."-mal");
               if($result==1)
                   break;
-          }  
+          }
         break;
           
-        case 2: 
+        case 2:
           for($i = 1 ; $i <= 3 ; $i++){
               $result=$this->Set_LCN_Rel($value);
               IPS_LogMessage('AutoSwitch_Set_LCN_Relais', 'Aktion ausgeführt= '.$i."-mal");
               if($result==1)
                   break;
-          }  
+          }
 
         break;
         
-        case 3: 
-          $this->Set_LCN_Lamp($value); 
+        case 3:
+          $this->Set_LCN_Lamp($value);
             $result=1;
           break;
       
-        case 4: 
+        case 4:
           for($i = 1 ; $i <= 3 ; $i++){
               $result=$this->Set_JSON($value,$sem_id);
               IPS_LogMessage('AutoSwitch_Set_JSON', 'Aktion ausgeführt= '.$i."-mal");
@@ -591,20 +592,20 @@ public function Set(bool $value, bool $anzeige) {
           }
         break;
         
-        case 5: 
+        case 5:
           $this->Set_Schalter($value);
           $result=1;
            
-        break; 
+        break;
     
-        case 6: 
+        case 6:
           $this->Set_PIIOC($value,$sem_id);
           $result=1;
         break;
       
         case 7:
           for($i = 1 ; $i <= 3 ; $i++){
-              $result=$this->Set_Tasmota($value); 
+              $result=$this->Set_Tasmota($value);
               IPS_LogMessage('AutoSwitch_Set_Tasmota', 'Aktion ausgeführt= '.$i."-mal");
               if($result==1)
                   break;
@@ -634,7 +635,7 @@ public function Set(bool $value, bool $anzeige) {
                 break;
         }
         break;
-        default: 
+        default:
           $result=0;
         break;
       }
@@ -655,7 +656,7 @@ public function Set(bool $value, bool $anzeige) {
       if($EventID){
           IPS_SetEventActive($EventID,true);
           IPS_LogMessage("AutoSwitch_".$func,"WatchEvent aktivieren!");
-      }    
+      }
       $AutoTimeID=@IPS_GetObjectIDByIdent('AutoTime', $CatID);
       if(($AutoTimeID)){
           if(GetValueBoolean($AutoTimeID))
@@ -678,19 +679,19 @@ public function Set(bool $value, bool $anzeige) {
         else{
             IPS_SetHidden($IDLaufz, TRUE);
             IPS_LogMessage("AutoSwitch_Set","Laufzeit verbergen");
-        }    
+        }
       }
       else {
         if(!$value){
            $IDLaufz= IPS_GetVariableIDByName('Laufzeit', $par);
            IPS_SetHidden($IDLaufz, TRUE);
-           IPS_LogMessage("AutoSwitch_Set","Laufzeit verbergen"); 
+           IPS_LogMessage("AutoSwitch_Set","Laufzeit verbergen");
         }
-      }    
+      }
 //      IPS_SemaphoreLeave('AutoSwitch_Set');
       IPS_SemaphoreLeave($sem_id);
       IPS_LogMessage("AutoSwitch_".$func,"Semaphore: ".$sem_id." verlassen!");
-     } 
+     }
      
      else {
       IPS_LogMessage('AutoSwitch_Set', 'Semaphore Timeout');
@@ -726,7 +727,7 @@ private function Set_LCN_Dim($value) {
     else {
         return 0;
     }
-}   
+}
    
 private function Set_LCN_Rel($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
@@ -788,7 +789,7 @@ private function Check_LCN_Lamp($idcheckLamp,$lampNo,$lamp_value) {
             IPS_LogMessage("AutoSwitch_Check_LCN_Lamp","Ist-Wert= ".GetValueString($element)." / Soll-Wert= ".$lamp_value);
             if(GetValueString($element)==$lamp_value){
                 
-              return 1;  
+              return 1;
             }
             
         }
@@ -797,7 +798,7 @@ private function Check_LCN_Lamp($idcheckLamp,$lampNo,$lamp_value) {
 }
 
 private function Set_JSON($value,$sem_id) {
-    $password= $this->ReadPropertyString('Password'); 
+    $password= $this->ReadPropertyString('Password');
     $IPAddr= $this->ReadPropertyString('IPAddress');
     $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
     $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
@@ -808,7 +809,7 @@ private function Set_JSON($value,$sem_id) {
         if($value){
             //IPS_LogMessage(Modul,"Value = True => Relais An");
             $rpc->SetValue($TargetID, true);
-        }           
+        }
         else{
             //IPS_LogMessage(Modul,"Value = False => Relais Aus");
             $rpc->SetValue($TargetID, false);
@@ -820,7 +821,7 @@ private function Set_JSON($value,$sem_id) {
         IPS_SemaphoreLeave($sem_id);
         IPS_LogMessage('AutoSwitch_Set', 'RPC Fehler');
         return 0;
-    } 
+    }
     catch (Exception $e) {
        echo 'Server Problem',"\n";
        //IPS_SemaphoreLeave('AutoSwitch_Set');
@@ -845,17 +846,17 @@ private function Set_Schalter($value) {
     $lcn_instID=$this->ReadPropertyInteger('idLCNInstance');
     if($value){
         IPS_LogMessage("AutoSwitch_Set","Aufruf AN Schalter_Set ID=".$lcn_instID);
-        Schalter_Set($lcn_instID,1);  
+        Schalter_Set($lcn_instID,1);
     }
     else{
         IPS_LogMessage("AutoSwitch_Set","Aufruf AUS Schalter_Set ID=".$lcn_instID);
-        Schalter_Set($lcn_instID,0);  
+        Schalter_Set($lcn_instID,0);
     }
     SetValue($this->GetIDForIdent("Status"), $value);
 }
 
 private function Set_PIIOC($value,$sem_id) {
-    $password= $this->ReadPropertyString('Password'); 
+    $password= $this->ReadPropertyString('Password');
     $IPAddr= $this->ReadPropertyString('IPAddress');
     $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
     $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
@@ -866,7 +867,7 @@ private function Set_PIIOC($value,$sem_id) {
         if($value){
             //IPS_LogMessage(Modul,"Value = True => Relais An");
             $rpc->PIIOC_set($TargetID);
-        }           
+        }
         else{
             //IPS_LogMessage(Modul,"Value = False => Relais Aus");
             $rpc->PIIOC_clear($TargetID);
@@ -879,7 +880,7 @@ private function Set_PIIOC($value,$sem_id) {
         IPS_SemaphoreLeave($sem_id);
         IPS_LogMessage('AutoSwitch_Set', 'RPC Fehler');
         return 0;
-    } 
+    }
     catch (Exception $e) {
        echo 'Server Problem',"\n";
        //IPS_SemaphoreLeave('AutoSwitch_Set');
@@ -970,9 +971,9 @@ private function get_status_id($id, $name){
     $arr=IPS_GetChildrenIDs($id);
     $status_id=0;
     foreach($arr as $child){
-        if(IPS_GetName($child)==$name) 
+        if(IPS_GetName($child)==$name)
             $status_id=$child;
-    }    
+    }
     return GetValueBoolean($status_id);
 }
     
@@ -993,7 +994,7 @@ private function boolToString($boolVal){
 private function CreateCategorie($instID) {
     $CatID = IPS_CreateCategory();       // Kategorie anlegen
     IPS_SetName($CatID, "Konfig"); // Kategorie benennen
-    IPS_SetParent($CatID,$instID ); // Kategorie einsortieren unter dem Objekt 
+    IPS_SetParent($CatID,$instID ); // Kategorie einsortieren unter dem Objekt
     IPS_SetIcon($CatID, 'Gear'); //Icon setzen
     return($CatID);
    }
@@ -1014,18 +1015,18 @@ private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
         if ($profil!=''){
             IPS_SetVariableCustomProfile($VarID, $profil);
         }
-        else    
-        IPS_SetVariableCustomProfile($VarID, 'Time_4h');   
+        else
+        IPS_SetVariableCustomProfile($VarID, 'Time_4h');
     }
     else {
         IPS_SetHidden($VarID, True);
     }
-    return($VarID);    
+    return($VarID);
 }
 
 private function CreateWahlVar($ident,$name,$icon,$par, $pos){
     $ID=$this->RegisterVariableBoolean($ident,$name,$icon);//
-    //$this->RegisterPropertyBoolean($ident, FALSE); 
+    //$this->RegisterPropertyBoolean($ident, FALSE);
     IPS_SetPosition($ID, $pos);
     $this->EnableAction($ident);
     IPS_SetParent($ID,$par );
@@ -1034,9 +1035,12 @@ private function CreateWahlVar($ident,$name,$icon,$par, $pos){
         
 
 private function FindTargetStatusofDevices($type) {
-// ID der zu steuernden Instanz ermitteln    
+    
+// ID der zu steuernden Instanz ermitteln
+    //$Reference = IPS_GetScriptThread()['ScriptID'];
     $ZielID= $this->ReadPropertyInteger('idLCNInstance');
-//Children dieser Instanz ermitteln    
+    IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Suche Id vom Typ= ".$type." bei ID=".$ZielID);
+//Children dieser Instanz ermitteln
     $ID_Children=IPS_GetChildrenIds($ZielID);
     switch($type){
             case 1: $target="Status";
@@ -1046,36 +1050,40 @@ private function FindTargetStatusofDevices($type) {
     }
 //Children durchsuchen
     if(!empty($ID_Children)){
+        IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Children von ".$ZielID." gefunden mit ".count($ID_Children));
         for($i=0;$i<=count($ID_Children)-1;$i++){
         //Falls "Status" gefunden wird
-            if(IPS_GetName($ID_Children[$i])==$target){
+            if(IPS_GetName($ID_Children[$i])==$target){//Suche nach Child mit Bezeichnung Status oder Power
                 $test_variable=$ID_Children[$i];
-//                IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Variable = "
-//                    .$ID_Children[$i]." Typ = ".$test_variable['VariableType']);
-                return($test_variable); 
+                IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Gefunden: Variable = ".$ID_Children[$i]." Typ = ".IPS_GetVariable($test_variable)['VariableType']);
+                return($test_variable);
             }
-            else {
-                
-            }
-                
+              
         }
     }
     else{
-            IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Variable = "
-                .$ZielID);
-            return($ZielID);
+        IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Variable = ".$ZielID);
+        return($ZielID);
 
     }
-    return(-1);
+    
+    IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Keine ID gefunden!");
+    return(0);
 }
 
 private function CheckEvent($script,$type) {
+    IPS_LogMessage("AutoSwitch_CheckEvent","Start");
     $EventID=@IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID);
     if($EventID){
+        IPS_LogMessage("AutoSwitch_CheckEvent","Lösche altes WatchEvent");
         IPS_DeleteEvent($EventID);
-    }    
+    }
     $ID=$this->FindTargetStatusofDevices($type);
-    $EventID=$this->RegisterEvent('WatchEvent', $ID, $script);
+    if($ID){
+        IPS_LogMessage("AutoSwitch_CheckEvent","registriere WatchEvent");
+        $EventID=$this->RegisterEvent('WatchEvent', $ID, $script);
+    }
+    
     //IPS_SetEventActive($EventID, FALSE);
 }
 
@@ -1090,7 +1098,7 @@ private function TimerSwitchAction($CatID) {
     $eventScriptOn=$eventScript.$esOn;
     $eventScriptOff=$eventScript.$esOff;
     
-    if($this->ReadPropertyBoolean('SelTimer'))    
+    if($this->ReadPropertyBoolean('SelTimer'))
     if($T_Switch_Val){
         if(!@IPS_GetObjectIDByIdent('AutoTime', $CatID))
             $this->CreateWahlVar('AutoTime', 'Dämerungsautomatik', '~Switch', $CatID, 70);
@@ -1108,24 +1116,24 @@ private function TimerSwitchAction($CatID) {
         $Clear_1_ID=@IPS_GetObjectIDByIdent('Clear_1', $CatID);
         if(!$Clear_1_ID){
             $eventScript=$eventScript.$esOff;
-            $this->CreateTimeEvent('Clear_1', $CatID, 50, $eventScriptOff);   
+            $this->CreateTimeEvent('Clear_1', $CatID, 50, $eventScriptOff);
         }
         else
             IPS_SetHidden ($Clear_1_ID, FALSE);
         
         $Set_2_ID=@IPS_GetObjectIDByIdent('Set_2', $CatID);
         if(!$Set_2_ID){
-            $this->CreateTimeEvent('Set_2', $CatID, 60, $eventScriptOn);   
+            $this->CreateTimeEvent('Set_2', $CatID, 60, $eventScriptOn);
         }
         else
             IPS_SetHidden ($Set_2_ID, FALSE);
         
         $Clear_2_ID=@IPS_GetObjectIDByIdent('Clear_2', $CatID);
         if(!$Clear_2_ID){
-            $this->CreateTimeEvent('Clear_2', $CatID, 70, $eventScriptOff);   
+            $this->CreateTimeEvent('Clear_2', $CatID, 70, $eventScriptOff);
         }
         else
-            IPS_SetHidden ($Clear_2_ID, FALSE);  
+            IPS_SetHidden ($Clear_2_ID, FALSE);
     }
     else{
         $AutoTimeID=@IPS_GetObjectIDByIdent('AutoTime', $CatID);
@@ -1137,13 +1145,13 @@ private function TimerSwitchAction($CatID) {
         $Set_1_ID=@IPS_GetObjectIDByIdent('Set_1', $CatID);
         if($Set_1_ID){
             IPS_SetHidden ($Set_1_ID, TRUE);
-            IPS_SetEventActive($Set_1_ID, FALSE);    
+            IPS_SetEventActive($Set_1_ID, FALSE);
         }
         
         $Clear_1_ID=@IPS_GetObjectIDByIdent('Clear_1', $CatID);
         if($Clear_1_ID){
             IPS_SetHidden ($Clear_1_ID, TRUE);
-            IPS_SetEventActive($Clear_1_ID, FALSE);  
+            IPS_SetEventActive($Clear_1_ID, FALSE);
         }
         
         $Set_2_ID=@IPS_GetObjectIDByIdent('Set_2', $CatID);
@@ -1170,7 +1178,7 @@ private function CreateTimeEvent($ident, $parentID, $Position, $content){
     IPS_SetName($eid, $ident);
     IPS_SetEventActive($eid, FALSE);
     IPS_SetPosition($eid, $Position);
-    IPS_SetEventScript($eid, $content);  
+    IPS_SetEventScript($eid, $content);
  }
 
  private function AutoTimeUpdate($CatID, $value) {
@@ -1178,7 +1186,7 @@ private function CreateTimeEvent($ident, $parentID, $Position, $content){
 IPS_LogMessage("AutoSwitch_AutoTimeUpdate","Start");
 $ids=IPS_GetEventIDByName('Set_2', $CatID);
 $idf=IPS_GetEventIDByName('Clear_1', $CatID);
-if($value){ 
+if($value){
 //Dämmerungszeit Früh
     $ID_LocationControl=IPS_GetObjectIDByName('Location Control', 0);
     //$ID_LocationControl=33556;
@@ -1237,5 +1245,5 @@ else{
 }
  
 }
-} 
+}
 ?>
