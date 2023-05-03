@@ -1132,7 +1132,8 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
     ."\n       break;"
     ."\n   case 2: SetValue(\$wertID, GetValue(48995));"
     ."\n       break;"
-    ."\n   default: break;\n";
+    ."\n   default: break;\n"
+    ."}";
 
     /*$esOn="\n".'AutSw2_SetOn($idp);';
     $esOff="\n".'AutSw2_SetOff($idp);';
