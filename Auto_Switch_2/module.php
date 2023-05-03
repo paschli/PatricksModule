@@ -66,7 +66,7 @@ class AutSw2 extends IPSModule {
         $typ=0;
     
     
-    if($this->ReadPropertyBoolean('SelAutoOff')){
+    if($this->ReadPropertyBoolean('SelAutoOff')){//Falls CountDown Funktion gewählt wurde
         $this->RegisterTimer('AutoOffTimer', 60, "\$id = \$_IPS['TARGET'];\n".'AutSw2_AutoOff($id);');
         $TimerID=$this->GetIDForIdent('AutoOffTimer');
         IPS_SetEventActive($TimerID, false);
@@ -87,7 +87,7 @@ class AutSw2 extends IPSModule {
         IPS_SetHidden($LaufzeitID, TRUE);
     }
     
-    if($this->ReadPropertyBoolean('SelTimer')){
+    if($this->ReadPropertyBoolean('SelTimer')){//Falls Timer ausgewählt wurde
         $TimerSelID=IPS_GetObjectIDByIdent('Timer_Switch', $CatID);
         IPS_SetHidden($TimerSelID, FALSE);
     }
@@ -410,7 +410,7 @@ public function SetOff() {
 
 }
 
-private function checkVerb($wahl) {
+private function checkVerb($wahl) {//prüft die Verbindung
       $password= $this->ReadPropertyString('Password');
       $IPAddr= $this->ReadPropertyString('IPAddress');
       $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
@@ -1087,7 +1087,7 @@ private function CheckEvent($script,$type) {
     //IPS_SetEventActive($EventID, FALSE);
 }
 
-private function TimerSwitchAction($CatID) {
+private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wird
     //Timer
     $T_Switch_Val=GetValue(IPS_GetObjectIDByIdent('Timer_Switch', $CatID));
     $eventScript="\$id = \$_IPS['TARGET'];\n".'$idp = IPS_GetParent($id);';
@@ -1098,73 +1098,74 @@ private function TimerSwitchAction($CatID) {
     $eventScriptOn=$eventScript.$esOn;
     $eventScriptOff=$eventScript.$esOff;
     
-    if($this->ReadPropertyBoolean('SelTimer'))
-    if($T_Switch_Val){
-        if(!@IPS_GetObjectIDByIdent('AutoTime', $CatID))
-            $this->CreateWahlVar('AutoTime', 'Dämerungsautomatik', '~Switch', $CatID, 70);
+    if($this->ReadPropertyBoolean('SelTimer')) // Falls die TimerOption in den Eigenschaften gewählt wird
+     if($T_Switch_Val){//falls der Button in "Konfig" auf true gesetzt wird
+        
+        /*if(!@IPS_GetObjectIDByIdent('PRG1_An', $CatID))//prüfen, ob die Variablen schon erzeugt wurden
+            $this->CreateAnzVar('PRG1_An', 'PRG1_An', $CatID, 40);
         else {
-            $AutoTimeID=@IPS_GetObjectIDByIdent('AutoTime', $CatID);
+            $AutoTimeID=@IPS_GetObjectIDByIdent('PRG1_An', $CatID);
             IPS_SetHidden($AutoTimeID, FALSE);
-        }
-        $Set_1_ID=@IPS_GetObjectIDByIdent('Set_1', $CatID);
-        if(!$Set_1_ID){
-            $this->CreateTimeEvent('Set_1', $CatID, 40, $eventScriptOn);
+        }*/
+         
+        $PRG1_An_ID=@IPS_GetObjectIDByIdent('PRG1_An', $CatID);
+        if(!$PRG1_An_ID){
+            $this->CreateAnzVar('PRG1_An', $CatID, 40);
         }
         else
-            IPS_SetHidden ($Set_1_ID, FALSE);
+            IPS_SetHidden ($PRG1_An_ID, FALSE);
         
-        $Clear_1_ID=@IPS_GetObjectIDByIdent('Clear_1', $CatID);
-        if(!$Clear_1_ID){
-            $eventScript=$eventScript.$esOff;
-            $this->CreateTimeEvent('Clear_1', $CatID, 50, $eventScriptOff);
+       $PRG1_Aus_ID=@IPS_GetObjectIDByIdent('PRG1_Aus', $CatID);
+        if(!$PRG1_Aus_ID){
+            $this->CreateAnzVar('PRG1_Aus', $CatID, 50);
         }
         else
-            IPS_SetHidden ($Clear_1_ID, FALSE);
+            IPS_SetHidden ($PRG1_Aus_ID, FALSE);
         
-        $Set_2_ID=@IPS_GetObjectIDByIdent('Set_2', $CatID);
-        if(!$Set_2_ID){
-            $this->CreateTimeEvent('Set_2', $CatID, 60, $eventScriptOn);
-        }
-        else
-            IPS_SetHidden ($Set_2_ID, FALSE);
-        
-        $Clear_2_ID=@IPS_GetObjectIDByIdent('Clear_2', $CatID);
-        if(!$Clear_2_ID){
-            $this->CreateTimeEvent('Clear_2', $CatID, 70, $eventScriptOff);
-        }
-        else
-            IPS_SetHidden ($Clear_2_ID, FALSE);
-    }
-    else{
-        $AutoTimeID=@IPS_GetObjectIDByIdent('AutoTime', $CatID);
+         $PRG2_An_ID=@IPS_GetObjectIDByIdent('PRG2_An', $CatID);
+         if(!$PRG2_An_ID){
+             $this->CreateAnzVar('PRG2_An', $CatID, 60);
+         }
+         else
+             IPS_SetHidden ($PRG2_An_ID, FALSE);
+         
+        $PRG2_Aus_ID=@IPS_GetObjectIDByIdent('PRG2_Aus', $CatID);
+         if(!$PRG2_Aus_ID){
+             $this->CreateAnzVar('PRG2_Aus', $CatID, 70);
+         }
+         else
+             IPS_SetHidden ($PRG2_Aus_ID, FALSE);
+     }
+     else{
+        /*$AutoTimeID=@IPS_GetObjectIDByIdent('AutoTime', $CatID);
         if($AutoTimeID){
             IPS_SetHidden($AutoTimeID, TRUE);
-        }
+        }*/
             
         
-        $Set_1_ID=@IPS_GetObjectIDByIdent('Set_1', $CatID);
-        if($Set_1_ID){
-            IPS_SetHidden ($Set_1_ID, TRUE);
-            IPS_SetEventActive($Set_1_ID, FALSE);
+        $PRG1_An_ID=@IPS_GetObjectIDByIdent('PRG1_An', $CatID);
+        if($PRG1_An_ID){
+            IPS_SetHidden ($PRG1_An_ID, TRUE);
+            //IPS_SetEventActive($Set_1_ID, FALSE);
         }
         
-        $Clear_1_ID=@IPS_GetObjectIDByIdent('Clear_1', $CatID);
-        if($Clear_1_ID){
-            IPS_SetHidden ($Clear_1_ID, TRUE);
-            IPS_SetEventActive($Clear_1_ID, FALSE);
+        $PRG1_Aus_ID=@IPS_GetObjectIDByIdent('$PRG1_Aus', $CatID);
+        if($PRG1_Aus_ID){
+            IPS_SetHidden ($PRG1_Aus_ID, TRUE);
+            //IPS_SetEventActive($Clear_1_ID, FALSE);
         }
         
-        $Set_2_ID=@IPS_GetObjectIDByIdent('Set_2', $CatID);
-        if($Set_2_ID){
-            IPS_SetHidden ($Set_2_ID, TRUE);
-            IPS_SetEventActive($Set_2_ID, FALSE);
-        }
-        
-        $Clear_2_ID=@IPS_GetObjectIDByIdent('Clear_2', $CatID);
-        if($Clear_2_ID){
-            IPS_SetHidden ($Clear_2_ID, TRUE);
-            IPS_SetEventActive($Clear_2_ID, FALSE);
-        }
+         $PRG2_An_ID=@IPS_GetObjectIDByIdent('PRG2_An', $CatID);
+         if($PRG2_An_ID){
+             IPS_SetHidden ($PRG2_An_ID, TRUE);
+             //IPS_SetEventActive($Set_1_ID, FALSE);
+         }
+         
+         $PRG2_Aus_ID=@IPS_GetObjectIDByIdent('$PRG2_Aus', $CatID);
+         if($PRG2_Aus_ID){
+             IPS_SetHidden ($PRG2_Aus_ID, TRUE);
+             //IPS_SetEventActive($Clear_1_ID, FALSE);
+         }
     }
     
 }
