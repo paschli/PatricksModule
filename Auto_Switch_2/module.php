@@ -1060,7 +1060,7 @@ private function CreateTimerVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
         $eventScript=$eventScript.$esOff;
     }
     
-    $eventID=$this->CreateTimeEvent($name.'Event', $VarID, 1, $eventScriptOn);
+    $eventID=$this->CreateTimeEvent($name.'Event', $VarID, 1, $eventScript);
     
 //    $wertID=$this->CreateAnzVar($name.'Wert',$name.'Wert',$VarID,1,'Clock','','~UnixTimestampTime');
 //    IPS_SetHidden ($wertID, FALSE);
