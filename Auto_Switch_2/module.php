@@ -1046,7 +1046,7 @@ private function CreateTimerVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
         IPS_SetHidden($VarID, True);
     }
     
-    CreateAnzVar($name.'Wert',$name.'Wert',$VarID,1,'Clock','','~UnixTimestampTime' );
+    $this->CreateAnzVar($name.'Wert',$name.'Wert',$VarID,1,'Clock','','~UnixTimestampTime');
     return($VarID);
 }
 
