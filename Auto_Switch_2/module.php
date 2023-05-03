@@ -1049,8 +1049,20 @@ private function CreateTimerVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
         IPS_SetHidden($VarID, True);
     }
     
-    $wertID=$this->CreateAnzVar($name.'Wert',$name.'Wert',$VarID,1,'Clock','','~UnixTimestampTime');
-    IPS_SetHidden ($wertID, FALSE);
+    $eventScript="\$id = \$_IPS['TARGET'];\n".'$idp = IPS_GetParent($id);';
+    $esOn="\n".'AutSw_SetOn($idp);';
+    $esOff="\n".'AutSw_SetOff($idp);';
+    if(str_contains($name,'An')){
+        $eventScript=$eventScript.$esOn;
+    }
+    else{
+        $eventScript=$eventScript.$esOff;
+    }
+    
+    $eventID=$this->CreateTimeEvent($name.'Event', $VarID, 1, $eventScriptOn);
+    
+//    $wertID=$this->CreateAnzVar($name.'Wert',$name.'Wert',$VarID,1,'Clock','','~UnixTimestampTime');
+//    IPS_SetHidden ($wertID, FALSE);
     return($VarID);
 }
 
