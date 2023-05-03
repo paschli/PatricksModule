@@ -1049,6 +1049,7 @@ private function FindTargetStatusofDevices($type) {
     }
 //Children durchsuchen
     if(!empty($ID_Children)){
+        IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Children von ".$ZielID." gefunden mit ".count($ID_Children));
         for($i=0;$i<=count($ID_Children)-1;$i++){
         //Falls "Status" gefunden wird
             if(IPS_GetName($ID_Children[$i])==$target){//Suche nach Child mit Bezeichnung Status oder Power
