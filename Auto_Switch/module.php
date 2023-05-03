@@ -1054,7 +1054,7 @@ private function FindTargetStatusofDevices($type) {
         //Falls "Status" gefunden wird
             if(IPS_GetName($ID_Children[$i])==$target){//Suche nach Child mit Bezeichnung Status oder Power
                 $test_variable=$ID_Children[$i];
-                IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Variable = ".$ID_Children[$i]." Typ = ".$test_variable['VariableType']);
+                IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Variable = ".$test_variable." Typ = ".$test_variable['VariableType']);
                 return($test_variable); 
             }
               
