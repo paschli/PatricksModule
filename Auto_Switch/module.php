@@ -1035,6 +1035,8 @@ private function CreateWahlVar($ident,$name,$icon,$par, $pos){
         
 
 private function FindTargetStatusofDevices($type) {
+    IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Suche Id vom Typ= "
+        .$type);
 // ID der zu steuernden Instanz ermitteln    
     $ZielID= $this->ReadPropertyInteger('idLCNInstance');
 //Children dieser Instanz ermitteln    
