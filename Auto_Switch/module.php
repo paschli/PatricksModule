@@ -1037,9 +1037,9 @@ private function CreateWahlVar($ident,$name,$icon,$par, $pos){
 private function FindTargetStatusofDevices($type) {
     
 // ID der zu steuernden Instanz ermitteln
-    $ReferenceList = $this->GetReferenceList();
+    $Reference = IPS_GetScriptThread()[ScriptID];
     $ZielID= $this->ReadPropertyInteger('idLCNInstance');
-    IPS_LogMessage("(".$ReferenceList[0].")AutoSwitch_FindTargetStatusofDevices","Suche Id vom Typ= ".$type." bei ID=".$ZielID);
+    IPS_LogMessage("(".$Reference.")AutoSwitch_FindTargetStatusofDevices","Suche Id vom Typ= ".$type." bei ID=".$ZielID);
 //Children dieser Instanz ermitteln    
     $ID_Children=IPS_GetChildrenIds($ZielID);
     switch($type){
