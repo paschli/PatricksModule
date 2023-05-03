@@ -1039,7 +1039,7 @@ private function FindTargetStatusofDevices($type) {
 // ID der zu steuernden Instanz ermitteln
     //$Reference = IPS_GetScriptThread()['ScriptID'];
     $ZielID= $this->ReadPropertyInteger('idLCNInstance');
-    IPS_LogMessage("(".$ZielID.")AutoSwitch_FindTargetStatusofDevices","Suche Id vom Typ= ".$type." bei ID=".$ZielID);
+    IPS_LogMessage("AutoSwitch_FindTargetStatusofDevices","Suche Id vom Typ= ".$type." bei ID=".$ZielID);
 //Children dieser Instanz ermitteln    
     $ID_Children=IPS_GetChildrenIds($ZielID);
     switch($type){
