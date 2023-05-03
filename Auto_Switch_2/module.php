@@ -1049,9 +1049,9 @@ private function CreateTimerVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
         IPS_SetHidden($VarID, True);
     }
     
-    $eventScript="\$id = \$_IPS['TARGET'];\n".'$idp = IPS_GetParent($id);';
-    $esOn="\n".'AutSw_SetOn($idp);';
-    $esOff="\n".'AutSw_SetOff($idp);';
+    $eventScript="\$id = \$_IPS['TARGET'];\n".'$idp = IPS_GetParent(IPS_GetParent($id));';
+    $esOn="\n".'AutSw2_SetOn($idp);';
+    $esOff="\n".'AutSw2_SetOff($idp);';
     
     if(strpos($name,'An')){
         $eventScript=$eventScript.$esOn;
@@ -1150,7 +1150,7 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
     ."\n            IPS_SetEventActive (\$eventID,TRUE);"
     ."\n       break;"
     ."\n   case 3: \$Zeit= GetValue(48995);"
-    ."\n            IPS_SetEventActive (\$eventID,False);"
+    ."\n            IPS_SetEventActive (\$eventID,TRUE);"
     ."\n       break;"
     ."\n   default: break;\n"
     ."}"
