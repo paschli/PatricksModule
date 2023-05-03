@@ -1209,7 +1209,7 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
         $PRG1_An_ID=@IPS_GetObjectIDByIdent('PRG1_An', $CatID);
         if($PRG1_An_ID){
             IPS_SetHidden ($PRG1_An_ID, TRUE);
-            $PRG1_AnEventID=@IPS_GetObjectIDByIdent('PRG1_An', $PRG1_An_ID);
+            $PRG1_AnEventID=@IPS_GetObjectIDByIdent('PRG1_AnEvent', $PRG1_An_ID);
             if($PRG1_AnEventID){
                 IPS_SetEventActive($PRG1_AnEventID, FALSE);
             }
