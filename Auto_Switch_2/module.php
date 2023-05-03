@@ -1024,7 +1024,7 @@ private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
     return($VarID);
 }
         
-private function CreateStringVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
+private function CreateTimerVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
     $VarID= IPS_CreateVariable(3);
     IPS_SetName($VarID, $name); // Variable benennen
     IPS_SetPosition($VarID, $pos);
@@ -1045,6 +1045,8 @@ private function CreateStringVar($ident,$name,$CatID,$pos,$icon,$script,$profil)
     else {
         IPS_SetHidden($VarID, True);
     }
+    
+    CreateAnzVar($name.'Wert',$name.'Wert',$VarID,1,'Clock','','~UnixTimestampTime' );
     return($VarID);
 }
 
@@ -1134,28 +1136,28 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
          
         $PRG1_An_ID=@IPS_GetObjectIDByIdent('PRG1_An', $CatID);
         if(!$PRG1_An_ID){
-            $this->CreateStringVar('PRG1_An','PRG1_An', $CatID, 40,'Hourglass','','Timer' );
+            $this->CreateTimerVar('PRG1_An','PRG1_An', $CatID, 40,'Hourglass','','Timer' );
         }
         else
             IPS_SetHidden ($PRG1_An_ID, FALSE);
         
        $PRG1_Aus_ID=@IPS_GetObjectIDByIdent('PRG1_Aus', $CatID);
         if(!$PRG1_Aus_ID){
-            $this->CreateStringVar('PRG1_Aus','PRG1_Aus', $CatID, 50,'Hourglass','','Timer');
+            $this->CreateTimerVar('PRG1_Aus','PRG1_Aus', $CatID, 50,'Hourglass','','Timer');
         }
         else
             IPS_SetHidden ($PRG1_Aus_ID, FALSE);
         
          $PRG2_An_ID=@IPS_GetObjectIDByIdent('PRG2_An', $CatID);
          if(!$PRG2_An_ID){
-             $this->CreateStringVar('PRG2_An','PRG2_An', $CatID, 60,'Hourglass','','Timer');
+             $this->CreateTimerVar('PRG2_An','PRG2_An', $CatID, 60,'Hourglass','','Timer');
          }
          else
              IPS_SetHidden ($PRG2_An_ID, FALSE);
          
         $PRG2_Aus_ID=@IPS_GetObjectIDByIdent('PRG2_Aus', $CatID);
          if(!$PRG2_Aus_ID){
-             $this->CreateStringVar('PRG2_Aus','PRG2_Aus', $CatID, 70,'Hourglass','','Timer');
+             $this->CreateTimerVar('PRG2_Aus','PRG2_Aus', $CatID, 70,'Hourglass','','Timer');
          }
          else
              IPS_SetHidden ($PRG2_Aus_ID, FALSE);
