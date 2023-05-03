@@ -1120,7 +1120,7 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
     //Timer
     $T_Switch_Val=GetValue(IPS_GetObjectIDByIdent('Timer_Switch', $CatID));
 //    $eventScript="\$id = \$_IPS['TARGET'];\n".'$idp = IPS_GetParent($id);';
-    $script="";
+    $script="echo('Hallo');";
     //"SetValue($_IPS['VARIABLE'], $_IPS['VALUE']);";
     /*."\n"."$par=IPS_GetParent($_IPS['SELF']);";
     
