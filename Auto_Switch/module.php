@@ -123,16 +123,16 @@ class AutSw extends IPSModule {
             case 5: //falls Instanz Switch-Modul
                 $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 break;
-            case 6:
+            case 6://falls Instanz PIIOC
                 break;
-            case 7:
+            case 7://falls Instanz Sonoff
                 $this->CheckEvent($scriptDevice,2);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 break;
-            case 8:
+            case 8://falls Instanz PI_GPIO_Output
                 break;
-            case 9:
-            break;
-            case 10:
+            case 9://falls Instanz PI_MQTT_Output
+                break;
+            case 10://falls Instanz Zigbee2MQTT
                $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 break;
             default:
@@ -1073,12 +1073,15 @@ private function FindTargetStatusofDevices($type) {
 }
 
 private function CheckEvent($script,$type) {
+    IPS_LogMessage("AutoSwitch_CheckEvent","Start");
     $EventID=@IPS_GetObjectIDByIdent('WatchEvent', $this->InstanceID);
     if($EventID){
+        IPS_LogMessage("AutoSwitch_CheckEvent","Lösche altes WatchEvent");
         IPS_DeleteEvent($EventID);
     }    
     $ID=$this->FindTargetStatusofDevices($type);
     if($ID){
+        IPS_LogMessage("AutoSwitch_CheckEvent","registriere WatchEvent");
         $EventID=$this->RegisterEvent('WatchEvent', $ID, $script);
     }
     
