@@ -1023,6 +1023,30 @@ private function CreateAnzVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
     }
     return($VarID);
 }
+        
+private function CreateStringVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
+    $VarID= IPS_CreateVariable(3);
+    IPS_SetName($VarID, $name); // Variable benennen
+    IPS_SetPosition($VarID, $pos);
+    IPS_SetIcon($VarID, $icon);
+    IPS_SetParent($VarID,$CatID );
+    IPS_SetIdent($VarID,$ident);
+    if ($profil!=''){
+        IPS_SetVariableCustomProfile($VarID, $profil);
+    }
+    if($script){
+        $SkriptID=IPS_CreateScript(0);
+        IPS_SetName($SkriptID,'control');
+        IPS_SetParent($SkriptID,$VarID);
+        IPS_SetHidden($SkriptID, True);
+        IPS_SetScriptContent($SkriptID, $script);
+        IPS_SetVariableCustomAction($VarID, $SkriptID);
+    }
+    else {
+        IPS_SetHidden($VarID, True);
+    }
+    return($VarID);
+}
 
 private function CreateWahlVar($ident,$name,$icon,$par, $pos){
     $ID=$this->RegisterVariableBoolean($ident,$name,$icon);//
@@ -1110,28 +1134,28 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
          
         $PRG1_An_ID=@IPS_GetObjectIDByIdent('PRG1_An', $CatID);
         if(!$PRG1_An_ID){
-            $this->CreateAnzVar('PRG1_An','PRG1_An', $CatID, 40,'Hourglass','','TIMER' );
+            $this->CreateStringVar('PRG1_An','PRG1_An', $CatID, 40,'Hourglass','','TIMER' );
         }
         else
             IPS_SetHidden ($PRG1_An_ID, FALSE);
         
        $PRG1_Aus_ID=@IPS_GetObjectIDByIdent('PRG1_Aus', $CatID);
         if(!$PRG1_Aus_ID){
-            $this->CreateAnzVar('PRG1_Aus','PRG1_Aus', $CatID, 50,'Hourglass','','TIMER');
+            $this->CreateStringVar('PRG1_Aus','PRG1_Aus', $CatID, 50,'Hourglass','','TIMER');
         }
         else
             IPS_SetHidden ($PRG1_Aus_ID, FALSE);
         
          $PRG2_An_ID=@IPS_GetObjectIDByIdent('PRG2_An', $CatID);
          if(!$PRG2_An_ID){
-             $this->CreateAnzVar('PRG2_An','PRG2_An', $CatID, 60,'Hourglass','','TIMER');
+             $this->CreateStringVar('PRG2_An','PRG2_An', $CatID, 60,'Hourglass','','TIMER');
          }
          else
              IPS_SetHidden ($PRG2_An_ID, FALSE);
          
         $PRG2_Aus_ID=@IPS_GetObjectIDByIdent('PRG2_Aus', $CatID);
          if(!$PRG2_Aus_ID){
-             $this->CreateAnzVar('PRG2_Aus','PRG2_Aus', $CatID, 70,'Hourglass','','TIMER');
+             $this->CreateStringVar('PRG2_Aus','PRG2_Aus', $CatID, 70,'Hourglass','','TIMER');
          }
          else
              IPS_SetHidden ($PRG2_Aus_ID, FALSE);
