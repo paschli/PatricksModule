@@ -1164,7 +1164,7 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
     ."\n\$Minute=date('i',\$Zeit);"
     ."\n\$Sekunde=date('s',\$Zeit);"
     ."\nIPS_SetEventCyclicTimeFrom (\$eventID, \$Stunde, \$Minute, \$Sekunde);"
-    ."\nSetValue(\$wertID,IPS_GetEvent(\eventID)['NextRun']);";
+    ."\nSetValue(\$wertID,IPS_GetEvent(\$eventID)['NextRun']);";
 
     /*$esOn="\n".'AutSw2_SetOn($idp);';
     $esOff="\n".'AutSw2_SetOff($idp);';
