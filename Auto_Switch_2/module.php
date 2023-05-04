@@ -1144,7 +1144,7 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
     ."\n\$Zeit=IPS_GetEvent(\$eventID)['NextRun'];"
     ."\nif(\$_IPS['SENDER']=='SET'){"
     ."\n    SetValue(\$wertID,\$Zeit);"
-    ."\n    exit;}"
+    ."\n    return;}"
     ."\nSetValue(\$_IPS['VARIABLE'], \$_IPS['VALUE']);"
     ."\nswitch(\$_IPS['VALUE']){"
     ."\n   case 0: \$Zeit= 0;"
