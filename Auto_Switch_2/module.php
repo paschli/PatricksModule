@@ -1135,18 +1135,22 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
     $T_Switch_Val=GetValue(IPS_GetObjectIDByIdent('Timer_Switch', $CatID));
 //    $eventScript="\$id = \$_IPS['TARGET'];\n".'$idp = IPS_GetParent($id);';
     $script="<?php"
-    ."\nSetValue(\$_IPS['VARIABLE'], \$_IPS['VALUE']);"
+    
     ."\n\$par=IPS_GetParent(\$_IPS['SELF']);"
     ."\n\$ident=IPS_GetName(\$par).'Event';"
     ."\n\$identWert=IPS_GetName(\$par).'Wert';"
     ."\n\$eventID=IPS_GetObjectIDByIdent(\$ident,\$par);"
     ."\n\$wertID=IPS_GetObjectIDByIdent(\$identWert,\$par);"
+    ."\n\$Zeit=IPS_GetEvent(\$eventID)['NextRun'];"
+    ."\nif(\$_IPS['SENDER']=='SET'){"
+    ."\n    SetValue(\$wertID,\$Zeit);"
+    ."\n    exit;}"
+    ."\nSetValue(\$_IPS['VARIABLE'], \$_IPS['VALUE']);"
     ."\nswitch(\$_IPS['VALUE']){"
     ."\n   case 0: \$Zeit= 0;"
     ."\n            IPS_SetEventActive (\$eventID,False);"
     ."\n       break;"
-    ."\n   case 1: \$Zeit= time();"
-    ."\n            IPS_SetEventActive (\$eventID,TRUE);"
+    ."\n   case 1:  IPS_SetEventActive (\$eventID,TRUE);"
     ."\n       break;"
     ."\n   case 2:  \$Zeit= GetValue(51772);"
     ."\n            IPS_SetEventActive (\$eventID,TRUE);"
@@ -1160,7 +1164,7 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
     ."\n\$Minute=date('i',\$Zeit);"
     ."\n\$Sekunde=date('s',\$Zeit);"
     ."\nIPS_SetEventCyclicTimeFrom (\$eventID, \$Stunde, \$Minute, \$Sekunde);"
-    ."\nSetValue(\$wertID,\$Zeit);";
+    ."\nSetValue(\$wertID,IPS_GetEvent(\eventID)['NextRun']);";
 
     /*$esOn="\n".'AutSw2_SetOn($idp);';
     $esOff="\n".'AutSw2_SetOff($idp);';
