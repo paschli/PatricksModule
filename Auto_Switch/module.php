@@ -9,6 +9,7 @@ class AutSw extends IPSModule {
     
   public function Create() {
     parent::Create();
+      
     $this->RegisterPropertyInteger('Auswahl', 0); //Auswahl des Typs
     $this->RegisterPropertyInteger('idLCNInstance', 0); //ID der zu schaltenden Instanz
     $this->RegisterPropertyInteger('idVariable', 0); //ID der zu schaltenden Instanz
