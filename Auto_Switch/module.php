@@ -935,7 +935,7 @@ private function Set_MQTT($value) {
             default: $commandValue="OFF";
         }
         RequestAction($SetID, $commandValue);
-        usleep(100000); //notwendig???
+        usleep(500000); //notwendig???
     
         //$StatusValue=GetValueString(IPS_GetChildrenIDs($StatusID)[0]);
         $result=GetValueString($this->ReadPropertyInteger('idStatus'));
