@@ -177,6 +177,27 @@ protected function handleLCN($string,$inst_info){
         
 
 }
+
+ protected function handleZigbee($string,$inst_info){
+    //bestimme ID und Name
+        $inst_id=$inst_info['ObjectID'];
+        $inst_name=$inst_info['ObjectName'];
+        
+    
+        IPS_LogMessage('ONEClick-'.$inst_name,"Taste =".$string);
+        
+    //Skript für Tastendruck finden oder erzeugen
+        
+        $mainCat=$this->checkMainCat($inst_id); // Id der Main Category
+        $typeCat=$this->checkTypeCat('Zigbee',$mainCat); // ID der Type Category (hier LCN)
+        $tasteCat=$this->checkKeyCat($Key,$typeCat); // ID des Keys
+        $script_id=$this->CheckSkript($tasteCat,'Taste_'.$string); // ID des Scripts (je nach kurz, lang, stop usw.
+        
+        IPS_RunScript($script_id);
+        return 1;
+            
+
+    }
   
  public function Check() {
   if(IPS_SemaphoreEnter('ONEClick', 1000)) {
@@ -199,7 +220,7 @@ protected function handleLCN($string,$inst_info){
       else if(ctype_alpha($string)) {//falls nur Zahlen Empfangen wurden und die Länge 6 ist
         $type='Zigbee';
         IPS_LogMessage('ONEClick-'.$inst_name,"Zigbee erkannt");
-        $result=$this->handleLCN($string,$inst_info);
+        $result=$this->handleZigbee($string,$inst_info);
       }
   }
 
