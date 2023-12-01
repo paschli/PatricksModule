@@ -51,7 +51,7 @@ class ONEClick extends IPSModule {
   }
   
   protected function checkMainCat($inst_id) {
-
+       $inst_name=IPS_GetObject($inst_id)['ObjectName'];
        $CatID=@IPS_GetCategoryIDByName("Tasten",$inst_id);
 
        if(!$CatID){ //falls noch nicht angelegt ->
@@ -183,8 +183,8 @@ protected function handleLCN($string,$inst_info){
         $inst_id=$inst_info['ObjectID'];
         $inst_name=$inst_info['ObjectName'];
         
-    
-        IPS_LogMessage('ONEClick-'.$inst_name,"Taste =".$string);
+        $Key=$string;
+        IPS_LogMessage('ONEClick-'.$inst_name,"Taste =".$Key);
         
     //Skript für Tastendruck finden oder erzeugen
         
