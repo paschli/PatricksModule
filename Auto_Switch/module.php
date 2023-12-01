@@ -197,7 +197,7 @@ class AutSw extends IPSModule {
     { "name": "idLCNInstance", "type": "SelectInstance", "caption": "MQTT_Set Instanz", "validVariableTypes": [1, 2],
         "requiredAction": 1,
         "requiredLogging": 1 },
-    { "name": "idStatus", "type": "SelectVariable", "caption": "MQTT_Output Instanz" },
+    { "name": "idStatus", "type": "SelectVariable","validVariableTypes": [3], "caption": "MQTT_Output Instanz" },
     { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
 
   $elements_entry_Zig2MQTT=',
@@ -938,7 +938,14 @@ private function Set_MQTT($value) {
         //usleep(500000); //notwendig???
     
         //$StatusValue=GetValueString(IPS_GetChildrenIDs($StatusID)[0]);
-        $StatusValue=GetValueBoolean('idStatus');
+        switch(GetValueString('idStatus')){
+            case 'ON' : $StatusValue=1;
+                break;
+            case 'OFF': $StatusValue=0;
+                break;
+            default: $StatusValue=0;
+        }
+        
         if($StatusValue==$commandValue){
             SetValue($this->GetIDForIdent("Status"), $value);
             return 1;
