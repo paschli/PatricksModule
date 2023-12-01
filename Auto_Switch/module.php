@@ -13,7 +13,8 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyInteger('Auswahl', 0); //Auswahl des Typs
     $this->RegisterPropertyInteger('idLCNInstance', 0); //ID der zu schaltenden Instanz
     $this->RegisterPropertyInteger('idVariable', 0); //ID der zu schaltenden Instanz
-    $this->RegisterPropertyInteger('idStatus', 0); //ID der zu schaltenden Instanz
+    $this->RegisterPropertyInteger('idStatus', 0); //ID des Status der zu schaltenden Instanz
+    $this->RegisterPropertyBoolean('valStatus', 0); //Statuswert der zu schaltenden Instanz
     $this->RegisterPropertyInteger('LaempchenNr', 0); //Falls es Lämpchen sind
     $this->RegisterPropertyInteger('idLightInstance', 0); //Falls es Lämpchen sind
     $this->RegisterPropertyInteger('Rampe', 2); // Rampe für das Schalten eines LCN Ausgangs
@@ -196,7 +197,7 @@ class AutSw extends IPSModule {
     { "name": "idLCNInstance", "type": "SelectInstance", "caption": "MQTT_Set Instanz", "validVariableTypes": [1, 2],
         "requiredAction": 1,
         "requiredLogging": 1 },
-    { "name": "idStatus", "type": "SelectInstance", "caption": "MQTT_Output Instanz" },
+    { "name": "valStatus", "type": "SelectInstance", "caption": "MQTT_Output Instanz" },
     { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
 
   $elements_entry_Zig2MQTT=',
@@ -925,7 +926,7 @@ private function Set_PIGPIO($value) {
 }
 private function Set_MQTT($value) {
         $SetID=IPS_GetChildrenIDs($this->ReadPropertyInteger('idLCNInstance'))[0];
-        $StatusID=$this->ReadPropertyInteger('idStatus');
+        //$StatusID=$this->ReadPropertyInteger('idStatus');
         switch($value){
             case 0: $commandValue="OFF";
                 break;
@@ -934,8 +935,10 @@ private function Set_MQTT($value) {
             default: $commandValue="OFF";
         }
         RequestAction($SetID, $commandValue);
-        usleep(500000);
-        $StatusValue=GetValueString(IPS_GetChildrenIDs($StatusID)[0]);
+        //usleep(500000); //notwendig???
+    
+        //$StatusValue=GetValueString(IPS_GetChildrenIDs($StatusID)[0]);
+        $StatusValue=GetValueBoolean('valStatus');
         if($StatusValue==$commandValue){
             SetValue($this->GetIDForIdent("Status"), $value);
             return 1;
