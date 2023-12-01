@@ -7,21 +7,9 @@ class ONEClick extends IPSModule {
     parent::Create();
     $this->RegisterPropertyInteger('idSourceInstance', 0);//Id der zu beobachtenden Variable	
   }
+    
   public function ApplyChanges() {
     parent::ApplyChanges();
-   
-    //$ClickDetectId = $this->RegisterVariableBoolean('ClickDetect', 'KlickErkannt','', 1); //Boolean anlegen, der bei erkennung gesetzt wird 
-    
-//Inhalt für Skript erzeugen, das bei Erkennung ausgeführt wird 
-/*  $stringInhalt="<?\n IPS_LogMessage('DBLClick_Script','Starte User_Script.....................'); \n SetValueBoolean($DBLClickDetectId, FALSE); \n//Start your code here\n\n?>"; */
-    //Skript anlegen
-//    $scriptID = $this->RegisterScript('SCRIPT', 'DBLClickScript',$stringInhalt,2);
-//    $presentId = $this->RegisterVariableInteger('PRESENT_SINCE', 'Anwesend seit', '~UnixTimestamp', 3);
-//    $absentId = $this->RegisterVariableInteger('ABSENT_SINCE', 'Abwesend seit', '~UnixTimestamp', 3);
-//    $nameId = $this->RegisterVariableString('NAME', 'Name_Device', '', 2);
-//    IPS_SetIcon($this->GetIDForIdent('DBLClickDetect'), 'Motion');
-//    IPS_SetIcon($this->GetIDForIdent('SCRIPT'), 'Keyboard');
-    
     if($this->ReadPropertyInteger('idSourceInstance')!=0){  
     	$this->RegisterEvent('OnVariableUpdate', 0, 'ONEC_Check($id)');
     }
@@ -48,7 +36,7 @@ class ONEClick extends IPSModule {
   }
  
    protected function CheckKategorie(int $inst_id) {
-       $inst_name=IPS_GetObject($inst_id)['ObjectName'];
+      $inst_name=IPS_GetObject($inst_id)['ObjectName'];
       IPS_LogMessage('ONEClick-'.$inst_name,"CheckKategorie");
       $CatID=@IPS_GetCategoryIDByName("Tasten",$inst_id);
       if(!$CatID){
@@ -96,7 +84,6 @@ class ONEClick extends IPSModule {
   
   
   public function Check() {
-    //IPS_LogMessage('DBLClick',"Setze Semaphore");
     if(IPS_SemaphoreEnter('ONEClick', 1000)) {
 //ID und Wert von "command" ermitteln
       $stringID=$this->ReadPropertyInteger('idSourceInstance');
@@ -106,7 +93,8 @@ class ONEClick extends IPSModule {
       $inst_info= IPS_GetObject($inst_id);
       $inst_name=$inst_info['ObjectName'];
 //Auswertung 
-      IPS_LogMessage('ONEClick-'.$inst_name,"Starte Check.(".substr($string, -3).")....................");
+      //IPS_LogMessage('ONEClick-'.$inst_name,"Starte Check.(".substr($string, -3).")....................");
+      IPS_LogMessage('ONEClick-'.$inst_name,"Starte Check.(".$string.")....................");
 //Tastendruck erkennen
       
       if(substr($string, -3) == "111"){ //kurzer Tastendruck
@@ -148,45 +136,16 @@ class ONEClick extends IPSModule {
       IPS_LogMessage('ONEClick-'.$inst_name,"Kategorien prüfen");
       $CatID= $this->CheckKategorie($inst_id);
       $KeyCatID= $this->CheckKatTasten($source_taste,$CatID);
-      
-//Ermitteln ob doppelter Tastendruck in Zeit "DBLCLickTime" vorliegt
-//ID der Bool-Variable für Doppelklick
-      //$ClickDetectID=$this->GetIDForIdent('ClickDetect');
-      //$instancethisID= IPS_GetParent($ClickDetectID);
-//Eigenschaften der "command" Variable ermitteln 
-//      $stringInfo= IPS_GetVariable($stringID);
-//Zeit des letzten Tastendrucks ermitteln
-//      $AktuelleZeit = $stringInfo['VariableUpdated'];//Zeitpunkt des aktuellen Updates
-//Zeit des vorletzten Tastendrucks lesen
-//      $lastUpdID=$this->GetIDForIdent('LASTUPD');// ID für LastUpd suchen 
-//      $lastUpdValue= GetValueInteger($lastUpdID);// Wert für LastUpd lesen
-//Eingestellte Grenze für Doppelklickerkennung lesen      
-//      $DBLClickTime= $this->ReadPropertyInteger('DBLClickTime');
       IPS_LogMessage('ONEClick-'.$inst_name,"Werte eingelesen");
-      
-//letzte Tastenbedienung speichern
-//      SetValueInteger($lastUpdID, $AktuelleZeit);
-//Debugausgaben
-//      IPS_LogMessage('DBLClick-'.$inst_name,"Aktuelle Zeit =".$AktuelleZeit);
-//      IPS_LogMessage('DBLClick-'.$inst_name,"Letzer Click bei =".$lastUpdValue);
-//      IPS_LogMessage('DBLClick-'.$inst_name,"Differenz =".($AktuelleZeit-$lastUpdValue));
-//Überprüfen ob Zeit zwischen vorletzter und letzter Bedienung kleiner Grenze ist
-//      if(($AktuelleZeit-$lastUpdValue)<=$DBLClickTime){ 
-	//SetValueBoolean($ClickDetectID, true);
-        //IPS_LogMessage('ONEClick',"Klick erkannt");
-        $scriptID= $this->CheckSkript($source_taste,$KeyCatID);
+      $scriptID= $this->CheckSkript($source_taste,$KeyCatID);
             
         IPS_RunScript($scriptID);
       }
       else{
-	//SetValueBoolean($DBLClickDetectID, false);
         IPS_LogMessage('ONEClick-'.$inst_name,"Klick nicht erkannt");
       }
       IPS_SemaphoreLeave('ONEClick');
-//     } 
-//     else {
-//      IPS_LogMessage('DBLClick', 'Semaphore Timeout');
-//    }
+
    }
 } 
 ?>
