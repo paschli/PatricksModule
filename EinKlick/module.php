@@ -187,67 +187,21 @@ protected function handleLCN($string,$inst_info){
       $inst_info= IPS_GetObject($inst_id);
       $inst_name=$inst_info['ObjectName'];
 //Auswertung 
-      //IPS_LogMessage('ONEClick-'.$inst_name,"Starte Check.(".substr($string, -3).")....................");
       IPS_LogMessage('ONEClick-'.$inst_name,"Starte Check von Nachricht =".$string."....................");
 //Tastentyp erkennen
-      
+
       if((ctype_digit($string)) && (strlen==6) {//falls nur Zahlen Empfangen wurden und die Länge 6 ist
         $type='LCN';
-        //list($source_table, $source_button, $TastenDruck) =
         $result=this->handleLCN($string,$inst_info);
       }
       else if((ctype_alpha($string)) && (strlen==6) {//falls nur Zahlen Empfangen wurden und die Länge 6 ist
         $type='Zigbee';
         $result=this->handleLCN($string,$inst_info);
       }
-     
-/*
-      if(substr($string, -3) == "111"){ //kurzer Tastendruck
-          IPS_LogMessage('ONEClick',"Kurzer Tatendruck ");
-          $TastenDruck="_kurz";
-      }
-      else if(substr($string, -3) == "222"){ //langer Tastendruck
-          IPS_LogMessage('ONEClick',"Langer Tatendruck ");
-          $TastenDruck="_lang";
-      }
-      else if(substr($string, -3) == "123"){ //Loslassen nach langem Tastedruck
-          IPS_LogMessage('ONEClick',"Loslassen ");
-          $TastenDruck="_los";
-      }
-      else {
-          IPS_LogMessage('ONEClick',"Tastendruck nicht erkannt (".substr($string, -3).") ");
-      }
-//Sender-Taste ermitteln (Tabelle und Tastennummer
-      $source_table= substr($string,1,1);
-      $source_button= substr($string, 2,1);
-//Sender-Tabelle nach LCN in Buchstaben wandeln
-      switch ($source_table){
-        case "1": $source_table="A";          
-          break;
-        case "2": $source_table="B";
-          break;
-        case "3": $source_table="C";
-          break;
-        case "4": $source_table="D";
-          break;
-        default : IPS_LogMessage('ONEClick',"Tastentabelle nicht erkannt -> Exit");
-          IPS_SemaphoreLeave('ONEClick');
-          exit ();
-          break;
-      }
-      $source_taste=$source_table.$source_button.$TastenDruck;
-      IPS_LogMessage('ONEClick-'.$inst_name,"Taste =".$source_taste);
-
-//Kategorie prüfen
-      IPS_LogMessage('ONEClick-'.$inst_name,"Kategorien prüfen");
-      $CatID= $this->CheckKategorie($inst_id);
-      $KeyCatID= $this->CheckKatTasten($source_taste,$CatID);
-      IPS_LogMessage('ONEClick-'.$inst_name,"Werte eingelesen");
-      $scriptID= $this->CheckSkript($source_taste,$KeyCatID);
-            
-      IPS_RunScript($scriptID);*/
-    
   }
+
+    
+  
   else{
     IPS_LogMessage('ONEClick-'.$inst_name,"Klick nicht erkannt");
   }
