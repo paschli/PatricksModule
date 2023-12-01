@@ -62,7 +62,7 @@ class ONEClick extends IPSModule {
            IPS_LogMessage('ONEClick-'.$inst_name,"Kategorie neu anlegen");
            IPS_LogMessage('ONEClick',"Erstelle Kategorie Tasten ");
            $CatID=IPS_CreateCategory();
-           IPS_SetParent($CatID, targetCat_id);
+           IPS_SetParent($CatID, $this->ReadPropertyInteger('PropertyCategoryID'));
            IPS_SetName($CatID, "Tasten");
        }
        
