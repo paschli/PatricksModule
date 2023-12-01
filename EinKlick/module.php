@@ -80,7 +80,7 @@ class ONEClick extends IPSModule {
     }
     
   protected function checkKeyCat($Key,$typeCat_id) {
-      $keyCat_id=@IPS_GetCategoryIDByName($Key,$inst_id);
+      $keyCat_id=@IPS_GetCategoryIDByName($Key,$typeCat_id);
       if(!$keyCat_id){
           IPS_LogMessage('ONEClick',"Erstelle Kategorie für Taste: ".$Key);
           $keyCat_id=IPS_CreateCategory();
@@ -93,7 +93,7 @@ class ONEClick extends IPSModule {
   
   protected function CheckSkript($tasteCat,$source_taste) {
 //Skript für erkannte Taste ermitteln oder erstellen
-        $scriptID=@IPS_GetScriptIDByName($tasteCat, $source_taste);
+        $scriptID=@IPS_GetScriptIDByName($source_taste, $tasteCat);
 //Falls Skript noch nicht vorhanden
         if(!$scriptID){
             $stringInhalt="<?\n IPS_LogMessage('ONEClick_Script'.'$source_taste','Starte User_Script.....................'); \n//Start your code here\n\n?>";
@@ -144,7 +144,7 @@ protected function decodeLCNtable($source_table){
           $source_table=0;
           break;
     }
-    IPS_LogMessage('ONEClick-'.$inst_name,"Tabelle =".$source_table);
+    IPS_LogMessage('ONEClick-decodeLCNtable',"Tabelle =".$source_table);
     return $source_table;
 }
 
