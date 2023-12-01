@@ -52,13 +52,16 @@ class ONEClick extends IPSModule {
   
   protected function checkMainCat($inst_id) {
        $inst_name=IPS_GetObject($inst_id)['ObjectName'];
-       $CatID=@IPS_GetCategoryIDByName("Tasten",$inst_id);
+//Ort für die Kategorie
+       $targetCat_id=$this->ReadPropertyInteger('PropertyCategoryID');
+       $CatID=@IPS_GetCategoryIDByName("Tasten",$targetCat_id);
 
+    
        if(!$CatID){ //falls noch nicht angelegt ->
            IPS_LogMessage('ONEClick-'.$inst_name,"Kategorie neu anlegen");
            IPS_LogMessage('ONEClick',"Erstelle Kategorie Tasten ");
            $CatID=IPS_CreateCategory();
-           IPS_SetParent($CatID, $inst_id);
+           IPS_SetParent($CatID, targetCat_id);
            IPS_SetName($CatID, "Tasten");
        }
        
@@ -204,7 +207,9 @@ protected function handleLCN($string,$inst_info){
 //ID und Wert von "command" ermitteln
       $stringID=$this->ReadPropertyInteger('idSourceInstance');
       $string=GetValueString($stringID);
-//ID der aktuellen Instanz ermitteln   
+//Ort für die Kategorie
+      $targetCat_id=$this->ReadPropertyInteger('PropertyCategoryID');
+//ID der aktuellen Instanz ermitteln
       $inst_id=IPS_GetParent($stringID);	
       $inst_info= IPS_GetObject($inst_id);
       $inst_name=$inst_info['ObjectName'];
