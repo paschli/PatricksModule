@@ -68,12 +68,12 @@ class ONEClick extends IPSModule {
     
   protected function checkTypeCat($Typ,$mainCat_id) {
        
-       $TypID=@IPS_GetCategoryIDByName($Typ,$mainCat_id);
-       if(!$TypID){
+       $typeCat_id=@IPS_GetCategoryIDByName($Typ,$mainCat_id);
+       if(!$typeCat_id){
            IPS_LogMessage('ONEClick',"Erstelle Kategorie für Typ: ".$Typ);
-           $TypID=IPS_CreateCategory();
-           IPS_SetParent($TypID, $mainCat_id);
-           IPS_SetName($TypID, $Typ);
+           $typeCat_id=IPS_CreateCategory();
+           IPS_SetParent($typeCat_id, $mainCat_id);
+           IPS_SetName($typeCat_id, $Typ);
        }
        IPS_LogMessage('ONEClick',"Tasten-Kategorie OK");
        return $typeCat_id;
@@ -167,11 +167,11 @@ protected function handleLCN($string,$inst_info){
 //Skript für Tastendruck finden oder erzeugen
     
     $mainCat=$this->checkMainCat($inst_id); // Id der Main Category
-    $typCat=$this->checkTypeCat('LCN',$mainCat); // ID der Type Category (hier LCN)
+    $typeCat=$this->checkTypeCat('LCN',$mainCat); // ID der Type Category (hier LCN)
     $tasteCat=$this->checkKeyCat($Key,$typeCat); // ID des Keys
     $script_id=$this->CheckSkript($tasteCat,'Taste_'.$source_taste); // ID des Scripts (je nach kurz, lang, stop usw.
     
-    IPS_RunScript($scriptID);
+    IPS_RunScript($script_id);
     return 1;
         
 
