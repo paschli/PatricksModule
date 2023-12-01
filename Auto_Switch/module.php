@@ -940,7 +940,7 @@ private function Set_MQTT($value) {
         //$StatusValue=GetValueString(IPS_GetChildrenIDs($StatusID)[0]);
         $result=GetValueString($this->ReadPropertyInteger('idStatus'));
         IPS_LogMessage('AutoSwitch_Set_MQTT', 'idStatus= '.$this->ReadPropertyInteger('idStatus').' - '.$result);
-        if($result==='ON') $StatusValue=1;
+        if($result=='ON') $StatusValue=1;
         else $StatusValue=0;
         
         if($StatusValue==$commandValue){
