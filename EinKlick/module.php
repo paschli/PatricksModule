@@ -191,11 +191,11 @@ protected function handleLCN($string,$inst_info){
 //Tastentyp erkennen
 
       if((ctype_digit($string)) && (strlen==6) {//falls nur Zahlen Empfangen wurden und die Länge 6 ist
-        $type='LCN';
+        //$type='LCN';
         $result=$this->handleLCN($string,$inst_info);
       }
       else if((ctype_alpha($string)) && (strlen==6) {//falls nur Zahlen Empfangen wurden und die Länge 6 ist
-        $type='Zigbee';
+        //$type='Zigbee';
         $result=$this->handleLCN($string,$inst_info);
       }
   }
