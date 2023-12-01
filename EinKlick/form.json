@@ -1,6 +1,7 @@
 {
   "elements": [
-    { "name": "idSourceInstance", "type": "SelectVariable", "caption": "Variable" }
+    { "name": "idSourceInstance", "type": "SelectVariable","validVariableTypes": [3], "caption": "Output String wählen" },
+    { "name": "PropertyCategoryID", "type": "SelectCategory", "caption": "Target" },
   ]
   
 }
