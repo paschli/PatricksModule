@@ -14,7 +14,7 @@ class AutSw extends IPSModule {
     $this->RegisterPropertyInteger('idLCNInstance', 0); //ID der zu schaltenden Instanz
     $this->RegisterPropertyInteger('idVariable', 0); //ID der zu schaltenden Instanz
     $this->RegisterPropertyInteger('idStatus', 0); //ID des Status der zu schaltenden Instanz
-    $this->RegisterPropertyBoolean('valStatus', 0); //Statuswert der zu schaltenden Instanz
+    $this->RegisterPropertyBoolean('valStatus', FALSE); //Statuswert der zu schaltenden Instanz
     $this->RegisterPropertyInteger('LaempchenNr', 0); //Falls es Lämpchen sind
     $this->RegisterPropertyInteger('idLightInstance', 0); //Falls es Lämpchen sind
     $this->RegisterPropertyInteger('Rampe', 2); // Rampe für das Schalten eines LCN Ausgangs
@@ -197,7 +197,7 @@ class AutSw extends IPSModule {
     { "name": "idLCNInstance", "type": "SelectInstance", "caption": "MQTT_Set Instanz", "validVariableTypes": [1, 2],
         "requiredAction": 1,
         "requiredLogging": 1 },
-    { "name": "valStatus", "type": "SelectVariable", "caption": "MQTT_Output Instanz" },
+    { "name": "idStatus", "type": "SelectVariable", "caption": "MQTT_Output Instanz" },
     { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
 
   $elements_entry_Zig2MQTT=',
@@ -938,7 +938,7 @@ private function Set_MQTT($value) {
         //usleep(500000); //notwendig???
     
         //$StatusValue=GetValueString(IPS_GetChildrenIDs($StatusID)[0]);
-        $StatusValue=GetValueBoolean('valStatus');
+        $StatusValue=GetValueBoolean('idStatus');
         if($StatusValue==$commandValue){
             SetValue($this->GetIDForIdent("Status"), $value);
             return 1;
