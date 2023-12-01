@@ -6,6 +6,7 @@ class ONEClick extends IPSModule {
   public function Create() {
     parent::Create();
     $this->RegisterPropertyInteger('idSourceInstance', 0);//Id der zu beobachtenden Variable	
+    $this->RegisterPropertyInteger('PropertyCategoryID', 0);//Id der zu beobachtenden Variable
   }
     
   public function ApplyChanges() {
