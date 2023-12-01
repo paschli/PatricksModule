@@ -144,6 +144,7 @@ protected function decodeLCNtable($source_table){
           $source_table=0;
           break;
     }
+    IPS_LogMessage('ONEClick-'.$inst_name,"Tabelle =".$source_table);
     return $source_table;
 }
 
@@ -191,11 +192,13 @@ protected function handleLCN($string,$inst_info){
 //Tastentyp erkennen
 
       if((ctype_digit($string)) && (strlen($string)==6)) {//falls nur Zahlen Empfangen wurden und die Länge 6 ist
+        IPS_LogMessage('ONEClick-'.$inst_name,"LCN erkannt");
         $type='LCN';
         $result=$this->handleLCN($string,$inst_info);
       }
       else if(ctype_alpha($string)) {//falls nur Zahlen Empfangen wurden und die Länge 6 ist
         $type='Zigbee';
+        IPS_LogMessage('ONEClick-'.$inst_name,"Zigbee erkannt");
         $result=$this->handleLCN($string,$inst_info);
       }
   }
