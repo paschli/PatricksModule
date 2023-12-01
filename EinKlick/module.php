@@ -48,7 +48,7 @@ class ONEClick extends IPSModule {
   }
  
    protected function CheckKategorie(int $inst_id) {
-      $inst_name=IPS_GetObject($inst_id)[ObjectName];
+       $inst_name=IPS_GetObject($inst_id)['ObjectName'];
       IPS_LogMessage('ONEClick-'.$inst_name,"CheckKategorie");
       $CatID=@IPS_GetCategoryIDByName("Tasten",$inst_id);
       if(!$CatID){
@@ -63,7 +63,7 @@ class ONEClick extends IPSModule {
   }
   
   protected function CheckKatTasten($Key,$inst_id) {
-      $inst_name=IPS_GetObject($inst_id)[ObjectName];
+      $inst_name=IPS_GetObject($inst_id)['ObjectName'];
       IPS_LogMessage('ONEClick-'.$inst_name,"CheckKatTasten");
       $KeyID=@IPS_GetCategoryIDByName($Key,$inst_id);
       if(!$KeyID){
