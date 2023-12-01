@@ -153,7 +153,7 @@ protected function handleLCN($string,$inst_info){
     $inst_name=$inst_info['ObjectName'];
     
 //Sender-Taste ermitteln (Tabelle und Tastennummer)
-    $TastenDruck = this->decodeLCN($string,$inst_info);
+    $TastenDruck = this->decodeLCNKey($string);
     $source_table= this->decodeLCNtable(substr($string,1,1));
     if(!$source_table || !$TastenDruck ){//Falls die Tabelle oder Tastendruck nicht erkannt wurde
         return 0;
