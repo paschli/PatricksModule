@@ -153,8 +153,8 @@ protected function handleLCN($string,$inst_info){
     $inst_name=$inst_info['ObjectName'];
     
 //Sender-Taste ermitteln (Tabelle und Tastennummer)
-    $TastenDruck = this->decodeLCNKey($string);
-    $source_table= this->decodeLCNtable(substr($string,1,1));
+    $TastenDruck = $this->decodeLCNKey($string);
+    $source_table= $this->decodeLCNtable(substr($string,1,1));
     if(!$source_table || !$TastenDruck ){//Falls die Tabelle oder Tastendruck nicht erkannt wurde
         return 0;
     }
@@ -166,10 +166,10 @@ protected function handleLCN($string,$inst_info){
     
 //Skript für Tastendruck finden oder erzeugen
     
-    $mainCat=this->checkMainCat($inst_id); // Id der Main Category
-    $typCat=this->checkTypeCat('LCN',$mainCat); // ID der Type Category (hier LCN)
-    $tasteCat=this->checkKeyCat($Key,$typeCat); // ID des Keys
-    $script_id=this->CheckSkript($tasteCat,'Taste_'.$source_taste); // ID des Scripts (je nach kurz, lang, stop usw.
+    $mainCat=$this->checkMainCat($inst_id); // Id der Main Category
+    $typCat=$this->checkTypeCat('LCN',$mainCat); // ID der Type Category (hier LCN)
+    $tasteCat=$this->checkKeyCat($Key,$typeCat); // ID des Keys
+    $script_id=$this->CheckSkript($tasteCat,'Taste_'.$source_taste); // ID des Scripts (je nach kurz, lang, stop usw.
     
     IPS_RunScript($scriptID);
     return 1;
@@ -192,11 +192,11 @@ protected function handleLCN($string,$inst_info){
 
       if((ctype_digit($string)) && (strlen==6) {//falls nur Zahlen Empfangen wurden und die Länge 6 ist
         $type='LCN';
-        $result=this->handleLCN($string,$inst_info);
+        $result=$this->handleLCN($string,$inst_info);
       }
       else if((ctype_alpha($string)) && (strlen==6) {//falls nur Zahlen Empfangen wurden und die Länge 6 ist
         $type='Zigbee';
-        $result=this->handleLCN($string,$inst_info);
+        $result=$this->handleLCN($string,$inst_info);
       }
   }
 
