@@ -938,7 +938,7 @@ private function Set_MQTT($value) {
         //usleep(500000); //notwendig???
     
         //$StatusValue=GetValueString(IPS_GetChildrenIDs($StatusID)[0]);
-        IPS_LogMessage('AutoSwitch_Set_MQTT', 'Wert von idStatus= '.$this->ReadPropertyInteger('idStatus'));
+        IPS_LogMessage('AutoSwitch_Set_MQTT', 'idStatus= '.$this->ReadPropertyInteger('idStatus').' - '.GetValueString($this->ReadPropertyInteger('idStatus')));
         switch(GetValueString($this->ReadPropertyInteger('idStatus'))){
             case 'ON' : $StatusValue=1;
                 break;
