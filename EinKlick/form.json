@@ -12,7 +12,7 @@
             "sort": {
                 "column": "Name",
                 "direction": "ascending"
-            },
+            }
   ]
   
 }
