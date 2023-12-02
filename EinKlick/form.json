@@ -11,23 +11,23 @@
     {
       "name": "PropertyCategoryID",
       "type": "SelectCategory",
-      "caption": "Target"
+      "caption": "Position des Ordners"
     },
     {
       "type": "List",
-      "name": "Devices",
-      "caption": "Devices",
+      "name": "Sources",
+      "caption": "Strings",
       "rowCount": 3,
       "add": true,
       "delete": true,
       "columns": [
         {
-          "caption": "InstanceID",
-          "name": "InstanceID",
+          "caption": "SourceStringID",
+          "name": "SourceStringID",
           "width": "300px",
           "add": 0,
           "edit": {
-            "type": "SelectInstance"
+            "type": "SelectVariable"
           }
         }
       ]
