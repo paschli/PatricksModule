@@ -5,9 +5,9 @@
 class ONEClick extends IPSModule {
   public function Create() {
     parent::Create();
-    $this->RegisterPropertyInteger('idSourceInstance', 0);//Id der zu beobachtenden Variable	
+    $this->RegisterPropertyInteger('idSourceInstance', 0);  //Id der zu beobachtenden Variable
     $this->RegisterPropertyInteger('PropertyCategoryID', 0);//Id der zu beobachtenden Variable
-    
+    $this->RegisterPropertyString('SourceList', 0);            //Id der zu beobachtenden Variable
   }
     
   public function ApplyChanges() {
@@ -15,7 +15,7 @@ class ONEClick extends IPSModule {
     if($this->ReadPropertyInteger('idSourceInstance')!=0){  
     	$this->RegisterEvent('OnVariableUpdate', 0, 'ONEC_Check($id)');
     }
-    $arrString = $this->ReadPropertyString("Sources");
+    $arrString = $this->ReadPropertyString("SourceList");
     $arr = json_decode($arrString);
   }
   
