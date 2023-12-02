@@ -213,6 +213,10 @@ protected function handleLCN($string,$inst_info){
   
  public function Check($trigger) {
   if(IPS_SemaphoreEnter('ONEClick', 1000)) {
+//ID der aktuellen Instanz ermitteln
+      $inst_id=IPS_GetParent($stringID);
+      $inst_info= IPS_GetObject($inst_id);
+      $inst_name=$inst_info['ObjectName'];
 //ID und Wert von "command" ermitteln
       //$stringID=$this->ReadPropertyInteger('idSourceInstance');
       IPS_LogMessage('ONEClick-'.$inst_name,"Starte Check von Nachricht =".$trigger."....................");
@@ -220,10 +224,7 @@ protected function handleLCN($string,$inst_info){
       $string=GetValueString($stringID);
 //Ort für die Kategorie
       $targetCat_id=$this->ReadPropertyInteger('PropertyCategoryID');
-//ID der aktuellen Instanz ermitteln
-      $inst_id=IPS_GetParent($stringID);	
-      $inst_info= IPS_GetObject($inst_id);
-      $inst_name=$inst_info['ObjectName'];
+
 //Auswertung 
       IPS_LogMessage('ONEClick-'.$inst_name,"String =".$string."....................");
 //Tastentyp erkennen
