@@ -20,10 +20,6 @@
       "rowCount": 5,
       "add": true,
       "delete": true,
-      "sort": {
-        "column": "Name",
-        "direction": "ascending"
-      },
       "columns": [
         {
           "caption": "InstanceID",
