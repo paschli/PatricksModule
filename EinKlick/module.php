@@ -22,7 +22,7 @@ class ONEClick extends IPSModule {
     foreach($arr as $value){
         $string_id=$value['SourceStringID'];
         //IPS_LogMessage('ONEClick',"Liste Element =".$string_id);
-        $this->SendDebug ('OnButonClick', "Liste Element =".$string_id, 0);
+        $this->SendDebug ('ApplyChanges', "Element aus der Liste=".$string_id, 0);
         $this->RegisterEvent('OnChange_'.$value['SourceStringID'], 0, 'ONEC_Check($id,$trigger)',$string_id);
     }
   }
@@ -47,78 +47,63 @@ class ONEClick extends IPSModule {
     if (!IPS_EventExists($id)) throw new Exception("Ident with name $ident is used for wrong object type");
   }
  
-   protected function CheckKategorie(int $inst_id) {
-      $inst_name=IPS_GetObject($inst_id)['ObjectName'];
-      IPS_LogMessage('ONEClick-'.$inst_name,"CheckKategorie");
-      $CatID=@IPS_GetCategoryIDByName("Tasten",$inst_id);
-      if(!$CatID){
-          IPS_LogMessage('ONEClick-'.$inst_name,"Kategorie neu anlegen");
-          IPS_LogMessage('ONEClick',"Erstelle Kategorie Tasten ");
-          $CatID=IPS_CreateCategory();
-          IPS_SetParent($CatID, $inst_id);
-          IPS_SetName($CatID, "Tasten");
-      }
-      IPS_LogMessage('ONEClick',"Haupt-Kategorie OK");
-      return $CatID;
-  }
-  
   protected function checkMainCat($inst_id) {
+       $this->SendDebug ('checkMainCat', "Suche: Kategorie Tasten", 0);
        $inst_name=IPS_GetObject($inst_id)['ObjectName'];
 //Ort für die Kategorie
        $targetCat_id=$this->ReadPropertyInteger('PropertyCategoryID');
        $CatID=@IPS_GetCategoryIDByName("Tasten",$targetCat_id);
 
-    
        if(!$CatID){ //falls noch nicht angelegt ->
-           IPS_LogMessage('ONEClick-'.$inst_name,"Kategorie neu anlegen");
-           IPS_LogMessage('ONEClick',"Erstelle Kategorie Tasten ");
            $CatID=IPS_CreateCategory();
            IPS_SetParent($CatID, $this->ReadPropertyInteger('PropertyCategoryID'));
            IPS_SetName($CatID, "Tasten");
+           $this->SendDebug ('CheckKategorie', "Angelegt: Kategorie Tasten", 0);
        }
-       
-       IPS_LogMessage('ONEClick',"Haupt-Kategorie OK");
+       $this->SendDebug ('CheckKategorie', "OK: Kategorie", 0);
        return $CatID;
    }
     
   protected function checkTypeCat($Typ,$mainCat_id) {
-       
+       $this->SendDebug ('checkTypeCat', "Suche: Kategorie ".$Typ, 0);
        $typeCat_id=@IPS_GetCategoryIDByName($Typ,$mainCat_id);
        if(!$typeCat_id){
-           IPS_LogMessage('ONEClick',"Erstelle Kategorie für Typ: ".$Typ);
            $typeCat_id=IPS_CreateCategory();
            IPS_SetParent($typeCat_id, $mainCat_id);
            IPS_SetName($typeCat_id, $Typ);
+           $this->SendDebug ('checkTypeCat', "Angelegt: Kategorie ".$Typ, 0);
        }
-       IPS_LogMessage('ONEClick',"Tasten-Kategorie OK");
+       $this->SendDebug ('checkTypeCat', "OK: Kategorie ".$Typ, 0);
        return $typeCat_id;
     }
     
   protected function checkKeyCat($Key,$typeCat_id) {
+      $this->SendDebug ('checkKeyCat', "Suche: Kategorie ".$Key, 0);
       $keyCat_id=@IPS_GetCategoryIDByName($Key,$typeCat_id);
       if(!$keyCat_id){
-          IPS_LogMessage('ONEClick',"Erstelle Kategorie für Taste: ".$Key);
           $keyCat_id=IPS_CreateCategory();
           IPS_SetParent($keyCat_id, $typeCat_id);
           IPS_SetName($keyCat_id, $Key);
+          $this->SendDebug ('checkKeyCat', "Angelegt: Kategorie ".$Key, 0);
       }
-      IPS_LogMessage('ONEClick',"Tasten-Kategorie OK");
+      $this->SendDebug ('checkKeyCat', "OK: Kategorie ".$Key, 0);
       return $keyCat_id;
   }
   
   protected function CheckSkript($tasteCat,$source_taste) {
+        $this->SendDebug ('CheckSkript', "Suche: Script ".$source_taste, 0);
 //Skript für erkannte Taste ermitteln oder erstellen
         $scriptID=@IPS_GetScriptIDByName($source_taste, $tasteCat);
 //Falls Skript noch nicht vorhanden
         if(!$scriptID){
             $stringInhalt="<?\n IPS_LogMessage('ONEClick_Script'.'$source_taste','Starte User_Script..'); \n//Start your code here\n\n?>";
-            IPS_LogMessage('ONEClick',"Erstelle Skript für Taste: ".$source_taste);
             $scriptID= IPS_CreateScript(0);
             IPS_SetParent($scriptID, $tasteCat);
             IPS_SetName($scriptID, $source_taste);
-            IPS_SetScriptContent($scriptID, $stringInhalt);   
+            IPS_SetScriptContent($scriptID, $stringInhalt);  
+            $this->SendDebug ('CheckSkript', "Angelegt: Script ".$source_taste, 0);
         }
-        IPS_LogMessage('ONEClick',"Skript OK");
+       $this->SendDebug ('CheckSkript', "OK: Script ".$source_taste, 0);
         
         return $scriptID;
   }
@@ -126,21 +111,18 @@ class ONEClick extends IPSModule {
 protected function decodeLCNKey($string){
 //Prüfe, welches LCN-Tasten-Event gekommen ist
     if(substr($string, -3) == "111"){ //kurzer Tastendruck
-        IPS_LogMessage('ONEClick',"Kurzer Tatendruck ");
         $TastenDruck="_kurz";
     }
     else if(substr($string, -3) == "222"){ //langer Tastendruck
-        IPS_LogMessage('ONEClick',"Langer Tatendruck ");
         $TastenDruck="_lang";
     }
     else if(substr($string, -3) == "123"){ //Loslassen nach langem Tastedruck
-        IPS_LogMessage('ONEClick',"Loslassen ");
         $TastenDruck="_los";
     }
     else {
-        IPS_LogMessage('ONEClick',"Tastendruck nicht erkannt (".substr($string, -3).") ");
         $TastenDruck=0;
     }
+    $this->SendDebug ('decodeLCNKey', "Erkannt: LCN-Tastendruck ".$TastenDruck, 0);
     return $TastenDruck;
 }
 
@@ -159,7 +141,8 @@ protected function decodeLCNtable($source_table){
           $source_table=0;
           break;
     }
-    IPS_LogMessage('ONEClick-decodeLCNtable',"Tabelle =".$source_table);
+    
+    $this->SendDebug ('decodeLCNtable', "Erkannt: LCN-Tabelle ".$source_table, 0);
     return $source_table;
 }
 
@@ -199,7 +182,7 @@ protected function handleLCN($string,$inst_info){
         $inst_name=$inst_info['ObjectName'];
         
         $Key=$string;
-        IPS_LogMessage('ONEClick-'.$inst_name,"Taste =".$Key);
+        $this->SendDebug ('handleZigbee', "Erkannt: Zigbee ".$Key, 0);
         
     //Skript für Tastendruck finden oder erzeugen
         
@@ -223,23 +206,23 @@ protected function handleLCN($string,$inst_info){
       $inst_name=$inst_info['ObjectName'];
 //ID und Wert von "command" ermitteln
       //$stringID=$this->ReadPropertyInteger('idSourceInstance');
-      IPS_LogMessage('ONEClick-'.$inst_name,"Starte Check von Nachricht =".$trigger."....................");
+      $this->SendDebug ('Check', "Starte Check für Nachricht =".$trigger."....................", 0);
       $string=GetValueString($stringID);
 //Ort für die Kategorie
       $targetCat_id=$this->ReadPropertyInteger('PropertyCategoryID');
 
 //Auswertung 
-      IPS_LogMessage('ONEClick-'.$inst_name,"String =".$string."....................");
+      $this->SendDebug ('Check', "String =".$string, 0);
 //Tastentyp erkennen
 
       if((ctype_digit($string)) && (strlen($string)==6)) {//falls nur Zahlen Empfangen wurden und die Länge 6 ist
-        IPS_LogMessage('ONEClick-'.$inst_name,"LCN erkannt");
+        $this->SendDebug ('Check', "LCN erkannt", 0);
         $type='LCN';
         $result=$this->handleLCN($string,$inst_info);
       }
       else if(ctype_alpha($string)) {//falls nur Zahlen Empfangen wurden und die Länge 6 ist
         $type='Zigbee';
-        IPS_LogMessage('ONEClick-'.$inst_name,"Zigbee erkannt");
+          $this->SendDebug ('Check', "Zigbee erkannt", 0);
         $result=$this->handleZigbee($string,$inst_info);
       }
   }
@@ -247,7 +230,7 @@ protected function handleLCN($string,$inst_info){
     
   
   else{
-    IPS_LogMessage('ONEClick-'.$inst_name,"Klick nicht erkannt");
+      $this->SendDebug ('Check', "Event nicht erkannt", 0);
   }
   IPS_SemaphoreLeave('ONEClick');
  }
