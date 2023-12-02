@@ -211,10 +211,11 @@ protected function handleLCN($string,$inst_info){
 
     }
   
- public function Check() {
+ public function Check($trigger) {
   if(IPS_SemaphoreEnter('ONEClick', 1000)) {
 //ID und Wert von "command" ermitteln
-      $stringID=$this->ReadPropertyInteger('idSourceInstance');
+      //$stringID=$this->ReadPropertyInteger('idSourceInstance');
+      $stringID=$trigger;
       $string=GetValueString($stringID);
 //Ort für die Kategorie
       $targetCat_id=$this->ReadPropertyInteger('PropertyCategoryID');
