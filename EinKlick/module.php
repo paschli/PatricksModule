@@ -18,7 +18,7 @@ class ONEClick extends IPSModule {
     $arrString = $this->ReadPropertyString("SourceList");
     $arr = json_decode($arrString);
     foreach($arr as $value){
-        IPS_LogMessage('ONEClick',"Liste Element =".$value);
+        IPS_LogMessage('ONEClick',"Liste Element =".$arrString);
     }
   }
   
