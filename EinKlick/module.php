@@ -2,6 +2,8 @@
 //Modul überwacht die Host Kommandos eises Moduls (Taster), die in einer Variable abgelegt werden. 
 //Für die erkannte Taste und das Ereignis wird ein Skript gestartet. 
 //Falls das Skript nicht vorhanden ist, wird es erstellt.
+//$this->SendDebug (string $Meldungsname, string $Daten, int $Format)
+//$this->SendDebug ('OnButonClick', string $Daten, 0);
 class ONEClick extends IPSModule {
   public function Create() {
     parent::Create();
@@ -19,7 +21,8 @@ class ONEClick extends IPSModule {
     $arr = json_decode($arrString,true);
     foreach($arr as $value){
         $string_id=$value['SourceStringID'];
-        IPS_LogMessage('ONEClick',"Liste Element =".$string_id);
+        //IPS_LogMessage('ONEClick',"Liste Element =".$string_id);
+        $this->SendDebug ('OnButonClick', "Liste Element =".$string_id, 0);
         $this->RegisterEvent('OnChange_'.$value['SourceStringID'], 0, 'ONEC_Check($id,$trigger)',$string_id);
     }
   }
