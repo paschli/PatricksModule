@@ -196,7 +196,7 @@ protected function handleLCN($string,$inst_info){
 
     }
   
- public function Check($trigger) {
+ public function Check(int $trigger) {
   if(IPS_SemaphoreEnter('ONEClick', 1000)) {
 //ID der aktuellen Instanz ermitteln
       $stringID=$trigger;
