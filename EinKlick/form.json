@@ -2,7 +2,7 @@
   "elements": [
     { "name": "idSourceInstance",   "type": "SelectVariable","validVariableTypes": [3], "caption": "Output String wählen" },
     { "name": "PropertyCategoryID", "type": "SelectCategory", "caption": "Target" },
-    { "name": "Devices", "type": "List", "rowCount": 5, "add": true, "delete": true, "caption": "Devices"}
+    { "name": "Devices", "type": "List", "rowCount": 1, "caption": "Devices"}
   ]
   
 }
