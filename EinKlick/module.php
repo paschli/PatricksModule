@@ -190,7 +190,6 @@ protected function handleLCN($string,$inst_info){
         $typeCat=$this->checkTypeCat('Zigbee',$mainCat); // ID der Type Category (hier LCN)
         //$tasteCat=$this->checkKeyCat($Key,$typeCat); // ID des Keys
         $script_id=$this->CheckSkript($typeCat,'Taste_'.$string); // ID des Scripts (je nach kurz, lang, stop usw.
-        
         IPS_RunScript($script_id);
         return 1;
             
