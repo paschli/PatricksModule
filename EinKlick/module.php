@@ -100,7 +100,7 @@ class ONEClick extends IPSModule {
         $scriptID=@IPS_GetScriptIDByName($source_taste, $tasteCat);
 //Falls Skript noch nicht vorhanden
         if(!$scriptID){
-            $stringInhalt="<?\n IPS_LogMessage('ONEClick_Script'.'$source_taste','Starte User_Script.....................'); \n//Start your code here\n\n?>";
+            $stringInhalt="<?\n IPS_LogMessage('ONEClick_Script'.'$source_taste','Starte User_Script..'.IPS_GetName($_IPS['SELF']); \n//Start your code here\n\n?>";
             IPS_LogMessage('ONEClick',"Erstelle Skript für Taste: ".$source_taste);
             $scriptID= IPS_CreateScript(0);
             IPS_SetParent($scriptID, $tasteCat);
