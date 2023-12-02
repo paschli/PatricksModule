@@ -24,10 +24,11 @@
         {
           "caption": "SourceStringID",
           "name": "SourceStringID",
-          "width": "300px",
+          "width": "500px",
           "add": 0,
           "edit": {
-            "type": "SelectVariable"
+            "type": "SelectVariable",
+            "validVariableTypes": [3]
           }
         }
       ]
