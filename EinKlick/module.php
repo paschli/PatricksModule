@@ -16,9 +16,9 @@ class ONEClick extends IPSModule {
     	$this->RegisterEvent('OnVariableUpdate', 0, 'ONEC_Check($id)');
     }
     $arrString = $this->ReadPropertyString("SourceList");
-    $arr = json_decode($arrString);
+    $arr = json_decode($arrString,true);
     foreach($arr as $value){
-        IPS_LogMessage('ONEClick',"Liste Element =".$arrString);
+        IPS_LogMessage('ONEClick',"Liste Element =".$value['SourceStringID']);
     }
   }
   
