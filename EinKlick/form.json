@@ -46,16 +46,6 @@
           "width": "40px",
           "add": "New!"
         },
-        {
-          "caption": "Temperature",
-          "name": "Temperature",
-          "width": "75px",
-          "add": 20,
-          "edit": {
-            "type": "NumberSpinner",
-            "digits": 2
-          }
-        }
       ]
     }
   ]
