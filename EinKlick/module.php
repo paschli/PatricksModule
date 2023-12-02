@@ -12,18 +12,20 @@ class ONEClick extends IPSModule {
     
   public function ApplyChanges() {
     parent::ApplyChanges();
-    if($this->ReadPropertyInteger('idSourceInstance')!=0){  
-    	$this->RegisterEvent('OnVariableUpdate', 0, 'ONEC_Check($id)');
-    }
+    //if($this->ReadPropertyInteger('idSourceInstance')!=0){
+    //	$this->RegisterEvent('OnVariableUpdate', 0, 'ONEC_Check($id)',$this->ReadPropertyInteger('idSourceInstance'));
+    //}
     $arrString = $this->ReadPropertyString("SourceList");
     $arr = json_decode($arrString,true);
     foreach($arr as $value){
-        IPS_LogMessage('ONEClick',"Liste Element =".$value['SourceStringID']);
+        $string_id=$value['SourceStringID'];
+        IPS_LogMessage('ONEClick',"Liste Element =".$string_id);
+        $this->RegisterEvent('OnChange_'.$value['SourceStringID'], 0, 'ONEC_Check($id)',$string_id);
     }
   }
   
  
-  protected function RegisterEvent($ident, $interval, $script) {
+  protected function RegisterEvent($ident, $interval, $script, $trigger) {
     $id = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
     if ($id && IPS_GetEvent($id)['EventType'] <> 1) {
       IPS_DeleteEvent($id);
@@ -31,7 +33,7 @@ class ONEClick extends IPSModule {
     }
     if (!$id) {
       $id = IPS_CreateEvent(0);
-      IPS_SetEventTrigger($id, 0, $this->ReadPropertyInteger('idSourceInstance')); //Bei Update von der gewählten Variable 
+      IPS_SetEventTrigger($id, 0, $trigger); //Bei Update von der gewählten Variable
       IPS_SetEventActive($id, true);             //Ereignis aktivieren
       IPS_SetParent($id, $this->InstanceID);
       IPS_SetIdent($id, $ident);
