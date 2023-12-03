@@ -17,13 +17,15 @@ class ONEClick extends IPSModule {
     //if($this->ReadPropertyInteger('idSourceInstance')!=0){
     //	$this->RegisterEvent('OnVariableUpdate', 0, 'ONEC_Check($id)',$this->ReadPropertyInteger('idSourceInstance'));
     //}
+    
     $arrString = $this->ReadPropertyString("SourceList");
-    $arr = json_decode($arrString,true);
-    foreach($arr as $value){
-        $string_id=$value['SourceStringID'];
-        //IPS_LogMessage('ONEClick',"Liste Element =".$string_id);
-        $this->SendDebug ('ApplyChanges', "Element aus der Liste=".$string_id, 0);
-        $this->RegisterEvent('OnChange_'.$value['SourceStringID'], 0, 'ONEC_Check($id,$trigger)',$string_id);
+    if(!empty($arrString)){
+        $arr = json_decode($arrString,true);
+        foreach($arr as $value){
+            $string_id=$value['SourceStringID'];
+            $this->SendDebug ('ApplyChanges', "Element aus der Liste=".$string_id, 0);
+            $this->RegisterEvent('OnChange_'.$value['SourceStringID'], 0, 'ONEC_Check($id,$trigger)',$string_id);
+        }
     }
   }
   
