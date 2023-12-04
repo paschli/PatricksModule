@@ -2,8 +2,11 @@
   "id": "{B764497C-E369-4B8C-A418-AB3B7BD563CF}",
   "author": "Patrick Schlischka",
   "name": "Patricks Module",
-  "url": "github.com/paschli/",
-  "version": "0.2",
+  "url": "http://github.com/paschli/",
+  "compatibility": {
+           "version": "4.2"
+       },
+  "version": "0.3",
   "build": 1,
   "date": 0
 }
