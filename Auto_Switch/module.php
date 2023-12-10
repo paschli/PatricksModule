@@ -540,11 +540,12 @@ public function Set(bool $value, bool $anzeige) {
     $func="Set_";
     $typ= $this->ReadPropertyInteger('Auswahl');
     $sem_id='AutoSwitch_Set_'.$typ;
+    $par= IPS_GetParent(($this->GetIDForIdent('Status')));
+    $name= IPS_GetName($par);
 //    if(IPS_SemaphoreEnter('AutoSwitch_Set', 15000)) {
     if(IPS_SemaphoreEnter($sem_id, 15000)) {    
 //      IPS_LogMessage("AutoSwitch_".$func,"Semaphore: ".$sem_id." gesetzt!");
-      $par= IPS_GetParent(($this->GetIDForIdent('Status')));
-      $name= IPS_GetName($par);
+
       $func="Set_".$name;
       IPS_LogMessage("AutoSwitch_".$func,"Semaphore: ".$sem_id." gesetzt!");
       $CatID =IPS_GetCategoryIDByName('Konfig', $par);
