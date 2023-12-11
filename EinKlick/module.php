@@ -24,7 +24,7 @@ class ONEClick extends IPSModule {
         foreach($arr as $value){
             $string_id=$value['SourceStringID'];
             $this->SendDebug ('ApplyChanges', "Element aus der Liste=".$string_id, 0);
-            $this->RegisterEvent('OnChange_'.$value['SourceStringID'], 0, 'ONEC_Check($id,$trigger)',$string_id);
+            $this->RegisterEvent('OnUpdate_'.$value['SourceStringID'], 0, 'ONEC_Check($id,$trigger)',$string_id);
         }
     }
   }
@@ -168,7 +168,7 @@ protected function handleLCN($string,$inst_info){
 //Skript für Tastendruck finden oder erzeugen
     
     $mainCat=$this->checkMainCat($inst_id); // Id der Main Category
-    $typeCat=$this->checkTypeCat('LCN',$mainCat); // ID der Type Category (hier LCN)
+    $typeCat=$this->checkTypeCat('LCN'.$inst_name,$mainCat); // ID der Type Category (hier LCN)
     $tasteCat=$this->checkKeyCat($Key,$typeCat); // ID des Keys
     $script_id=$this->CheckSkript($tasteCat,'Taste_'.$source_taste); // ID des Scripts (je nach kurz, lang, stop usw.
     
@@ -189,7 +189,7 @@ protected function handleLCN($string,$inst_info){
     //Skript für Tastendruck finden oder erzeugen
         
         $mainCat=$this->checkMainCat($inst_id); // Id der Main Category
-        $typeCat=$this->checkTypeCat('Zigbee',$mainCat); // ID der Type Category (hier LCN)
+        $typeCat=$this->checkTypeCat('Zigbee'.$inst_name,$mainCat); // ID der Type Category (hier LCN)
         //$tasteCat=$this->checkKeyCat($Key,$typeCat); // ID des Keys
         $script_id=$this->CheckSkript($typeCat,'Taste_'.$string); // ID des Scripts (je nach kurz, lang, stop usw.
         IPS_RunScript($script_id);
@@ -207,7 +207,8 @@ protected function handleLCN($string,$inst_info){
       $inst_name=$inst_info['ObjectName'];
 //ID und Wert von "command" ermitteln
       //$stringID=$this->ReadPropertyInteger('idSourceInstance');
-      $this->SendDebug ('Check', "Starte Check für Nachricht =".$trigger."....................", 0);
+      $this->SendDebug ('Check', "Starte Check für Nachricht= ".$trigger."....................", 0);
+      $trigger_name=0;
       $string=GetValueString($stringID);
 //Ort für die Kategorie
       $targetCat_id=$this->ReadPropertyInteger('PropertyCategoryID');
