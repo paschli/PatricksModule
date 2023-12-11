@@ -168,7 +168,7 @@ protected function handleLCN($string,$inst_info){
 //Skript für Tastendruck finden oder erzeugen
     
     $mainCat=$this->checkMainCat($inst_id); // Id der Main Category
-    $typeCat=$this->checkTypeCat('LCN'.$inst_name,$mainCat); // ID der Type Category (hier LCN)
+    $typeCat=$this->checkTypeCat('LCN-'.$inst_name,$mainCat); // ID der Type Category (hier LCN)
     $tasteCat=$this->checkKeyCat($Key,$typeCat); // ID des Keys
     $script_id=$this->CheckSkript($tasteCat,'Taste_'.$source_taste); // ID des Scripts (je nach kurz, lang, stop usw.
     
@@ -189,7 +189,7 @@ protected function handleLCN($string,$inst_info){
     //Skript für Tastendruck finden oder erzeugen
         
         $mainCat=$this->checkMainCat($inst_id); // Id der Main Category
-        $typeCat=$this->checkTypeCat('Zigbee'.$inst_name,$mainCat); // ID der Type Category (hier LCN)
+        $typeCat=$this->checkTypeCat('Zigbee-'.$inst_name,$mainCat); // ID der Type Category (hier LCN)
         //$tasteCat=$this->checkKeyCat($Key,$typeCat); // ID des Keys
         $script_id=$this->CheckSkript($typeCat,'Taste_'.$string); // ID des Scripts (je nach kurz, lang, stop usw.
         IPS_RunScript($script_id);
