@@ -925,16 +925,46 @@ private function Set_PIGPIO($value) {
     }
     //return $result;
 }
+        
+private function GetCommandValue($type,$value){
+
+        switch($type){
+            case 0: //Bool
+                    $commandValue= ($value == 0) ? fale : true ;
+                    break;
+            case 1: //Integer
+                    $commandValue=-1;
+                    break;
+            case 2: //Float
+                    $commandValue=-1;
+                    break;
+            case 3: //String
+                    $commandValue= ($value == 0) ? "OFF" : "ON" ;
+                    break;
+            default: $commandValue=-1;
+        }
+    return $commandValue;
+}
 private function Set_MQTT($value) {
         $SetID=IPS_GetChildrenIDs($this->ReadPropertyInteger('idLCNInstance'))[0];
         //$StatusID=$this->ReadPropertyInteger('idStatus');
+        $setType=IPS_GetVariable($SetID)[VariableType];
+        $commandValue=$this->GetCommandValue($setType,$value);
+        if($commandValue==-1){
+            IPS_LogMessage('AutoSwitch_Set_MQTT', 'Konnte $commandValue nicht ermitteln -> Exit');
+            exit();
+        }
+        /*
         switch($value){
-            case 0: $commandValue="OFF";
+            case 0: if($setType==3)
+                        $commandValue="OFF";
+                    else if
                 break;
             case 1: $commandValue="ON";
                 break;
             default: $commandValue="OFF";
         }
+        */
         RequestAction($SetID, $commandValue);
         usleep(500000); //notwendig???
     
