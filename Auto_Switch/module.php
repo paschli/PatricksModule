@@ -950,7 +950,7 @@ private function Set_MQTT($value) {
         //$StatusID=$this->ReadPropertyInteger('idStatus');
         $setType=IPS_GetVariable($SetID)['VariableType'];
         $commandValue=$this->GetCommandValue($setType,$value);
-        if($commandValue==-1){
+        if($commandValue===-1){
             IPS_LogMessage('AutoSwitch_Set_MQTT', 'Konnte $commandValue nicht ermitteln -> Exit ($setType='.$setType.')');
             exit();
         }
