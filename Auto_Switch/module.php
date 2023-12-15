@@ -954,25 +954,15 @@ private function Set_MQTT($value) {
             IPS_LogMessage('AutoSwitch_Set_MQTT', 'Konnte $commandValue nicht ermitteln -> Exit ($setType='.$setType.')');
             exit();
         }
-        /*
-        switch($value){
-            case 0: if($setType==3)
-                        $commandValue="OFF";
-                    else if
-                break;
-            case 1: $commandValue="ON";
-                break;
-            default: $commandValue="OFF";
-        }
-        */
+        
         RequestAction($SetID, $commandValue);
         usleep(500000); //notwendig???
     
-        //$StatusValue=GetValueString(IPS_GetChildrenIDs($StatusID)[0]);
         $result=GetValueString($this->ReadPropertyInteger('idStatus'));
-        IPS_LogMessage('AutoSwitch_Set_MQTT', 'idStatus ('.$this->ReadPropertyInteger('idStatus').') ='.$result.' commandValue='.$commandValue);
-        //if($result=='ON') $StatusValue=1;
-        //else $StatusValue=0;
+        if($setType!=0){
+            $commandValue= $commandValue ? "ON" : "OFF";
+        }
+        IPS_LogMessage('AutoSwitch_Set_MQTT', 'Ist-Status ('.$this->ReadPropertyInteger('idStatus').') = '.$result.' Soll Status='.$commandValue);
         
         if($result==$commandValue){
             SetValue($this->GetIDForIdent("Status"), $value);
