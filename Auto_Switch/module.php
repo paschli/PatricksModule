@@ -959,10 +959,10 @@ private function Set_MQTT($value) {
         usleep(500000); //notwendig???
     
         $result=GetValueString($this->ReadPropertyInteger('idStatus'));
-        if($setType!=0){
+        if($setType==0){
             $commandValue= $commandValue ? "ON" : "OFF";
         }
-        IPS_LogMessage('AutoSwitch_Set_MQTT', 'Ist-Status ('.$this->ReadPropertyInteger('idStatus').') = '.$result.' Soll Status='.$commandValue);
+        IPS_LogMessage('AutoSwitch_Set_MQTT', 'Ist-Status ('.$this->ReadPropertyInteger('idStatus').') = '.$result.' / Soll Status='.$commandValue);
         
         if($result==$commandValue){
             SetValue($this->GetIDForIdent("Status"), $value);
