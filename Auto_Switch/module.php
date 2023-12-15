@@ -930,7 +930,7 @@ private function GetCommandValue($type,$value){
 
         switch($type){
             case 0: //Bool
-                    $commandValue= ($value == 0) ? fale : true ;
+                    $commandValue= ($value == 0) ? false : true ;
                     break;
             case 1: //Integer
                     $commandValue=-1;
