@@ -996,7 +996,7 @@ private function Set_MQTT($value) {
         }
     }
     
-private function get_status_id($id, $name){
+private function get_status_id($id, $name){ //!!!!!!!!!!!!!!!!!!!Hier besser nach Ident suchen!!!!!!!!!!!!!!!!!!!!!!!!!
     $arr=IPS_GetChildrenIDs($id);
     $status_id=0;
     foreach($arr as $child){
@@ -1006,7 +1006,7 @@ private function get_status_id($id, $name){
     return GetValueBoolean($status_id);
 }
     
-private function get_mqtt_status($id, $name){
+private function get_mqtt_status($id, $name){//!!!!!!!!!!!!!!!!!!Gleich wie die obere Funktion????? !!!!!!!!!!!!!!!!!!!
     $arr=IPS_GetChildrenIDs($id);
     $status_id=0;
     foreach($arr as $child){
