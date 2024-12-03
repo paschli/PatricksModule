@@ -1262,15 +1262,16 @@ if($value){
         IPS_LogMessage("AutoSwitch_AutoTimeUpdate","Clear Event!");
     }
     IPS_SetEventCyclicTimeFrom($ids, $Stunde, $Minute, $Sekunde);
-    IPS_SetDisabled($idf, true);
-    IPS_SetDisabled($ids, true);
-//    IPS_SetEventActive($ids, TRUE);
+//    IPS_SetDisabled($idf, true);
+//    IPS_SetDisabled($ids, true);
+    IPS_SetEventActive($ids, TRUE);
+    IPS_SetEventActive($idf, TRUE);
 }
 else{
-    IPS_SetDisabled($idf, false);
-    //IPS_SetEventActive($idf, FALSE);
-    IPS_SetDisabled($ids, false);
-    //IPS_SetEventActive($ids, FALSE);
+//    IPS_SetDisabled($idf, false);
+    IPS_SetEventActive($idf, FALSE);
+//    IPS_SetDisabled($ids, false);
+    IPS_SetEventActive($ids, FALSE);
 }
  
 }
