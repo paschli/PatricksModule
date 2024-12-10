@@ -1140,7 +1140,7 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
     ."\n\$ident=IPS_GetName(\$par).'Event';"
     ."\n\$identWert=IPS_GetName(\$par).'Wert';"
     ."\n\$eventID=IPS_GetObjectIDByIdent(\$ident,\$par);"
-    ."\n\$wertID=IPS_GetObjectIDByIdent(\$identWert,\$par);"
+    ."\n\$wertID=IPS_GetObjectIDByIdent(\$identWert,IPS_GetParent(\$par));"
     ."\n\$Zeit=IPS_GetEvent(\$eventID)['NextRun'];"
     ."\nif(\$_IPS['SENDER']=='SET'){"
     ."\n    SetValue(\$wertID,\$Zeit);"
