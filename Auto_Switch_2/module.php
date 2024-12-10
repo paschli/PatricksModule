@@ -1038,12 +1038,13 @@ private function CreateTimerVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
         IPS_SetVariableCustomProfile($VarID, $profil);
     }
     if($script){
-        $SkriptID=IPS_CreateScript(0);
+        /*$SkriptID=IPS_CreateScript(0);
         IPS_SetName($SkriptID,'control');
         IPS_SetParent($SkriptID,$VarID);
         IPS_SetHidden($SkriptID, True);
         IPS_SetScriptContent($SkriptID, $script);
-        IPS_SetVariableCustomAction($VarID, $SkriptID);
+        IPS_SetVariableCustomAction($VarID, $SkriptID);*/
+        $this->CreateScriptForVar($VarID,$script);
     }
     else {
         IPS_SetHidden($VarID, True);
@@ -1066,6 +1067,15 @@ private function CreateTimerVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
     IPS_SetHidden ($wertID, TRUE);
     return($VarID);
 }
+        
+private function CreateScriptForVar($VarID,$script){
+    $SkriptID=IPS_CreateScript(0);
+    IPS_SetName($SkriptID,'control');
+    IPS_SetParent($SkriptID,$VarID);
+    IPS_SetHidden($SkriptID, True);
+    IPS_SetScriptContent($SkriptID, $script);
+    IPS_SetVariableCustomAction($VarID, $SkriptID);
+    }
 
 private function CreateWahlVar($ident,$name,$icon,$par, $pos){
     $ID=$this->RegisterVariableBoolean($ident,$name,$icon);//
