@@ -1066,6 +1066,13 @@ private function CreateTimerVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
     $wertID=$this->CreateAnzVar($name.'Wert',$name.'-Zeit',$CatID,$pos+1,'Clock','','~UnixTimestampTime');
     $this->CreateScriptForVar($wertID,"<? SetValue(\$_IPS['VARIABLE'], \$_IPS['VALUE']);");
     IPS_SetHidden ($wertID, TRUE);
+    
+    $watchEventID=IPS_CreateEvent(0); //ausgelöstes Ereignis bei Änderung der Zeit
+    IPS_SetEventTrigger($watchEventID, 1, $wertID);        //Bei Änderung von Variable mit ID 15754
+    IPS_SetParent($watchEventID, $_IPS['SELF']);         //Ereignis zuordnen
+    IPS_SetEventActive($watchEventID, true);             //Ereignis aktivieren
+    
+    
     return($VarID);
 }
         
