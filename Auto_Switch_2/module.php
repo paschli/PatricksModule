@@ -1070,7 +1070,8 @@ private function CreateTimerVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
     $watchEventID=IPS_CreateEvent(0);                      //ausgelöstes Ereignis bei Änderung der Zeit
     IPS_SetEventTrigger($watchEventID, 1, $wertID);        //Bei Änderung von Variable mit ID 15754
     IPS_SetParent($watchEventID, $VarID);                  //Ereignis zuordnen
-    IPS_SetEventAction($watchEventID, $SkriptID, []);      // Ziel von Event auf control setzen
+    //IPS_SetEventAction($watchEventID, $SkriptID, []);      // Ziel von Event auf control setzen
+    IPS_SetEventAction($EreignisID, "{7938A5A2-0981-5FE0-BE6C-8AA610D654EB}", []);
     IPS_SetEventActive($watchEventID, true);               //Ereignis aktivieren
     
     
