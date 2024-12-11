@@ -1162,7 +1162,7 @@ private function TimerSwitchAction($CatID) {//Fals die TimerFunktion gewählt wi
     ."\n\$eventID=IPS_GetObjectIDByIdent(\$ident,\$par);"
     ."\n\$wertID=IPS_GetObjectIDByIdent(\$identWert,IPS_GetParent(\$par));"
     ."\nif(\$_IPS['SENDER']=='Variable'){"
-    ."\n    \$Zeit=GetValueInteger(\$wertID)"
+    ."\n    \$Zeit=GetValueInteger(\$wertID);"
     ."\n    \$Stunde=date('H',\$Zeit);"
     ."\n    \$Minute=date('i',\$Zeit);"
     ."\n    \$Sekunde=date('s',\$Zeit);"
