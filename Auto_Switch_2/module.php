@@ -1044,7 +1044,7 @@ private function CreateTimerVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
         IPS_SetHidden($SkriptID, True);
         IPS_SetScriptContent($SkriptID, $script);
         IPS_SetVariableCustomAction($VarID, $SkriptID);*/
-        $this->CreateScriptForVar($VarID,$script);
+        $SkriptID=$this->CreateScriptForVar($VarID,$script,'control');
     }
     else {
         IPS_SetHidden($VarID, True);
@@ -1067,22 +1067,24 @@ private function CreateTimerVar($ident,$name,$CatID,$pos,$icon,$script,$profil){
     $this->CreateScriptForVar($wertID,"<? SetValue(\$_IPS['VARIABLE'], \$_IPS['VALUE']);");
     IPS_SetHidden ($wertID, TRUE);
     
-    $watchEventID=IPS_CreateEvent(0);                       //ausgelöstes Ereignis bei Änderung der Zeit
+    $watchEventID=IPS_CreateEvent(0);                      //ausgelöstes Ereignis bei Änderung der Zeit
     IPS_SetEventTrigger($watchEventID, 1, $wertID);        //Bei Änderung von Variable mit ID 15754
-    IPS_SetParent($watchEventID, $VarID);         //Ereignis zuordnen
-    IPS_SetEventActive($watchEventID, true);             //Ereignis aktivieren
+    IPS_SetParent($watchEventID, $VarID);                  //Ereignis zuordnen
+    IPS_SetEventAction($watchEventID, $SkriptID, []);      // Ziel von Event auf control setzen
+    IPS_SetEventActive($watchEventID, true);               //Ereignis aktivieren
     
     
     return($VarID);
 }
         
-private function CreateScriptForVar($VarID,$script){
+private function CreateScriptForVar($VarID,$script,$name){
     $SkriptID=IPS_CreateScript(0);
-    IPS_SetName($SkriptID,'control');
+    IPS_SetName($SkriptID,$name);
     IPS_SetParent($SkriptID,$VarID);
     IPS_SetHidden($SkriptID, True);
     IPS_SetScriptContent($SkriptID, $script);
     IPS_SetVariableCustomAction($VarID, $SkriptID);
+    return($SkriptID);
     }
 
 private function CreateWahlVar($ident,$name,$icon,$par, $pos){
