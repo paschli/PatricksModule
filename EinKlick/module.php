@@ -63,7 +63,7 @@ class ONEClick extends IPSModule {
            IPS_SetName($CatID, "Tasten");
            $this->SendDebug ('CheckKategorie', "Angelegt: Kategorie Tasten", 0);
        }
-       $this->SendDebug ('CheckKategorie', "OK: Kategorie", 0);
+       $this->SendDebug ('CheckKategorie', "OK: Kategorie = ".$CatID, 0);
        return $CatID;
    }
     
