@@ -172,7 +172,7 @@ protected function handleLCN($string,$inst_info){
     $typeCat=$this->checkTypeCat('LCN-'.$inst_name,$mainCat); // ID der Type Category (hier LCN)
     $tasteCat=$this->checkKeyCat($Key,$typeCat); // ID des Keys
     $script_id=$this->CheckSkript($tasteCat,'Taste_'.$source_taste); // ID des Scripts (je nach kurz, lang, stop usw.
-    
+    $this->SendDebug ('handleLCN', "Starte Skript: ".$script_id, 0);
     IPS_RunScript($script_id);
     return 1;
         
