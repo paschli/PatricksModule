@@ -956,7 +956,7 @@ private function Set_MQTT($value) {
         }
         
         RequestAction($SetID, $commandValue);
-        /*Änderungen 1.10.2025 Wiederholung entfernt
+        Änderungen 1.10.2025 Wiederholung entfernt
         usleep(500000); //notwendig???
     
         $result=GetValueString($this->ReadPropertyInteger('idStatus'));
@@ -972,8 +972,8 @@ private function Set_MQTT($value) {
         else {
             return 0;
         }
-        */
-        return 1;
+        
+        //return 1;
     }
 
     private function Set_Zig2MQTT($value) {
