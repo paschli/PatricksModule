@@ -947,7 +947,7 @@ private function GetCommandValue($type,$value){
 }
 private function Set_MQTT($value) {
         $SetID=IPS_GetChildrenIDs($this->ReadPropertyInteger('idLCNInstance'))[0];
-        //$StatusID=$this->ReadPropertyInteger('idStatus');
+        $StatusID=$this->ReadPropertyInteger('idStatus');
         $setType=IPS_GetVariable($SetID)['VariableType'];
         $commandValue=$this->GetCommandValue($setType,$value);
         if($commandValue===-1){
