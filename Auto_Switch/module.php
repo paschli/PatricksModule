@@ -573,7 +573,7 @@ public function Set(bool $value, bool $anzeige) {
           
         case 2: 
           //for($i = 1 ; $i <= 3 ; $i++){
-              $result=$this->Set_LCN_Rel($value);
+              $result=$this->ƒ($value);
               $this->SendDebug('AutoSwitch_Set_LCN_Relais', 'Aktion ausgeführt. Ergebnis= '.$result,0);
           //    if($result==1)
           //        break;
@@ -723,6 +723,7 @@ private function Set_LCN_Dim($value) {
     $status_id= $this->get_status_id($instID,'Status');
     $wert=$this->boolToString($status_id);
     $this->SendDebug('AutoSwitch_Set_LCN_Dim', 'Status für '.$instID.' = '.$wert,0);
+
     if($status_id==$value){
         SetValue($this->GetIDForIdent("Status"), $status_id);
         return 1;
@@ -736,6 +737,7 @@ private function Set_LCN_Rel($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
     LCN_SwitchRelay($instID, $value);
     $status_id= $this->get_status_id($instID,'Status');
+    
     if($status_id==$value){
         SetValue($this->GetIDForIdent("Status"), $status_id);
         return 1;
@@ -1005,7 +1007,8 @@ private function get_status_id($id, $name){ //!!!!!!!!!!!!!!!!!!!Hier besser nac
     foreach($arr as $child){
         if(IPS_GetName($child)==$name) 
             $status_id=$child;
-    }    
+    }
+    $this->SendDebug("get_status_id","Status_Id = ".$status_id,0);
     return GetValueBoolean($status_id);
 }
     
