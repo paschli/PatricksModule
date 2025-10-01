@@ -572,12 +572,12 @@ public function Set(bool $value, bool $anzeige) {
         break;
           
         case 2: 
-          //for($i = 1 ; $i <= 3 ; $i++){
+          for($i = 1 ; $i <= 3 ; $i++){
               $result=$this->Set_LCN_Rel($value);
               $this->SendDebug('AutoSwitch_Set_LCN_Relais', 'Aktion ausgeführt. Ergebnis= '.$result,0);
-          //    if($result==1)
-          //        break;
-          //}
+              if($result==1)
+                  break;
+          }
 
         break;
         
