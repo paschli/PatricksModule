@@ -736,10 +736,11 @@ private function Set_LCN_Dim($value) {
 private function Set_LCN_Rel($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
     LCN_SwitchRelay($instID, $value);
-    $status_id= $this->get_status_id($instID,'Status');
-    $this->SendDebug('Set_LCN_Rel', 'Status_ID= '.$status_id.' Value= '.$value,0);
     usleep(100000);
-    if($status_id==$value){
+    $status= $this->get_status_id($instID,'Status');
+    $this->SendDebug('Set_LCN_Rel', 'Status= '.$status.' Value= '.$value,0);
+    
+    if($status==$value){
         SetValue($this->GetIDForIdent("Status"), $status_id);
         return 1;
     }
