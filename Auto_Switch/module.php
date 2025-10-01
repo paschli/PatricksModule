@@ -563,21 +563,21 @@ public function Set(bool $value, bool $anzeige) {
         break;
 
         case 1: 
-          for($i = 1 ; $i <= 3 ; $i++){
-              $result=$this->Set_LCN_Dim($value); 
-              IPS_LogMessage('AutoSwitch_Set_LCN_Out', 'Aktion ausgeführt= '.$i."-mal");
-              if($result==1)
-                  break;
-          }  
+          //for($i = 1 ; $i <= 3 ; $i++){
+              $result=$this->Set_LCN_Dim($value);
+              IPS_LogMessage('AutoSwitch_Set_LCN_Out', 'Aktion ausgeführt. Ergebnis= '.$result);
+            //  if($result==1)
+            //      break;
+          //}
         break;
           
         case 2: 
-          for($i = 1 ; $i <= 3 ; $i++){
+          //for($i = 1 ; $i <= 3 ; $i++){
               $result=$this->Set_LCN_Rel($value);
-              IPS_LogMessage('AutoSwitch_Set_LCN_Relais', 'Aktion ausgeführt= '.$i."-mal");
-              if($result==1)
-                  break;
-          }  
+              IPS_LogMessage('AutoSwitch_Set_LCN_Relais', 'Aktion ausgeführt. Ergebnis= '.$result);
+          //    if($result==1)
+          //        break;
+          //}
 
         break;
         
