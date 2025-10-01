@@ -587,12 +587,12 @@ public function Set(bool $value, bool $anzeige) {
           break;
       
         case 4: 
-          for($i = 1 ; $i <= 3 ; $i++){
+          //for($i = 1 ; $i <= 3 ; $i++){
               $result=$this->Set_JSON($value,$sem_id);
-              IPS_LogMessage('AutoSwitch_Set_JSON', 'Aktion ausgeführt= '.$i."-mal");
-              if($result==1)
-                  break;
-          }
+              IPS_LogMessage('AutoSwitch_Set_JSON', 'Aktion ausgeführt. Ergebnis= '.$result);
+           //   if($result==1)
+           //       break;
+          //}
         break;
         
         case 5: 
@@ -607,36 +607,36 @@ public function Set(bool $value, bool $anzeige) {
         break;
       
         case 7:
-          for($i = 1 ; $i <= 3 ; $i++){
-              $result=$this->Set_Tasmota($value); 
-              IPS_LogMessage('AutoSwitch_Set_Tasmota', 'Aktion ausgeführt= '.$i."-mal");
-              if($result==1)
-                  break;
-          }
+          //for($i = 1 ; $i <= 3 ; $i++){
+              $result=$this->Set_Tasmota($value);
+              IPS_LogMessage('AutoSwitch_Set_Tasmota', 'Aktion ausgeführt. Ergebnis= '.$result);
+          //    if($result==1)
+          //        break;
+         // }
         break;
         
         case 8:
-          for($i = 1 ; $i <= 3 ; $i++){
+          //for($i = 1 ; $i <= 3 ; $i++){
               $result=$this->Set_PIGPIO($value);
-              IPS_LogMessage('AutoSwitch_Set_PIGPIO', 'Aktion ausgeführt= '.$i."-mal");
-              if($result==1)
-                  break;
-          }
+              IPS_LogMessage('AutoSwitch_Set_PIGPIO', 'Aktion ausgeführt. Ergebnis= '.$result);
+          //    if($result==1)
+          //        break;
+          //}
         case 9:
-        for($i = 1 ; $i <= 3 ; $i++){
+        //for($i = 1 ; $i <= 3 ; $i++){
             $result=$this->Set_MQTT($value);
-            IPS_LogMessage('AutoSwitch_Set_MQTT', 'Aktion ausgeführt= '.$i."-mal");
-            if($result==1)
-                break;
-        }
+            IPS_LogMessage('AutoSwitch_Set_MQTT', 'Aktion ausgeführt. Ergebnis= '.$result);
+        //    if($result==1)
+        //        break;
+        //}
         break;
         case 10:
-        for($i = 1 ; $i <= 3 ; $i++){
+        //for($i = 1 ; $i <= 3 ; $i++){
             $result=$this->Set_Zig2MQTT($value);
-            IPS_LogMessage('AutoSwitch_Set_Zig2MQTT', 'Aktion ausgeführt= '.$i."-mal");
-            if($result==1)
-                break;
-        }
+            IPS_LogMessage('AutoSwitch_Set_Zig2MQTT', 'Aktion ausgeführt. Ergebnis= '.$result);
+        //    if($result==1)
+        //        break;
+        //}
         break;
         default: 
           $result=0;
