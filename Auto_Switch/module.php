@@ -773,7 +773,7 @@ private function Set_LCN_Lamp($value) {
             $lamp_status='A';
         }
         if($check==0){
-            $this->SendDebug("AutoSwitch_Set_LCN_Lamp","Befehl ohne Check ausgeführt");
+            $this->SendDebug("AutoSwitch_Set_LCN_Lamp","Befehl ohne Check ausgeführt",0);
         }
         else if(($this->Check_LCN_Lamp($idcheckLamp,$lampNo,$lamp_status))){
             $this->SendDebug("AutoSwitch_Set_LCN_Lamp","Befehl erfolgreich ausgeführt! (".($i+1)." Versuch(e))",0);
@@ -1076,7 +1076,7 @@ private function FindTargetStatusofDevices($type) {
 // ID der zu steuernden Instanz ermitteln
     //$Reference = IPS_GetScriptThread()['ScriptID'];
     $ZielID= $this->ReadPropertyInteger('idLCNInstance');
-    $this->SendDebug("AutoSwitch_FindTargetStatusofDevices","Suche Id vom Typ= ".$type." bei ID=".$ZielID,0);
+    $this->SendDebug("FindTargetStatusofDevices","Suche Id vom Typ= ".$type." bei ID=".$ZielID,0);
 //Children dieser Instanz ermitteln
     $ID_Children=IPS_GetChildrenIds($ZielID);
     switch($type){
