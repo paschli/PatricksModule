@@ -572,12 +572,12 @@ public function Set(bool $value, bool $anzeige) {
         break;
           
         case 2: 
-          for($i = 1 ; $i <= 3 ; $i++){
+          //for($i = 1 ; $i <= 3 ; $i++){
               $result=$this->Set_LCN_Rel($value);
               $this->SendDebug('AutoSwitch_Set_LCN_Relais', 'Aktion ausgeführt. Ergebnis= '.$result,0);
-              if($result==1)
-                  break;
-          }
+          //    if($result==1)
+          //        break;
+          //}
 
         break;
         
@@ -737,7 +737,8 @@ private function Set_LCN_Rel($value) {
     $instID=$this->ReadPropertyInteger('idLCNInstance');
     LCN_SwitchRelay($instID, $value);
     $status_id= $this->get_status_id($instID,'Status');
-    
+    $this->SendDebug('Set_LCN_Rel', 'Status_ID= '.$status_id.' Value= '.$value,0);
+    usleep(100000);
     if($status_id==$value){
         SetValue($this->GetIDForIdent("Status"), $status_id);
         return 1;
