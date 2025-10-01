@@ -741,7 +741,7 @@ private function Set_LCN_Rel($value) {
     $this->SendDebug('Set_LCN_Rel', 'Status= '.$status.' Value= '.$value,0);
     
     if($status==$value){
-        SetValue($this->GetIDForIdent("Status"), $status_id);
+        SetValue($this->GetIDForIdent("Status"), $status);
         return 1;
     }
     else {
