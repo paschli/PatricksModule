@@ -223,11 +223,17 @@ protected function handleLCN($string,$inst_info){
         $type='LCN';
         $result=$this->handleLCN($string,$inst_info);
       }
-      else if(ctype_alpha($string)) {//falls nur Zahlen Empfangen wurden und die Länge 6 ist
+      else {//falls nur Zahlen Empfangen wurden und die Länge 6 ist
         $type='Zigbee';
           $this->SendDebug ('Check', "Zigbee erkannt", 0);
         $result=$this->handleZigbee($string,$inst_info);
       }
+      /*
+      else if(ctype_alpha($string)) {//falls nur Zahlen Empfangen wurden und die Länge 6 ist
+        $type='Zigbee';
+          $this->SendDebug ('Check', "Zigbee2MQTT erkannt", 0);
+        $result=$this->handleZigbee($string,$inst_info);
+      }*/
   }
 
     
