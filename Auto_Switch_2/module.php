@@ -18,6 +18,7 @@ class AutSw2 extends IPSModule {
     $this->RegisterPropertyInteger('Rampe', 2); // Rampe für das Schalten eines LCN Ausgangs
     $this->RegisterPropertyString('IPAddress', ''); //IP Adesse für remote schalten eines anderen IP-Symcon
     $this->RegisterPropertyString('Password', '');// Passwort für JSON-Verbindung
+    $this->RegisterPropertyString('UserName', '');// User-Name für JSON-Verbindung
     $this->RegisterPropertyInteger('ZielID', 0);// ID des zu schaltenden entfernten Objekts
     $this->RegisterPropertyString('Name','');//Otionaler Name für die erstellte Instanz
     $this->RegisterPropertyInteger('State', 0); //Status der Instanz
@@ -226,6 +227,7 @@ class AutSw2 extends IPSModule {
      
     $elements_entry_jsonZugriff=',
         { "type": "ValidationTextBox", "name": "IPAddress", "caption": "Host"},
+        { "type": "PasswordTextBox", "name": "UserName", "caption": "UserName" },
         { "type": "PasswordTextBox", "name": "Password", "caption": "Passwort" },
         { "type": "NumberSpinner", "name": "ZielID", "caption": "Ziel ID"},
         { "type": "ValidationTextBox", "name": "Name", "caption": "Bezeichnung"}';
@@ -412,9 +414,10 @@ public function SetOff() {
 
 private function checkVerb($wahl) {//prüft die Verbindung
       $password= $this->ReadPropertyString('Password');
+      $username= $this->ReadPropertyString('UserName');                             
       $IPAddr= $this->ReadPropertyString('IPAddress');
       $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
-      $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
+      $mes="http://".$username.":".$password."@".$IPAddr.":3777/api/";
       //$this->SendDebug("AutoSwitch2_Check","Aufruf:".$mes."Target ID".$TargetID);
       
       try {
@@ -619,6 +622,7 @@ public function Set(bool $value, bool $anzeige) {
           //    if($result==1)
           //        break;
          // }
+        break;
         case 9:
         //for($i = 1 ; $i <= 3 ; $i++){
             $result=$this->Set_MQTT($value);
