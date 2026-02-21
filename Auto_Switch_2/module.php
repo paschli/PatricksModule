@@ -876,14 +876,16 @@ private function Set_Schalter($value) {
 }
 
 private function Set_PIIOC($value,$sem_id) {
+    $username= $this->ReadPropertyString('UserName'); 
     $password= $this->ReadPropertyString('Password');
     $IPAddr= $this->ReadPropertyString('IPAddress');
     $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
-    $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
+    //$mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
+    $mes="http://".$username.":".$password."@".$IPAddr.":3777/api/";
     $this->SendDebug("AutoSwitch2_Set","Aufruf".$mes,0);
     $this->SendDebug("AutoSwitch2_Set","Target ID".$TargetID,0);
     try{
-        $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
+        $rpc = new JSONRPC($mes);
         if($value){
             //$this->SendDebug(Modul,"Value = True => Relais An");
             $rpc->PIIOC_set($TargetID);
