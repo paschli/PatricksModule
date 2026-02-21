@@ -3,7 +3,19 @@
 
 
 class AutSw2 extends IPSModule {
-  
+
+  // Klassen-Konstanten für Schalt-Typen
+    const TYPE_NONE        = 0;
+    const TYPE_LCN_OUTPUT  = 1;
+    const TYPE_LCN_RELAY   = 2;
+    const TYPE_LCN_LAMP    = 3;
+    const TYPE_JSON        = 4;
+    const TYPE_SWITCH      = 5;
+    const TYPE_PIIOC       = 6;
+    const TYPE_SONOFF      = 7;
+    const TYPE_PIGPIO      = 8;
+    const TYPE_MQTT        = 9;
+    const TYPE_ZIG2MQTT    = 10;
   
   //var $jsontest=0;
     
@@ -58,6 +70,7 @@ class AutSw2 extends IPSModule {
 //Aktion, falls zu schaltendes Objekt von anderen Instanzen oder Schaltern geschaltet wird
     $scriptDevice="\$id = \$_IPS['TARGET'];\n".
                     'AutSw2_EventTrigger($id, $id, GetValueBoolean(IPS_GetEvent($_IPS["EVENT"])["TriggerVariableID"]));';
+    
     if($this->ReadPropertyInteger('idLCNInstance')){
         $typ= $this->ReadPropertyInteger('Auswahl');
     }
@@ -100,9 +113,9 @@ class AutSw2 extends IPSModule {
       
 //Zusätzliche Aktionen für spezielle Typen
     switch($typ){
-            case 0: //falls Instanz nicht gewählt wurde
+            case self::TYPE_NONE: //falls Instanz nicht gewählt wurde
                 break;
-            case 1: //falls Instanz LCN Ausgang
+            case self::TYPE_LCN_OUTPUT: //falls Instanz LCN Ausgang
                 $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 if(!@IPS_GetObjectIDByIdent('SliderAnz', $instID)){
                     $script='<?'.chr(13).
@@ -113,33 +126,33 @@ class AutSw2 extends IPSModule {
                     IPS_SetHidden($SliderID, FALSE);
                 }
                 break;
-            case 2: //falls Instanz LCN Relais
+            case self::TYPE_LCN_RELAY: //falls Instanz LCN Relais
                 $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 break;
-            case 3: //falls Instanz LCN Lämpchen
+            case self::TYPE_LCN_LAMP: //falls Instanz LCN Lämpchen
                 break;
-            case 4: //falls Instanz Fernzugriff
+            case self::TYPE_JSON: //falls Instanz Fernzugriff
                 
                 break;
-            case 5: //falls Instanz Switch-Modul
+            case self::TYPE_SWITCH: //falls Instanz Switch-Modul
                 $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 break;
-            case 6://falls Instanz PIIOC
+            case self::TYPE_PIIOC://falls Instanz PIIOC
                 break;
-            case 7://falls Instanz Sonoff
+            case self::TYPE_SONOFF://falls Instanz Sonoff
                 $this->CheckEvent($scriptDevice,2);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 break;
-            case 8://falls Instanz PI_GPIO_Output
+            case self::TYPE_PIGPIO://falls Instanz PI_GPIO_Output
                 break;
-            case 9://falls Instanz PI_MQTT_Output
+            case self::TYPE_MQTT://falls Instanz PI_MQTT_Output
                 break;
-            case 10://falls Instanz Zigbee2MQTT
+            case self::TYPE_ZIG2MQTT://falls Instanz Zigbee2MQTT
                $this->CheckEvent($scriptDevice,1);//prüft ob Event vorhanden ist und setzt die Überwachung auf den Status der Instanz
                 break;
             default:
                 break;
         }
-    if($typ!=1){
+    if($typ != self::TYPE_LCN_OUTPUT){
         if($SliderID=@IPS_GetObjectIDByIdent('SliderAnz', $instID)){
             if($scriptID=@IPS_GetObjectIDByName('control', $SliderID))
                 IPS_DeleteScript ($scriptID, TRUE);
@@ -249,32 +262,34 @@ class AutSw2 extends IPSModule {
      
     $wahl=$this->ReadPropertyInteger('Auswahl');
     switch($wahl){
-        case 0:  $elements_entry=$elements_entry_device; break;
-        case 1:  $elements_entry=$elements_entry_device.$elements_entry_lcnOutput; break;
-        case 2:  $elements_entry=$elements_entry_device.$elements_entry_lcnRelais; break;
-        case 3:  $elements_entry=$elements_entry_device.$elements_entry_lcnLämpchen; break;
-        case 4:  $elements_entry=$elements_entry_device.$elements_entry_jsonZugriff; break;
-        case 5:  $elements_entry=$elements_entry_device.$elements_entry_lcnRelais; break;
-        case 6:  $elements_entry=$elements_entry_device.$elements_entry_jsonZugriff; break;
-        case 7:  $elements_entry=$elements_entry_device.$elements_entry_Sonoff; break;
-        case 8:  $elements_entry=$elements_entry_device.$elements_entry_PIGPIO; break;
-        case 9:  $elements_entry=$elements_entry_device.$elements_entry_pi_MQTT; break;
-        case 10: $elements_entry=$elements_entry_device.$elements_entry_Zig2MQTT; break;
+        case self::TYPE_NONE :  $elements_entry=$elements_entry_device; break;
+        case self::TYPE_LCN_OUTPUT :  $elements_entry=$elements_entry_device.$elements_entry_lcnOutput; break;
+        case self::TYPE_LCN_RELAY :  $elements_entry=$elements_entry_device.$elements_entry_lcnRelais; break;
+        case self::TYPE_LCN_LAMP :  $elements_entry=$elements_entry_device.$elements_entry_lcnLämpchen; break;
+        case self::TYPE_JSON :  $elements_entry=$elements_entry_device.$elements_entry_jsonZugriff; break;
+        case self::TYPE_SWITCH :  $elements_entry=$elements_entry_device.$elements_entry_lcnRelais; break;
+        case self::TYPE_PIIOC :  $elements_entry=$elements_entry_device.$elements_entry_jsonZugriff; break;
+        case self::TYPE_SONOFF :  $elements_entry=$elements_entry_device.$elements_entry_Sonoff; break;
+        case self::TYPE_PIGPIO :  $elements_entry=$elements_entry_device.$elements_entry_PIGPIO; break;
+        case self::TYPE_MQTT :  $elements_entry=$elements_entry_device.$elements_entry_pi_MQTT; break;
+        case self::TYPE_ZIG2MQTT : $elements_entry=$elements_entry_device.$elements_entry_Zig2MQTT; break;
         
     }
 //Option für WatchEvent - geht nur bei LCN-Instanz, LCN-Relais, Switch_Modul
-    if($this->ReadPropertyBoolean('SelAutoOff')&&($wahl!=3)&&($wahl!=4)&&($wahl!=6)){
-        $elements_entry_AutoOff=$elements_entry_AutoOff.$elements_entry_AutoOffWatch;
+    $typenOhneWatch = [self::TYPE_LCN_LAMP, self::TYPE_JSON, self::TYPE_PIIOC];
+    if($this->ReadPropertyBoolean('SelAutoOff')&& !in_array($wahl, $typenOhneWatch)){
+        $elements_entry_AutoOff.=$elements_entry_AutoOffWatch;
     }
     else{
         $elements_entry_AutoOff=$elements_entry_AutoOff;
     }
 //Option für AutoOff und Timer CheckBoxen
+    $typenMitZielID = [self::TYPE_JSON, self::TYPE_PIIOC];
     if($this->ReadPropertyInteger('idLCNInstance')){
         $action_entry=$action_entry1;
         $elements_entry=$elements_entry.$elements_entry_AutoOff.$elements_entry_Timer;
     }
-    else if((($wahl==4)||($wahl==6))&&($this->ReadPropertyInteger('ZielID')>0)){
+    else if(in_array($wahl, $typenMitZielID)&&($this->ReadPropertyInteger('ZielID')>0)){
         if($this->checkVerb($wahl)==1){
             $action_entry=$action_entry1;
             $elements_entry=$elements_entry.$elements_entry_AutoOff.$elements_entry_Timer;
@@ -422,9 +437,9 @@ private function checkVerb($wahl) {//prüft die Verbindung
       
       try {
           $rpc =@ new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
-          if($wahl==4)
+          if($wahl == self::TYPE_JSON)
             @$rpc->GetValue($TargetID);
-          else if($wahl==6)
+          else if($wahl == self::TYPE_PIIOC)
             @$rpc->IPS_GetKernelVersion();
           else{
             $this->SendDebug("AutoSwitch2_checkVerb","Verbindung konnte nicht verifiziert werden! Aufrufparameter falsch!",0);
@@ -558,11 +573,11 @@ public function Set(bool $value, bool $anzeige) {
           $this->SendDebug("AutoSwitch2_".$func,"WatchEvent deaktivieren!",0);
       }
       switch($typ){
-        case 0:
+        case self::TYPE_NONE:
             $result=0;
         break;
 
-        case 1:
+        case self::TYPE_LCN_OUTPUT:
           //for($i = 1 ; $i <= 3 ; $i++){
               $result=$this->Set_LCN_Dim($value);
               $this->SendDebug('AutoSwitch2_Set_LCN_Out', 'Aktion ausgeführt. Ergebnis= '.$result,0);
@@ -571,7 +586,7 @@ public function Set(bool $value, bool $anzeige) {
           //}
         break;
           
-        case 2:
+        case self::TYPE_LCN_RELAY:
           //for($i = 1 ; $i <= 3 ; $i++){
               $result=$this->Set_LCN_Rel($value);
               $this->SendDebug('AutoSwitch2_Set_LCN_Relais', 'Aktion ausgeführt. Ergebnis= '.$result,0);
@@ -581,12 +596,12 @@ public function Set(bool $value, bool $anzeige) {
 
         break;
         
-        case 3:
+        case self::TYPE_LCN_LAMP:
           $this->Set_LCN_Lamp($value);
             $result=1;
           break;
       
-        case 4:
+        case self::TYPE_JSON:
           //for($i = 1 ; $i <= 3 ; $i++){
               $result=$this->Set_JSON($value,$sem_id);
               $this->SendDebug('AutoSwitch2_Set_JSON', 'Aktion ausgeführt. Ergebnis= '.$result,0);
@@ -595,18 +610,18 @@ public function Set(bool $value, bool $anzeige) {
           //}
         break;
         
-        case 5:
+        case self::TYPE_SWITCH:
           $this->Set_Schalter($value);
           $result=1;
            
         break;
     
-        case 6:
+        case self::TYPE_PIIOC:
           $this->Set_PIIOC($value,$sem_id);
           $result=1;
         break;
       
-        case 7:
+        case self::TYPE_SONOFF:
           //for($i = 1 ; $i <= 3 ; $i++){
               $result=$this->Set_Tasmota($value);
               $this->SendDebug('AutoSwitch2_Set_Tasmota', 'Aktion ausgeführt. Ergebnis= '.$result,0);
@@ -615,7 +630,7 @@ public function Set(bool $value, bool $anzeige) {
           //}
         break;
         
-        case 8:
+        case self::TYPE_PIGPIO:
           //for($i = 1 ; $i <= 3 ; $i++){
               $result=$this->Set_PIGPIO($value);
               $this->SendDebug('AutoSwitch2_Set_PIGPIO', 'Aktion ausgeführt. Ergebnis= '.$result,0);
@@ -623,7 +638,7 @@ public function Set(bool $value, bool $anzeige) {
           //        break;
          // }
         break;
-        case 9:
+        case self::TYPE_MQTT:
         //for($i = 1 ; $i <= 3 ; $i++){
             $result=$this->Set_MQTT($value);
             $this->SendDebug('AutoSwitch2_Set_MQTT', 'Aktion ausgeführt. Ergebnis= '.$result,0);
@@ -631,7 +646,7 @@ public function Set(bool $value, bool $anzeige) {
         //        break;
         //}
         break;
-        case 10:
+        case self::TYPE_ZIG2MQTT:
         //for($i = 1 ; $i <= 3 ; $i++){
             $result=$this->Set_Zig2MQTT($value);
             $this->SendDebug('AutoSwitch2_Set_Zig2MQTT', 'Aktion ausgeführt. Ergebnis= '.$result,0);
@@ -804,12 +819,13 @@ private function Check_LCN_Lamp($idcheckLamp,$lampNo,$lamp_value) {
 private function Set_JSON($value,$sem_id) {
     $password= $this->ReadPropertyString('Password');
     $IPAddr= $this->ReadPropertyString('IPAddress');
+    $username= $this->ReadPropertyString('UserName'); 
     $TargetID=(integer) $this->ReadPropertyInteger('ZielID');
-    $mes="http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/";
+    $mes="http://".$username.":".$password."@".$IPAddr.":3777/api/";
     $this->SendDebug("AutoSwitch2_Set","Aufruf".$mes,0);
     $this->SendDebug("AutoSwitch2_Set","Target ID".$TargetID,0);
     try {
-        $rpc = new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
+        $rpc = new JSONRPC($mes);
         if($value){
             //$this->SendDebug(Modul,"Value = True => Relais An");
             $rpc->SetValue($TargetID, true);
@@ -822,14 +838,14 @@ private function Set_JSON($value,$sem_id) {
     catch (JSONRPCException $e) {
         echo 'RPC Problem', "\n";
         //IPS_SemaphoreLeave('AutoSwitch2_Set');
-        IPS_SemaphoreLeave($sem_id);
+        //IPS_SemaphoreLeave($sem_id);
         $this->SendDebug('AutoSwitch2_Set', 'RPC Fehler',0);
         return 0;
     }
     catch (Exception $e) {
        echo 'Server Problem',"\n";
        //IPS_SemaphoreLeave('AutoSwitch2_Set');
-       IPS_SemaphoreLeave($sem_id);
+       //IPS_SemaphoreLeave($sem_id);
        $this->SendDebug('AutoSwitch2_Set', 'Verbindungsfehler',0);
        return 0;
     }
@@ -881,14 +897,14 @@ private function Set_PIIOC($value,$sem_id) {
     catch (JSONRPCException $e) {
         echo 'RPC Problem', "\n";
         //IPS_SemaphoreLeave('AutoSwitch2_Set');
-        IPS_SemaphoreLeave($sem_id);
+        //IPS_SemaphoreLeave($sem_id);
         $this->SendDebug('AutoSwitch2_Set', 'RPC Fehler',0);
         return 0;
     }
     catch (Exception $e) {
        echo 'Server Problem',"\n";
        //IPS_SemaphoreLeave('AutoSwitch2_Set');
-       IPS_SemaphoreLeave($sem_id);
+       //IPS_SemaphoreLeave($sem_id);
        $this->SendDebug('AutoSwitch2_Set', 'Verbindungsfehler',0);
        return 0;
     }
