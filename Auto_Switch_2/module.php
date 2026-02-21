@@ -32,6 +32,8 @@ class AutSw2 extends IPSModule {
     $this->RegisterPropertyString('Password', '');// Passwort für JSON-Verbindung
     $this->RegisterPropertyString('UserName', '');// User-Name für JSON-Verbindung
     $this->RegisterPropertyInteger('ZielID', 0);// ID des zu schaltenden entfernten Objekts
+    $this->RegisterPropertyInteger('SunriseID', 0);// ID Dämmerungsbeginn
+    $this->RegisterPropertyInteger('SunsetID', 0);// ID des Dämmerungsende
     $this->RegisterPropertyString('Name','');//Otionaler Name für die erstellte Instanz
     $this->RegisterPropertyInteger('State', 0); //Status der Instanz
     $this->RegisterPropertyBoolean('AutoOff_Switch', FALSE);
@@ -252,6 +254,9 @@ class AutSw2 extends IPSModule {
     $elements_entry_AutoOffWatch=',{ "type": "CheckBox", "name": "WatchTarget", "caption": "Ziel überwachen" }';
     
     $elements_entry_TimerMsg=',{ "type": "CheckBox", "name": "TimerMsg", "caption": "Nachricht bei Timer Event" }';
+    $elements_entry_TimerIDs = ',
+      { "name": "SunriseID", "type": "SelectVariable", "caption": "Sonnenaufgang Variable" },
+      { "name": "SunsetID",  "type": "SelectVariable", "caption": "Sonnenuntergang Variable" }';
             
     $action_entry='';
     $action_entry1='{ "type": "Label", "label": "Bitte die zu steuernde Instanz wählen" },
@@ -300,7 +305,7 @@ class AutSw2 extends IPSModule {
         $action_entry='';
     }
     if($this->ReadPropertyBoolean('SelTimer'))
-        $elements_entry=$elements_entry.$elements_entry_TimerMsg;
+        $elements_entry=$elements_entry.$elements_entry_TimerMsg.$elements_entry_TimerIDs;
     
     $form='{ "status":['.$status_entry.'],"elements":['.$elements_entry.'],"actions":['.$action_entry.']}';
     return $form;
@@ -436,7 +441,7 @@ private function checkVerb($wahl) {//prüft die Verbindung
       //$this->SendDebug("AutoSwitch2_Check","Aufruf:".$mes."Target ID".$TargetID);
       
       try {
-          $rpc =@ new JSONRPC("http://patrick".chr(64)."schlischka.de:".$password."@".$IPAddr.":3777/api/");
+          $rpc =@ new JSONRPC($mes);
           if($wahl == self::TYPE_JSON)
             @$rpc->GetValue($TargetID);
           else if($wahl == self::TYPE_PIIOC)
