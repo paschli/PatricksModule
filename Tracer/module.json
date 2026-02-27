@@ -3,7 +3,7 @@
     "name": "DeviceMonitor",
     "type": 1,
     "vendor": "Patrick",
-    "authors": [],
+    "authors": ["Tracer"],
     "url": "",
     "description": "Überwacht Geräte und protokolliert Zustandswechsel mit Auslöser-Traceability",
     "alias": "Device Monitor",
