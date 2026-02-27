@@ -6,9 +6,9 @@
     "authors": [],
     "url": "",
     "description": "Überwacht Geräte und protokolliert Zustandswechsel mit Auslöser-Traceability",
-    "alias": "Device Monitor",
-    "compatibility": {
-        "version": ">=8.0"
-    },
+    "aliases": ["Device Monitor"],
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
     "prefix": "DeviceMonitor"
 }
