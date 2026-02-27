@@ -1,0 +1,78 @@
+{
+    "elements": [
+        {
+            "type": "Label",
+            "caption": "Geräteüberwachung"
+        },
+        {
+            "type": "List",
+            "name": "DeviceList",
+            "caption": "Überwachte Geräte",
+            "rowCount": 10,
+            "add": true,
+            "delete": true,
+            "sort": {
+                "column": "Name",
+                "direction": "ascending"
+            },
+            "columns": [
+                {
+                    "caption": "Aktiv",
+                    "name": "Active",
+                    "width": "60px",
+                    "add": true,
+                    "edit": {
+                        "type": "CheckBox"
+                    }
+                },
+                {
+                    "caption": "Name",
+                    "name": "Name",
+                    "width": "200px",
+                    "add": "",
+                    "edit": {
+                        "type": "ValidationTextBox"
+                    }
+                },
+                {
+                    "caption": "Variable",
+                    "name": "VariableID",
+                    "width": "300px",
+                    "add": 0,
+                    "edit": {
+                        "type": "SelectVariable"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "Label",
+            "caption": "Log-Einstellungen"
+        },
+        {
+            "type": "ValidationTextBox",
+            "name": "LogTag",
+            "caption": "Gemeinsamer Log-Tag",
+            "value": "DeviceMonitor"
+        }
+    ],
+    "actions": [
+        {
+            "type": "Button",
+            "caption": "Ereignisse synchronisieren (manuell)",
+            "onClick": "DM_SyncEvents($id);"
+        }
+    ],
+    "status": [
+        {
+            "code": 102,
+            "icon": "active",
+            "caption": "Aktiv"
+        },
+        {
+            "code": 201,
+            "icon": "error",
+            "caption": "Fehler"
+        }
+    ]
+}
