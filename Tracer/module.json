@@ -10,5 +10,5 @@
     "compatibility": {
         "version": ">=8.0"
     },
-    "prefix": "Trace"
+    "prefix": "DeviceMonitor"
 }
