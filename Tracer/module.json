@@ -9,6 +9,6 @@
     "alias": "Device Monitor",
     "compatibility": {
         "version": ">=8.0"
-    }
+    },
     "prefix": "Trace"
 }
