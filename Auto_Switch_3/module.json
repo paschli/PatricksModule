@@ -1,0 +1,11 @@
+{
+  "id": "{C4D7E8F9-0A1B-2C3D-4E5F-6A7B8C9D0E1F}",
+  "name": "AutSw3",
+  "type": 3,
+  "vendor": "Patrick",
+  "aliases": ["AutoSwitch3"],
+  "parentRequirements": [],
+  "childRequirements": [],
+  "implemented": [],
+  "prefix": "AutSw3"
+}

@@ -1,0 +1,25 @@
+{
+  "elements": [
+    {
+      "type": "Label",
+      "caption": "Ziel-Variable auswählen (Boolean-Schalter der zu steuernden Instanz)"
+    },
+    {
+      "name": "TargetID",
+      "type": "SelectVariable",
+      "caption": "Ziel-Variable",
+      "validVariableTypes": [0]
+    },
+    {
+      "type": "Label",
+      "caption": "Countdown-Timer: Schaltet das Ziel nach Ablauf automatisch aus (0 = deaktiviert)"
+    },
+    {
+      "name": "CountdownTime",
+      "type": "NumberSpinner",
+      "caption": "Countdown-Zeit",
+      "minimum": 0,
+      "suffix": "s"
+    }
+  ]
+}
