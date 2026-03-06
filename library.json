@@ -2,8 +2,22 @@
   "id": "{B764497C-E369-4B8C-A418-AB3B7BD563CF}",
   "author": "Patrick Schlischka",
   "name": "Patricks Module",
-  "url": "github.com/paschli/",
-  "version": "0.2",
-  "build": 1,
-  "date": 0
+  "url": "http://github.com/paschli/",
+  "compatibility": {
+    "version": "8.0"
+  },
+  "version": "0.3",
+  "build": 3,
+  "date": 0,
+  "modules": [
+    "{E57B3208-C652-4B14-A2D5-FE9C95D085BA}",
+    "{3C58BE40-85B8-28AD-7DC6-165C7A201D8A}",
+    "{ABCF16FB-C407-41FD-B576-E7A57161B88D}",
+    "{2A42F8AA-743F-4B5F-BA34-44988FFF6A7D}",
+    "{D7FAE89C-EA7F-4EA6-B801-7AB863170CCA}",
+    "{56A2A23C-D638-4FE0-B08F-5C7D8BCD7219}",
+    "{1A02F26A-2F56-4CC8-80A4-E182924FF3C0}",
+    "{8F7B3E2A-4C91-4D6E-B5A2-1E9F3C7D8B04}",
+    "{E94B56C1-13A1-4DDF-A125-817C5DFFAC9B}"
+  ]
 }

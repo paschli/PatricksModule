@@ -1,4 +1,4 @@
-<?php
+<?
 
 declare(strict_types=1);
 
@@ -31,7 +31,10 @@ class DeviceMonitor extends IPSModule
     public function SyncEvents(): void
     {
         $deviceList = json_decode($this->ReadPropertyString('DeviceList'), true);
-
+        
+        $initialValue = GetValue($variableID);
+        $this->SetBuffer('LastValue_' . $variableID, (string) $initialValue);
+        
         if (!is_array($deviceList)) {
             $this->LogMessage('DeviceList ist kein gültiges JSON', KL_ERROR);
             return;
@@ -106,6 +109,18 @@ class DeviceMonitor extends IPSModule
         $deviceList  = json_decode($this->ReadPropertyString('DeviceList'), true);
         $logTag      = $this->ReadPropertyString('LogTag');
 
+
+        // Alter Wert aus Buffer lesen, bevor wir ihn überschreiben
+        $oldValue = $this->GetBuffer('LastValue_' . $variableID);
+        $newValue = GetValue($variableID);
+    
+        // Neuen Wert für nächsten Durchlauf speichern
+        $this->SetBuffer('LastValue_' . $variableID, (string) $newValue);
+    
+        // Beim ersten Aufruf (Buffer leer) nur initialisieren, kein Log
+        if ($oldValue === '') {
+            return;
+        }
         // Gerät in der Liste finden
         $device = null;
         foreach ($deviceList as $entry) {

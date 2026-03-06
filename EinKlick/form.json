@@ -1,6 +1,29 @@
 {
   "elements": [
-    { "name": "idSourceInstance", "type": "SelectVariable", "caption": "Variable" }
+    {
+      "name": "PropertyCategoryID",
+      "type": "SelectCategory",
+      "caption": "Position des Ordners"
+    },
+    {
+      "type": "List",
+      "name": "SourceList",
+      "caption": "Strings",
+      "rowCount": 3,
+      "add": true,
+      "delete": true,
+      "columns": [
+        {
+          "caption": "SourceStringID",
+          "name": "SourceStringID",
+          "width": "500px",
+          "add": 0,
+          "edit": {
+            "type": "SelectVariable",
+            "validVariableTypes": [3]
+          }
+        }
+      ]
+    }
   ]
-  
 }
