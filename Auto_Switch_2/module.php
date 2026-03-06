@@ -841,16 +841,10 @@ private function Set_JSON($value,$sem_id) {
         }
     }
     catch (JSONRPCException $e) {
-        echo 'RPC Problem', "\n";
-        //IPS_SemaphoreLeave('AutoSwitch2_Set');
-        //IPS_SemaphoreLeave($sem_id);
         $this->SendDebug('AutoSwitch2_Set', 'RPC Fehler',0);
         return 0;
     }
     catch (Exception $e) {
-       echo 'Server Problem',"\n";
-       //IPS_SemaphoreLeave('AutoSwitch2_Set');
-       //IPS_SemaphoreLeave($sem_id);
        $this->SendDebug('AutoSwitch2_Set', 'Verbindungsfehler',0);
        return 0;
     }
@@ -902,16 +896,10 @@ private function Set_PIIOC($value,$sem_id) {
 
     }
     catch (JSONRPCException $e) {
-        echo 'RPC Problem', "\n";
-        //IPS_SemaphoreLeave('AutoSwitch2_Set');
-        //IPS_SemaphoreLeave($sem_id);
         $this->SendDebug('AutoSwitch2_Set', 'RPC Fehler',0);
         return 0;
     }
     catch (Exception $e) {
-       echo 'Server Problem',"\n";
-       //IPS_SemaphoreLeave('AutoSwitch2_Set');
-       //IPS_SemaphoreLeave($sem_id);
        $this->SendDebug('AutoSwitch2_Set', 'Verbindungsfehler',0);
        return 0;
     }
@@ -1004,16 +992,6 @@ private function get_status_id($id, $name){
     return GetValueBoolean($status_id);
 }
     
-private function get_mqtt_status($id, $name){
-    $arr=IPS_GetChildrenIDs($id);
-    $status_id=0;
-    foreach($arr as $child){
-        if(IPS_GetName($child)==$name)
-            $status_id=$child;
-    }
-    return GetValueBoolean($status_id);
-}
-
 private function boolToString($boolVal){
   return ($boolVal ? 'true' : 'false');
 }
