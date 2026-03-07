@@ -33,6 +33,9 @@ class AutSw3 extends IPSModule {
     public function ApplyChanges() {
         parent::ApplyChanges();
 
+        // Timer sicherstellen (falls Instanz vor diesem Code erstellt wurde)
+        $this->RegisterTimer('CountdownTimer', 0, 'AutSw3_CountdownTick($id);');
+
         // Aktionen aktivieren
         $this->EnableAction('State');
         $this->EnableAction('CountdownSetting');
