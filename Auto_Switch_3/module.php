@@ -93,9 +93,19 @@ class AutSw3 extends IPSModule {
         }
         try {
             $targetID = $this->ReadPropertyInteger('TargetID');
+            $this->SendDebug('SetSwitch', 'Schalte auf ' . ($state ? 'EIN' : 'AUS') . ', TargetID=' . $targetID, 0);
 
-            if ($targetID != 0 && IPS_VariableExists($targetID)) {
-                RequestAction($targetID, $state);
+            if ($targetID == 0) {
+                $this->SendDebug('SetSwitch', 'Kein Ziel konfiguriert', 0);
+            } elseif (!IPS_VariableExists($targetID)) {
+                $this->SendDebug('SetSwitch', 'Ziel-Variable existiert nicht: ' . $targetID, 0);
+            } else {
+                try {
+                    RequestAction($targetID, $state);
+                    $this->SendDebug('SetSwitch', 'RequestAction erfolgreich', 0);
+                } catch (Exception $e) {
+                    $this->SendDebug('SetSwitch', 'RequestAction Fehler: ' . $e->getMessage(), 0);
+                }
             }
 
             $this->SetValue('State', $state);
@@ -140,6 +150,7 @@ class AutSw3 extends IPSModule {
             // Ziel wurde extern ausgeschaltet: Countdown stoppen
             $this->SetTimerInterval('CountdownTimer', 0);
             $this->SetValue('Countdown', 0);
+            IPS_SetHidden($this->GetIDForIdent('Countdown'), true);
         } else {
             // Ziel wurde extern eingeschaltet: Countdown starten falls konfiguriert
             $countdownTime = $this->GetValue('CountdownSetting');
@@ -158,10 +169,12 @@ class AutSw3 extends IPSModule {
         $this->SendDebug('CountdownTick', 'Verbleibend: ' . $remaining . 's', 0);
 
         if ($remaining <= 0) {
+            $this->SendDebug('CountdownTick', 'Countdown abgelaufen – schalte aus', 0);
             $this->SetTimerInterval('CountdownTimer', 0);
             $this->SetValue('Countdown', 0);
             IPS_SetHidden($this->GetIDForIdent('Countdown'), true);
             $this->SetSwitch(false);
+            $this->SendDebug('CountdownTick', 'SetSwitch(false) abgeschlossen', 0);
         } else {
             $this->SetValue('Countdown', $remaining);
         }
