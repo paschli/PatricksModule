@@ -12,12 +12,12 @@
     },
     {
       "type": "Label",
-      "caption": "Countdown-Timer: Schaltet das Ziel nach Ablauf automatisch aus (0 = deaktiviert)"
+      "caption": "Standardwert für die Countdown-Zeit beim ersten Start (0 = deaktiviert). Die Zeit kann in der App jederzeit geändert werden."
     },
     {
       "name": "CountdownTime",
       "type": "NumberSpinner",
-      "caption": "Countdown-Zeit",
+      "caption": "Standard-Countdown-Zeit",
       "minimum": 0,
       "suffix": "s"
     }

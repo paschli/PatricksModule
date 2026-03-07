@@ -13,7 +13,7 @@ class AutSw3 extends IPSModule {
         // Ziel-Variable (Boolean-Schalter)
         $this->RegisterPropertyInteger('TargetID', 0);
 
-        // Countdown-Zeit in Sekunden (0 = deaktiviert)
+        // Standardwert für die Countdown-Zeit beim ersten Start (in Sekunden)
         $this->RegisterPropertyInteger('CountdownTime', 0);
 
         // Gespeicherte Ziel-ID für saubere Abmeldung beim Neu-Konfigurieren
@@ -23,8 +23,11 @@ class AutSw3 extends IPSModule {
         $this->RegisterVariableBoolean('State', 'Schalter', '~Switch', 0);
         IPS_SetIcon($this->GetIDForIdent('State'), 'Power');
 
-        // Countdown-Anzeige in Sekunden
-        $this->RegisterVariableInteger('Countdown', 'Countdown (s)', '', 1);
+        // Einstellbare Countdown-Zeit (in Sekunden, 0 = deaktiviert) – in der App veränderbar
+        $this->RegisterVariableInteger('CountdownSetting', 'Countdown-Zeit (s)', '', 1);
+
+        // Countdown-Anzeige in Sekunden (Restzeitanzeige)
+        $this->RegisterVariableInteger('Countdown', 'Verbleibend (s)', '', 2);
 
         // Timer für den Countdown (1-Sekunden-Takt)
         $this->RegisterTimer('CountdownTimer', 0, 'AutSw3_CountdownTick($id);');
@@ -33,8 +36,14 @@ class AutSw3 extends IPSModule {
     public function ApplyChanges() {
         parent::ApplyChanges();
 
-        // Aktion auf den Schalter aktivieren
+        // Aktionen aktivieren
         $this->EnableAction('State');
+        $this->EnableAction('CountdownSetting');
+
+        // Standardwert aus Property übernehmen wenn CountdownSetting noch nicht gesetzt
+        if ($this->GetValue('CountdownSetting') == 0 && $this->ReadPropertyInteger('CountdownTime') > 0) {
+            $this->SetValue('CountdownSetting', $this->ReadPropertyInteger('CountdownTime'));
+        }
 
         // Alte Message-Registrierung für die Ziel-Variable aufheben
         $oldTargetID = $this->ReadAttributeInteger('RegisteredTargetID');
@@ -51,9 +60,8 @@ class AutSw3 extends IPSModule {
             $this->WriteAttributeInteger('RegisteredTargetID', 0);
         }
 
-        // Countdown-Variable anzeigen oder ausblenden
-        $countdownTime = $this->ReadPropertyInteger('CountdownTime');
-        IPS_SetHidden($this->GetIDForIdent('Countdown'), ($countdownTime == 0));
+        // Restzeit-Anzeige immer ausblenden wenn kein Countdown aktiv
+        IPS_SetHidden($this->GetIDForIdent('Countdown'), true);
     }
 
     // Wird aufgerufen, wenn sich eine registrierte Variable ändert
@@ -68,10 +76,12 @@ class AutSw3 extends IPSModule {
         $this->TargetChanged();
     }
 
-    // Wird aufgerufen, wenn der Benutzer den Schalter in der Visualisierung betätigt
+    // Wird aufgerufen, wenn der Benutzer den Schalter oder die Countdown-Zeit in der App ändert
     public function RequestAction($ident, $value) {
         if ($ident === 'State') {
             $this->SetSwitch((bool)$value);
+        } elseif ($ident === 'CountdownSetting') {
+            $this->SetValue('CountdownSetting', (int)$value);
         }
     }
 
@@ -91,15 +101,17 @@ class AutSw3 extends IPSModule {
             $this->SetValue('State', $state);
 
             if ($state) {
-                $countdownTime = $this->ReadPropertyInteger('CountdownTime');
+                $countdownTime = $this->GetValue('CountdownSetting');
                 if ($countdownTime > 0) {
                     $this->SetValue('Countdown', $countdownTime);
+                    IPS_SetHidden($this->GetIDForIdent('Countdown'), false);
                     $this->SetTimerInterval('CountdownTimer', 1000);
                     $this->SendDebug('SetSwitch', 'Countdown gestartet: ' . $countdownTime . 's', 0);
                 }
             } else {
                 $this->SetTimerInterval('CountdownTimer', 0);
                 $this->SetValue('Countdown', 0);
+                IPS_SetHidden($this->GetIDForIdent('Countdown'), true);
             }
         } finally {
             IPS_SemaphoreLeave('AutSw3_' . $this->InstanceID);
@@ -130,9 +142,10 @@ class AutSw3 extends IPSModule {
             $this->SetValue('Countdown', 0);
         } else {
             // Ziel wurde extern eingeschaltet: Countdown starten falls konfiguriert
-            $countdownTime = $this->ReadPropertyInteger('CountdownTime');
+            $countdownTime = $this->GetValue('CountdownSetting');
             if ($countdownTime > 0) {
                 $this->SetValue('Countdown', $countdownTime);
+                IPS_SetHidden($this->GetIDForIdent('Countdown'), false);
                 $this->SetTimerInterval('CountdownTimer', 1000);
                 $this->SendDebug('TargetChanged', 'Countdown gestartet: ' . $countdownTime . 's', 0);
             }
@@ -147,6 +160,7 @@ class AutSw3 extends IPSModule {
         if ($remaining <= 0) {
             $this->SetTimerInterval('CountdownTimer', 0);
             $this->SetValue('Countdown', 0);
+            IPS_SetHidden($this->GetIDForIdent('Countdown'), true);
             $this->SetSwitch(false);
         } else {
             $this->SetValue('Countdown', $remaining);
