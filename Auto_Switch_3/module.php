@@ -14,6 +14,7 @@ class AutSw3 extends IPSModule {
         $this->RegisterPropertyBoolean('CountdownEnabled', false);
 
         $this->RegisterAttributeInteger('RegisteredTargetID', 0);
+        // Attribut für Cleanup des alten IPS_CreateEvent-Timers (vorherige Modulversion)
         $this->RegisterAttributeInteger('CountdownTimerID', 0);
 
         $this->RegisterVariableBoolean('State', 'Schalter', '~Switch', 0);
@@ -25,8 +26,16 @@ class AutSw3 extends IPSModule {
     public function ApplyChanges() {
         parent::ApplyChanges();
 
-        // Countdown-Timer sicherstellen
-        $this->ensureTimer();
+        // Alten manuell erstellten Timer löschen (von vorheriger Modulversion)
+        $legacyTimerID = $this->ReadAttributeInteger('CountdownTimerID');
+        if ($legacyTimerID != 0 && IPS_EventExists($legacyTimerID)) {
+            IPS_DeleteEvent($legacyTimerID);
+            $this->SendDebug('Timer', 'Alter IPS_CreateEvent-Timer gelöscht: ID=' . $legacyTimerID, 0);
+        }
+        $this->WriteAttributeInteger('CountdownTimerID', 0);
+
+        // Modul-Timer registrieren (nur hier, nicht in Create)
+        $this->RegisterTimer('CountdownTimer', 0, 'AutSw3_CountdownTick($id);');
 
         // Aktionen aktivieren
         $this->EnableAction('State');
@@ -145,47 +154,12 @@ class AutSw3 extends IPSModule {
         $this->SendDebug('CountdownTick', 'SetSwitch(false) abgeschlossen', 0);
     }
 
-    // Erstellt den Timer-Event falls er nicht existiert, speichert die ID
-    private function ensureTimer() {
-        $timerID = $this->ReadAttributeInteger('CountdownTimerID');
-
-        if ($timerID != 0 && IPS_EventExists($timerID)) {
-            $this->SendDebug('Timer', 'Timer vorhanden: ID=' . $timerID, 0);
-            return;
-        }
-
-        // Neu erstellen
-        $timerID = IPS_CreateEvent(1); // 1 = zyklisches Ereignis
-        IPS_SetParent($timerID, $this->InstanceID);
-        IPS_SetIdent($timerID, 'CountdownTimer');
-        IPS_SetName($timerID, 'Countdown Timer');
-        IPS_SetHidden($timerID, true);
-        IPS_SetEventScript($timerID, 'AutSw3_CountdownTick(' . $this->InstanceID . ');');
-        IPS_SetEventActive($timerID, false);
-        $this->WriteAttributeInteger('CountdownTimerID', $timerID);
-        $this->SendDebug('Timer', 'Timer erstellt: ID=' . $timerID, 0);
-    }
-
     private function timerStart(int $seconds) {
-        $timerID = $this->ReadAttributeInteger('CountdownTimerID');
-        if ($timerID == 0 || !IPS_EventExists($timerID)) {
-            $this->ensureTimer();
-            $timerID = $this->ReadAttributeInteger('CountdownTimerID');
-        }
-        if ($timerID != 0 && IPS_EventExists($timerID)) {
-            IPS_SetTimerInterval($timerID, $seconds * 1000);
-            IPS_SetEventActive($timerID, true);
-            $this->SendDebug('Timer', 'Gestartet: ' . $seconds . 's (ID=' . $timerID . ')', 0);
-        } else {
-            $this->SendDebug('Timer', 'Fehler: Timer konnte nicht erstellt werden!', 0);
-        }
+        $this->SetTimerInterval('CountdownTimer', $seconds * 1000);
+        $this->SendDebug('Timer', 'Gestartet: ' . $seconds . 's', 0);
     }
 
     private function timerStop() {
-        $timerID = $this->ReadAttributeInteger('CountdownTimerID');
-        if ($timerID != 0 && IPS_EventExists($timerID)) {
-            IPS_SetTimerInterval($timerID, 0);
-            IPS_SetEventActive($timerID, false);
-        }
+        $this->SetTimerInterval('CountdownTimer', 0);
     }
 }
