@@ -34,19 +34,9 @@ class AutSw3 extends IPSModule {
         }
         $this->WriteAttributeInteger('CountdownTimerID', 0);
 
-        // Modul-Timer registrieren (nur hier, nicht in Create)
-        $this->RegisterTimer('CountdownTimer', 0, 'AutSw3_CountdownTick($id);');
-
-        // Diagnose: Timer-Status nach Registrierung
-        $timerID = @IPS_GetObjectIDByIdent('CountdownTimer', $this->InstanceID);
-        $this->SendDebug('Timer', 'Nach RegisterTimer: TimerID=' . ($timerID ?: 'NICHT GEFUNDEN'), 0);
-        if (!$timerID) {
-            $this->SendDebug('Timer', 'Alle Kinder der Instanz:', 0);
-            foreach (IPS_GetChildrenIDs($this->InstanceID) as $childID) {
-                $obj = IPS_GetObject($childID);
-                $this->SendDebug('Timer', '  Kind ID=' . $childID . ' Typ=' . $obj['ObjectType'] . ' Ident="' . $obj['ObjectIdent'] . '" Name="' . $obj['ObjectName'] . '"', 0);
-            }
-        }
+        // Modul-Timer registrieren – Instance-ID direkt eingebettet (kein $id-Variable-Problem)
+        $this->RegisterTimer('CountdownTimer', 0, 'AutSw3_CountdownTick(' . $this->InstanceID . ');');
+        $this->SendDebug('Timer', 'RegisterTimer gesetzt für Instanz ' . $this->InstanceID, 0);
 
         // Aktionen aktivieren
         $this->EnableAction('State');
@@ -167,20 +157,7 @@ class AutSw3 extends IPSModule {
 
     private function timerStart(int $seconds) {
         $this->SetTimerInterval('CountdownTimer', $seconds * 1000);
-
-        // Diagnose: Zustand nach SetTimerInterval prüfen
-        $timerID = @IPS_GetObjectIDByIdent('CountdownTimer', $this->InstanceID);
-        if ($timerID) {
-            $event = IPS_GetEvent($timerID);
-            $this->SendDebug('Timer', 'Gestartet: ' . $seconds . 's, ID=' . $timerID . ', Interval=' . $event['CyclicInterval'] . 'ms, Aktiv=' . ($event['EventActive'] ? 'ja' : 'nein'), 0);
-        } else {
-            $this->SendDebug('Timer', 'FEHLER: CountdownTimer nicht gefunden nach SetTimerInterval!', 0);
-            $this->SendDebug('Timer', 'Alle Kinder der Instanz:', 0);
-            foreach (IPS_GetChildrenIDs($this->InstanceID) as $childID) {
-                $obj = IPS_GetObject($childID);
-                $this->SendDebug('Timer', '  Kind ID=' . $childID . ' Typ=' . $obj['ObjectType'] . ' Ident="' . $obj['ObjectIdent'] . '" Name="' . $obj['ObjectName'] . '"', 0);
-            }
-        }
+        $this->SendDebug('Timer', 'Gestartet: ' . $seconds . 's', 0);
     }
 
     private function timerStop() {
