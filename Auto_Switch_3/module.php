@@ -21,6 +21,7 @@ class AutSw3 extends IPSModule {
         IPS_SetIcon($this->GetIDForIdent('State'), 'Power');
 
         $this->RegisterVariableInteger('CountdownSetting', 'Countdown-Zeit (s)', '', 1);
+        $this->RegisterVariableInteger('Countdown', 'Verbleibend (s)', '', 2);
     }
 
     public function ApplyChanges() {
@@ -57,9 +58,10 @@ class AutSw3 extends IPSModule {
             $this->WriteAttributeInteger('RegisteredTargetID', 0);
         }
 
-        // Countdown-Variable anzeigen/ausblenden
+        // Countdown-Variablen anzeigen/ausblenden
         $enabled = $this->ReadPropertyBoolean('CountdownEnabled');
         IPS_SetHidden($this->GetIDForIdent('CountdownSetting'), !$enabled);
+        IPS_SetHidden($this->GetIDForIdent('Countdown'), true);
 
         if (!$enabled) {
             $this->timerStop();
@@ -82,9 +84,12 @@ class AutSw3 extends IPSModule {
         } elseif ($ident === 'CountdownSetting') {
             $newTime = (int)$value;
             $this->SetValue('CountdownSetting', $newTime);
-            // Falls Schalter gerade EIN ist: Timer mit neuer Zeit neu starten
-            if ($this->GetValue('State') && $this->ReadPropertyBoolean('CountdownEnabled') && $newTime > 0) {
-                $this->timerStart($newTime);
+            if ($this->GetValue('State') && $this->ReadPropertyBoolean('CountdownEnabled')) {
+                if ($newTime > 0) {
+                    $this->timerStart($newTime); // Timer mit neuer Zeit neu starten
+                } else {
+                    $this->timerStop(); // 0 gesetzt = Timer stoppen, Schalter bleibt an
+                }
             }
         }
     }
@@ -149,18 +154,28 @@ class AutSw3 extends IPSModule {
     }
 
     public function CountdownTick() {
-        $this->SendDebug('CountdownTick', 'Countdown abgelaufen – schalte aus', 0);
-        $this->timerStop();
-        $this->SetSwitch(false);
-        $this->SendDebug('CountdownTick', 'SetSwitch(false) abgeschlossen', 0);
+        $remaining = $this->GetValue('Countdown') - 1;
+        $this->SendDebug('CountdownTick', 'Verbleibend: ' . $remaining . 's', 0);
+
+        if ($remaining <= 0) {
+            $this->SendDebug('CountdownTick', 'Countdown abgelaufen – schalte aus', 0);
+            $this->timerStop();
+            $this->SetSwitch(false);
+        } else {
+            $this->SetValue('Countdown', $remaining);
+        }
     }
 
     private function timerStart(int $seconds) {
-        $this->SetTimerInterval('CountdownTimer', $seconds * 1000);
+        $this->SetValue('Countdown', $seconds);
+        IPS_SetHidden($this->GetIDForIdent('Countdown'), false);
+        $this->SetTimerInterval('CountdownTimer', 1000); // 1-Sekunden-Takt
         $this->SendDebug('Timer', 'Gestartet: ' . $seconds . 's', 0);
     }
 
     private function timerStop() {
         $this->SetTimerInterval('CountdownTimer', 0);
+        $this->SetValue('Countdown', 0);
+        IPS_SetHidden($this->GetIDForIdent('Countdown'), true);
     }
 }
