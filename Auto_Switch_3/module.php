@@ -19,10 +19,19 @@ class AutSw3 extends IPSModule {
         $this->RegisterVariableBoolean('State', 'Schalter', '~Switch', 0);
         IPS_SetIcon($this->GetIDForIdent('State'), 'Power');
 
+        // Profile zuerst sicherstellen, bevor Variablen damit registriert werden
+        $this->ensureProfiles();
+
         $this->RegisterVariableInteger('CDHours',   'Stunden',  'AutSw3.Hours',   1);
         $this->RegisterVariableInteger('CDMinutes', 'Minuten',  'AutSw3.Minutes', 2);
         $this->RegisterVariableInteger('CDSeconds', 'Sekunden', 'AutSw3.Seconds', 3);
-        $this->RegisterVariableString('Countdown',  'Verbleibend', '', 4);
+
+        // Migration: alte Integer-Countdown-Variable löschen falls vorhanden (war früher Integer, jetzt String)
+        $oldID = @IPS_GetObjectIDByIdent('Countdown', $this->InstanceID);
+        if ($oldID && IPS_VariableExists($oldID) && IPS_GetVariable($oldID)['VariableType'] !== 3) {
+            IPS_DeleteVariable($oldID);
+        }
+        $this->RegisterVariableString('Countdown', 'Verbleibend', '', 4);
     }
 
     public function ApplyChanges() {
