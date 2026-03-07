@@ -11,15 +11,9 @@
       "validVariableTypes": [0]
     },
     {
-      "type": "Label",
-      "caption": "Standardwert für die Countdown-Zeit beim ersten Start (0 = deaktiviert). Die Zeit kann in der App jederzeit geändert werden."
-    },
-    {
-      "name": "CountdownTime",
-      "type": "NumberSpinner",
-      "caption": "Standard-Countdown-Zeit",
-      "minimum": 0,
-      "suffix": "s"
+      "name": "CountdownEnabled",
+      "type": "CheckBox",
+      "caption": "Countdown-Funktion aktivieren (Zeit wird in der App eingestellt)"
     }
   ]
 }
