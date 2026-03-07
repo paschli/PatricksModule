@@ -10,34 +10,29 @@ class AutSw3 extends IPSModule {
     public function Create() {
         parent::Create();
 
-        // Ziel-Variable (Boolean-Schalter)
         $this->RegisterPropertyInteger('TargetID', 0);
-
-        // Countdown-Funktion aktivieren
         $this->RegisterPropertyBoolean('CountdownEnabled', false);
 
-        // Gespeicherte Ziel-ID für saubere Abmeldung beim Neu-Konfigurieren
         $this->RegisterAttributeInteger('RegisteredTargetID', 0);
+        $this->RegisterAttributeInteger('CountdownTimerID', 0);
 
-        // Schalter-Variable für die Visualisierung
         $this->RegisterVariableBoolean('State', 'Schalter', '~Switch', 0);
         IPS_SetIcon($this->GetIDForIdent('State'), 'Power');
 
-        // Einstellbare Countdown-Zeit (in Sekunden) – in der App veränderbar
         $this->RegisterVariableInteger('CountdownSetting', 'Countdown-Zeit (s)', '', 1);
-
-        // Timer für den Countdown (einmaliger Ablauf)
-        $this->RegisterTimer('CountdownTimer', 0, 'AutSw3_CountdownTick($id);');
     }
 
     public function ApplyChanges() {
         parent::ApplyChanges();
 
+        // Countdown-Timer sicherstellen
+        $this->ensureTimer();
+
         // Aktionen aktivieren
         $this->EnableAction('State');
         $this->EnableAction('CountdownSetting');
 
-        // Alte Message-Registrierung für die Ziel-Variable aufheben
+        // Alte Message-Registrierung aufheben
         $oldTargetID = $this->ReadAttributeInteger('RegisteredTargetID');
         if ($oldTargetID != 0) {
             $this->UnregisterMessage($oldTargetID, VM_UPDATE);
@@ -52,29 +47,25 @@ class AutSw3 extends IPSModule {
             $this->WriteAttributeInteger('RegisteredTargetID', 0);
         }
 
-        // Countdown-Variable anzeigen/ausblenden je nach Konfiguration
+        // Countdown-Variable anzeigen/ausblenden
         $enabled = $this->ReadPropertyBoolean('CountdownEnabled');
         IPS_SetHidden($this->GetIDForIdent('CountdownSetting'), !$enabled);
 
-        // Timer stoppen falls Countdown deaktiviert wurde
         if (!$enabled) {
             $this->timerStop();
         }
     }
 
-    // Wird aufgerufen, wenn sich eine registrierte Variable ändert
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data) {
         if ($Message != VM_UPDATE) {
             return;
         }
-        $targetID = $this->ReadPropertyInteger('TargetID');
-        if ($SenderID != $targetID) {
+        if ($SenderID != $this->ReadPropertyInteger('TargetID')) {
             return;
         }
         $this->TargetChanged();
     }
 
-    // Wird aufgerufen, wenn der Benutzer den Schalter oder die Countdown-Zeit in der App ändert
     public function RequestAction($ident, $value) {
         if ($ident === 'State') {
             $this->SetSwitch((bool)$value);
@@ -88,7 +79,6 @@ class AutSw3 extends IPSModule {
         }
     }
 
-    // Schaltet das Ziel und startet/stoppt den Countdown
     public function SetSwitch(bool $state) {
         if (!IPS_SemaphoreEnter('AutSw3_' . $this->InstanceID, 1000)) {
             $this->SendDebug('SetSwitch', 'Semaphor Timeout', 0);
@@ -98,11 +88,7 @@ class AutSw3 extends IPSModule {
             $targetID = $this->ReadPropertyInteger('TargetID');
             $this->SendDebug('SetSwitch', 'Schalte auf ' . ($state ? 'EIN' : 'AUS') . ', TargetID=' . $targetID, 0);
 
-            if ($targetID == 0) {
-                $this->SendDebug('SetSwitch', 'Kein Ziel konfiguriert', 0);
-            } elseif (!IPS_VariableExists($targetID)) {
-                $this->SendDebug('SetSwitch', 'Ziel-Variable existiert nicht: ' . $targetID, 0);
-            } else {
+            if ($targetID != 0 && IPS_VariableExists($targetID)) {
                 try {
                     RequestAction($targetID, $state);
                     $this->SendDebug('SetSwitch', 'RequestAction erfolgreich', 0);
@@ -126,7 +112,6 @@ class AutSw3 extends IPSModule {
         }
     }
 
-    // Reagiert auf externe Änderung der Ziel-Variable
     public function TargetChanged() {
         $targetID = $this->ReadPropertyInteger('TargetID');
         if ($targetID == 0) {
@@ -153,7 +138,6 @@ class AutSw3 extends IPSModule {
         }
     }
 
-    // Wird einmalig aufgerufen wenn der Countdown abläuft
     public function CountdownTick() {
         $this->SendDebug('CountdownTick', 'Countdown abgelaufen – schalte aus', 0);
         $this->timerStop();
@@ -161,22 +145,47 @@ class AutSw3 extends IPSModule {
         $this->SendDebug('CountdownTick', 'SetSwitch(false) abgeschlossen', 0);
     }
 
-    // Startet den Timer direkt über IPS-API
+    // Erstellt den Timer-Event falls er nicht existiert, speichert die ID
+    private function ensureTimer() {
+        $timerID = $this->ReadAttributeInteger('CountdownTimerID');
+
+        if ($timerID != 0 && IPS_EventExists($timerID)) {
+            $this->SendDebug('Timer', 'Timer vorhanden: ID=' . $timerID, 0);
+            return;
+        }
+
+        // Neu erstellen
+        $timerID = IPS_CreateEvent(1); // 1 = zyklisches Ereignis
+        IPS_SetParent($timerID, $this->InstanceID);
+        IPS_SetIdent($timerID, 'CountdownTimer');
+        IPS_SetName($timerID, 'Countdown Timer');
+        IPS_SetHidden($timerID, true);
+        IPS_SetEventScript($timerID, 'AutSw3_CountdownTick(' . $this->InstanceID . ');');
+        IPS_SetEventActive($timerID, false);
+        $this->WriteAttributeInteger('CountdownTimerID', $timerID);
+        $this->SendDebug('Timer', 'Timer erstellt: ID=' . $timerID, 0);
+    }
+
     private function timerStart(int $seconds) {
-        $timerID = @IPS_GetObjectIDByIdent('CountdownTimer', $this->InstanceID);
-        if ($timerID) {
+        $timerID = $this->ReadAttributeInteger('CountdownTimerID');
+        if ($timerID == 0 || !IPS_EventExists($timerID)) {
+            $this->ensureTimer();
+            $timerID = $this->ReadAttributeInteger('CountdownTimerID');
+        }
+        if ($timerID != 0 && IPS_EventExists($timerID)) {
             IPS_SetTimerInterval($timerID, $seconds * 1000);
+            IPS_SetEventActive($timerID, true);
             $this->SendDebug('Timer', 'Gestartet: ' . $seconds . 's (ID=' . $timerID . ')', 0);
         } else {
-            $this->SendDebug('Timer', 'Timer-Objekt nicht gefunden!', 0);
+            $this->SendDebug('Timer', 'Fehler: Timer konnte nicht erstellt werden!', 0);
         }
     }
 
-    // Stoppt den Timer direkt über IPS-API
     private function timerStop() {
-        $timerID = @IPS_GetObjectIDByIdent('CountdownTimer', $this->InstanceID);
-        if ($timerID) {
+        $timerID = $this->ReadAttributeInteger('CountdownTimerID');
+        if ($timerID != 0 && IPS_EventExists($timerID)) {
             IPS_SetTimerInterval($timerID, 0);
+            IPS_SetEventActive($timerID, false);
         }
     }
 }
