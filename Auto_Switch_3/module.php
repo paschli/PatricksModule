@@ -32,6 +32,9 @@ class AutSw3 extends IPSModule {
             IPS_DeleteVariable($oldID);
         }
         $this->RegisterVariableString('Countdown', 'Verbleibend', '', 4);
+
+        // Timer registrieren – NUR in Create() erlaubt, Instance-ID direkt eingebettet
+        $this->RegisterTimer('CountdownTimer', 0, 'AutSw3_CountdownTick(' . $this->InstanceID . ');');
     }
 
     public function ApplyChanges() {
@@ -46,9 +49,6 @@ class AutSw3 extends IPSModule {
 
         // Variable-Profile sicherstellen
         $this->ensureProfiles();
-
-        // Modul-Timer registrieren – Instance-ID direkt eingebettet
-        $this->RegisterTimer('CountdownTimer', 0, 'AutSw3_CountdownTick(' . $this->InstanceID . ');');
 
         // Aktionen aktivieren
         $this->EnableAction('State');
