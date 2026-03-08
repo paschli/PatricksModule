@@ -68,11 +68,12 @@ class AutSw3 extends IPSModule {
             }
         }
 
-        // Aktionen auf CD-Variablen setzen (funktioniert auch nach IPS_SetParent)
+        // Aktionen auf CD-Variablen setzen via Hilfs-Script (IPS_SetVariableCustomAction benötigt Script-ID)
+        $scriptID = $this->ensureCDActionScript();
         foreach (['CDHours', 'CDMinutes', 'CDSeconds'] as $ident) {
             $varID = $this->getCDVarID($ident);
             if ($varID) {
-                IPS_SetVariableCustomAction($varID, $this->InstanceID);
+                IPS_SetVariableCustomAction($varID, $scriptID);
             }
         }
 
@@ -214,6 +215,23 @@ class AutSw3 extends IPSModule {
         } else {
             $this->SetValue('Countdown', $this->formatDuration($remaining));
         }
+    }
+
+    // Erstellt/aktualisiert ein verstecktes Hilfs-Script für CD-Variablen-Aktionen
+    private function ensureCDActionScript(): int {
+        $scriptID = @IPS_GetObjectIDByIdent('CDActionScript', $this->InstanceID);
+        if (!$scriptID) {
+            $scriptID = IPS_CreateScript(0);
+            IPS_SetParent($scriptID, $this->InstanceID);
+            IPS_SetIdent($scriptID, 'CDActionScript');
+            IPS_SetName($scriptID, 'CD-Aktion');
+            IPS_SetHidden($scriptID, true);
+        }
+        IPS_SetScriptContent($scriptID,
+            '<?php' . "\n" .
+            'IPS_RequestAction(' . $this->InstanceID . ', IPS_GetObject($_IPS[\'VARIABLE\'])[\'ObjectIdent\'], $_IPS[\'VALUE\']);'
+        );
+        return $scriptID;
     }
 
     // Gibt die Countdown-Kategorie-ID zurück, erstellt sie falls nötig
