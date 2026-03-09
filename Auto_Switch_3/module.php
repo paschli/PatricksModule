@@ -269,6 +269,7 @@ class AutSw3 extends IPSModule {
                 $this->fireTimer($i);
             }
         }
+        $this->updateTimeModeProfile(); // Solar-Zeiten tagesfrisch halten
         $this->scheduleNext();
     }
 
@@ -328,37 +329,42 @@ class AutSw3 extends IPSModule {
     }
 
     private function getSolarTime(int $mode): ?int {
+        $keyMap = [
+            1 => 'sunrise',
+            2 => 'sunset',
+            3 => 'civil_twilight_begin',
+            4 => 'civil_twilight_end',
+            5 => 'nautical_twilight_begin',
+            6 => 'nautical_twilight_end',
+            7 => 'astronomical_twilight_begin',
+            8 => 'astronomical_twilight_end',
+        ];
+        if (!isset($keyMap[$mode])) {
+            return null;
+        }
+        // Koordinaten aus der Location Control lesen
         $locationIDs = @IPS_GetInstanceListByModuleID('{45AE3035-AEF6-4A4B-876D-A2DF51BB4E6E}');
         if (empty($locationIDs)) {
             $this->SendDebug('Solar', 'Location Control nicht gefunden', 0);
             return null;
         }
-        // Mehrere mögliche Ident-Namen je IPS-Version
-        $identMap = [
-            1 => ['Sunrise',             'Sonnenaufgang'],
-            2 => ['Sunset',              'Sonnenuntergang'],
-            3 => ['CivilSunrise',        'BuergerSonnenaufgang'],
-            4 => ['CivilSunset',         'BuergerSonnenuntergang'],
-            5 => ['NauticalSunrise',     'NautSonnenaufgang'],
-            6 => ['NauticalSunset',      'NautSonnenuntergang'],
-            7 => ['AstronomicalSunrise', 'AstroSonnenaufgang'],
-            8 => ['AstronomicalSunset',  'AstroSonnenuntergang'],
-        ];
-        if (!isset($identMap[$mode])) {
+        $config = json_decode(IPS_GetConfiguration($locationIDs[0]), true);
+        // Verschiedene mögliche Schlüsselnamen für Koordinaten
+        $lat = $config['Latitude']  ?? ($config['latitude']  ?? ($config['Lat'] ?? ($config['lat'] ?? null)));
+        $lon = $config['Longitude'] ?? ($config['longitude'] ?? ($config['Lon'] ?? ($config['lon'] ?? null)));
+        if ($lat === null || $lon === null) {
+            $this->SendDebug('Solar', 'Koordinaten nicht gefunden. Vorhandene Keys: ' . implode(', ', array_keys($config)), 0);
             return null;
         }
-        foreach ($locationIDs as $locID) {
-            foreach ($identMap[$mode] as $ident) {
-                $varID = @IPS_GetObjectIDByIdent($ident, $locID);
-                if ($varID && IPS_VariableExists($varID)) {
-                    $val = GetValueInteger($varID);
-                    $this->SendDebug('Solar', 'Modus ' . $mode . ' → ' . date('H:i:s', $val), 0);
-                    return $val;
-                }
-            }
+        // Solar-Zeiten via PHP date_sun_info() berechnen (kein IPS-Variablen-Lookup nötig)
+        $sunInfo = date_sun_info(time(), (float)$lat, (float)$lon);
+        $key     = $keyMap[$mode];
+        if (empty($sunInfo[$key])) {
+            $this->SendDebug('Solar', '"' . $key . '" nicht verfügbar (Polartag/-nacht?)', 0);
+            return null;
         }
-        $this->SendDebug('Solar', 'Solar-Variable für Modus ' . $mode . ' nicht gefunden', 0);
-        return null;
+        $this->SendDebug('Solar', 'Modus ' . $mode . ' (' . $key . '): ' . date('H:i', $sunInfo[$key]), 0);
+        return (int)$sunInfo[$key];
     }
 
     private function updateLocationSubscription() {
@@ -375,11 +381,20 @@ class AutSw3 extends IPSModule {
         if (empty($locationIDs)) {
             return;
         }
-        foreach (['Sunrise', 'Sonnenaufgang'] as $ident) {
+        // Bekannte Idents versuchen, dann beliebige Variable als Tages-Trigger
+        foreach (['Sunrise', 'Sunset', 'Sonnenaufgang', 'Sonnenuntergang'] as $ident) {
             $varID = @IPS_GetObjectIDByIdent($ident, $locationIDs[0]);
             if ($varID && IPS_VariableExists($varID)) {
                 $this->RegisterMessage($varID, VM_UPDATE);
                 $this->WriteAttributeInteger('RegisteredSunriseVarID', $varID);
+                return;
+            }
+        }
+        // Fallback: erste Variable unter der Location-Instanz
+        foreach (IPS_GetChildrenIDs($locationIDs[0]) as $childID) {
+            if (IPS_VariableExists($childID)) {
+                $this->RegisterMessage($childID, VM_UPDATE);
+                $this->WriteAttributeInteger('RegisteredSunriseVarID', $childID);
                 return;
             }
         }
