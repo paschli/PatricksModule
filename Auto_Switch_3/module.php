@@ -115,6 +115,9 @@ class AutSw3 extends IPSModule {
         // Location-Subscription für Solar-Modi
         $this->updateLocationSubscription();
 
+        // Profil-Beschriftungen mit aktuellen Solar-Zeiten aktualisieren
+        $this->updateTimeModeProfile();
+
         // Nächsten Zeitschalter planen
         $this->scheduleNext();
     }
@@ -129,7 +132,8 @@ class AutSw3 extends IPSModule {
         }
         $sunriseVarID = $this->ReadAttributeInteger('RegisteredSunriseVarID');
         if ($sunriseVarID != 0 && $SenderID == $sunriseVarID) {
-            $this->SendDebug('Schedule', 'Solarzeit aktualisiert – scheduleNext', 0);
+            $this->SendDebug('Schedule', 'Solarzeit aktualisiert', 0);
+            $this->updateTimeModeProfile();
             $this->scheduleNext();
         }
     }
@@ -162,13 +166,17 @@ class AutSw3 extends IPSModule {
                     $this->timerStop();
                 }
             }
-        } elseif (preg_match('/^T(Active|State)_(\d+)$/', $ident, $m)) {
+        } elseif (preg_match('/^T(Active|State|Mode|Hour|Min|Offset)_(\d+)$/', $ident, $m)) {
             $index = (int)$m[2];
             $varID = $this->getTimerVarID($ident, $index);
             if ($varID) {
-                SetValueBoolean($varID, (bool)$value);
+                if ($m[1] === 'Active' || $m[1] === 'State') {
+                    SetValueBoolean($varID, (bool)$value);
+                } else {
+                    SetValueInteger($varID, (int)$value);
+                }
             }
-            if ($m[1] === 'Active') {
+            if ($m[1] !== 'State') {
                 $this->scheduleNext();
             }
         }
@@ -305,17 +313,11 @@ class AutSw3 extends IPSModule {
     }
 
     private function getTimerScheduledTime(int $index): ?int {
-        $timers = json_decode($this->ReadPropertyString('TimerList'), true);
-        if (!isset($timers[$index])) {
-            return null;
-        }
-        $timer  = $timers[$index];
-        $mode   = (int)($timer['TimerMode']   ?? 0);
-        $offset = (int)($timer['TimerOffset'] ?? 0) * 60; // → Sekunden
+        $mode   = $this->getTimerInt('TMode',   $index);
+        $offset = $this->getTimerInt('TOffset', $index) * 60; // → Sekunden
         if ($mode === 0) {
-            $parts = explode(':', (string)($timer['TimerTime'] ?? '00:00'));
-            $hour  = (int)($parts[0] ?? 0);
-            $min   = (int)($parts[1] ?? 0);
+            $hour = $this->getTimerInt('THour', $index);
+            $min  = $this->getTimerInt('TMin',  $index);
             return mktime($hour, $min, 0);
         }
         $solarTime = $this->getSolarTime($mode);
@@ -383,6 +385,33 @@ class AutSw3 extends IPSModule {
         }
     }
 
+    private function updateTimeModeProfile() {
+        if (!IPS_VariableProfileExists('AutSw3.TimeMode')) {
+            return;
+        }
+        $modes = [
+            0 => ['name' => 'Manuell',                  'icon' => 'Clock', 'solar' => false],
+            1 => ['name' => 'Sonnenaufgang',             'icon' => 'Sun',   'solar' => true],
+            2 => ['name' => 'Sonnenuntergang',           'icon' => 'Moon',  'solar' => true],
+            3 => ['name' => 'Bürgerl. Sonnenaufgang',   'icon' => 'Sun',   'solar' => true],
+            4 => ['name' => 'Bürgerl. Sonnenuntergang', 'icon' => 'Moon',  'solar' => true],
+            5 => ['name' => 'Naut. Sonnenaufgang',      'icon' => 'Sun',   'solar' => true],
+            6 => ['name' => 'Naut. Sonnenuntergang',    'icon' => 'Moon',  'solar' => true],
+            7 => ['name' => 'Astron. Sonnenaufgang',    'icon' => 'Sun',   'solar' => true],
+            8 => ['name' => 'Astron. Sonnenuntergang',  'icon' => 'Moon',  'solar' => true],
+        ];
+        foreach ($modes as $value => $info) {
+            $caption = $info['name'];
+            if ($info['solar']) {
+                $solarTime = $this->getSolarTime($value);
+                if ($solarTime !== null) {
+                    $caption .= ' (' . date('H:i', $solarTime) . ')';
+                }
+            }
+            IPS_SetVariableProfileAssociation('AutSw3.TimeMode', $value, $caption, $info['icon'], -1);
+        }
+    }
+
     // ===== ZEITSCHALTER – KATEGORIEN & VARIABLEN =====
 
     private function applyTimers(int $scriptID) {
@@ -426,16 +455,13 @@ class AutSw3 extends IPSModule {
     }
 
     private function ensureTimerVars(int $index, int $catID, int $scriptID) {
-        // Alte App-Variablen aus früherer Version entfernen (Zeit ist jetzt in der Form)
-        foreach (['TMode', 'THour', 'TMin', 'TOffset'] as $prefix) {
-            $oldID = @IPS_GetObjectIDByIdent($prefix . '_' . $index, $catID);
-            if ($oldID && IPS_VariableExists($oldID)) {
-                IPS_DeleteVariable($oldID);
-            }
-        }
         $s = '_' . $index;
-        $this->ensureTimerVar($catID, 'TActive' . $s, 0, 'Aktiv',      '~Switch', 0, $scriptID);
-        $this->ensureTimerVar($catID, 'TState'  . $s, 0, 'Schaltziel', '~Switch', 1, $scriptID);
+        $this->ensureTimerVar($catID, 'TActive' . $s, 0, 'Aktiv',          '~Switch',         0, $scriptID);
+        $this->ensureTimerVar($catID, 'TState'  . $s, 0, 'Schaltziel',     '~Switch',         1, $scriptID);
+        $this->ensureTimerVar($catID, 'TMode'   . $s, 1, 'Zeitmodus',      'AutSw3.TimeMode', 2, $scriptID);
+        $this->ensureTimerVar($catID, 'THour'   . $s, 1, 'Stunde',         'AutSw3.Hours',    3, $scriptID);
+        $this->ensureTimerVar($catID, 'TMin'    . $s, 1, 'Minute',         'AutSw3.Minutes',  4, $scriptID);
+        $this->ensureTimerVar($catID, 'TOffset' . $s, 1, 'Versatz (min)',  'AutSw3.Offset',   5, $scriptID);
     }
 
     private function ensureTimerVar(int $catID, string $ident, int $type, string $name, string $profile, int $position, int $scriptID) {
