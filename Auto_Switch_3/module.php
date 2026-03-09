@@ -63,6 +63,14 @@ class AutSw3 extends IPSModule {
         // Countdown-Kategorie
         $catID = $this->ensureCountdownCategory();
         foreach (['CDHours', 'CDMinutes', 'CDSeconds'] as $ident) {
+            if (@IPS_GetObjectIDByIdent($ident, $catID)) {
+                // Schon in der Kategorie – Duplikat als direktes Kind löschen falls vorhanden
+                $dupID = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
+                if ($dupID) {
+                    IPS_DeleteVariable($dupID);
+                }
+                continue;
+            }
             $varID = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
             if ($varID) {
                 IPS_SetParent($varID, $catID);
