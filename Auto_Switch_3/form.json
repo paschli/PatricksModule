@@ -31,6 +31,46 @@
           "edit": {
             "type": "ValidationTextBox"
           }
+        },
+        {
+          "caption": "Zeitmodus",
+          "name": "TimerMode",
+          "width": "220px",
+          "add": 0,
+          "edit": {
+            "type": "Select",
+            "options": [
+              { "caption": "Manuell",                   "value": 0 },
+              { "caption": "Sonnenaufgang",              "value": 1 },
+              { "caption": "Sonnenuntergang",            "value": 2 },
+              { "caption": "Bürgerl. Sonnenaufgang",    "value": 3 },
+              { "caption": "Bürgerl. Sonnenuntergang",  "value": 4 },
+              { "caption": "Naut. Sonnenaufgang",       "value": 5 },
+              { "caption": "Naut. Sonnenuntergang",     "value": 6 },
+              { "caption": "Astron. Sonnenaufgang",     "value": 7 },
+              { "caption": "Astron. Sonnenuntergang",   "value": 8 }
+            ]
+          }
+        },
+        {
+          "caption": "Uhrzeit (HH:MM)",
+          "name": "TimerTime",
+          "width": "130px",
+          "add": "00:00",
+          "edit": {
+            "type": "ValidationTextBox"
+          }
+        },
+        {
+          "caption": "Versatz (min)",
+          "name": "TimerOffset",
+          "width": "120px",
+          "add": 0,
+          "edit": {
+            "type": "NumberSpinner",
+            "minimum": -120,
+            "maximum": 120
+          }
         }
       ]
     }
