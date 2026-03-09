@@ -14,6 +14,25 @@
       "name": "CountdownEnabled",
       "type": "CheckBox",
       "caption": "Countdown-Funktion aktivieren (Zeit wird in der App eingestellt)"
+    },
+    {
+      "type": "List",
+      "name": "TimerList",
+      "caption": "Zeitschalter",
+      "rowCount": 4,
+      "add": true,
+      "delete": true,
+      "columns": [
+        {
+          "caption": "Name",
+          "name": "TimerName",
+          "width": "auto",
+          "add": "Neuer Timer",
+          "edit": {
+            "type": "ValidationTextBox"
+          }
+        }
+      ]
     }
   ]
 }

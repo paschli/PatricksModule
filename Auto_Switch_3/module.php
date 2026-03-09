@@ -4,6 +4,7 @@
 // Zeigt einen Schalter in der Visualisierung.
 // Reagiert auf externe Änderungen der Ziel-Variable (bidirektionale Synchronisation).
 // Optionaler Countdown-Timer mit Eingabe in Stunden/Minuten/Sekunden (in eigenem Ordner).
+// Konfigurierbare Zeitschalter (manuell oder Solar) über die App.
 
 class AutSw3 extends IPSModule {
 
@@ -12,9 +13,12 @@ class AutSw3 extends IPSModule {
 
         $this->RegisterPropertyInteger('TargetID', 0);
         $this->RegisterPropertyBoolean('CountdownEnabled', false);
+        $this->RegisterPropertyString('TimerList', '[]');
 
         $this->RegisterAttributeInteger('RegisteredTargetID', 0);
         $this->RegisterAttributeInteger('CountdownTimerID', 0); // Cleanup alter Versionen
+        $this->RegisterAttributeInteger('RegisteredSunriseVarID', 0);
+        $this->RegisterAttributeInteger('TimerCount', 0);
 
         $this->RegisterVariableBoolean('State', 'Schalter', '~Switch', 0);
         IPS_SetIcon($this->GetIDForIdent('State'), 'Power');
@@ -36,8 +40,9 @@ class AutSw3 extends IPSModule {
         }
         $this->RegisterVariableString('Countdown', 'Verbleibend', '', 2);
 
-        // Timer registrieren – NUR in Create() erlaubt, Instance-ID direkt eingebettet
+        // Timer registrieren – NUR in Create() erlaubt
         $this->RegisterTimer('CountdownTimer', 0, 'AutSw3_CountdownTick(' . $this->InstanceID . ');');
+        $this->RegisterTimer('ScheduleTimer',  0, 'AutSw3_ScheduleTick('  . $this->InstanceID . ');');
     }
 
     public function ApplyChanges() {
@@ -50,17 +55,13 @@ class AutSw3 extends IPSModule {
         }
         $this->WriteAttributeInteger('CountdownTimerID', 0);
 
-        // Profile sicherstellen
         $this->ensureProfiles();
 
-        // Aktionen aktivieren
         $this->EnableAction('State');
         $this->EnableAction('CDActive');
 
-        // Kategorie für Countdown-Einstellung sicherstellen
+        // Countdown-Kategorie
         $catID = $this->ensureCountdownCategory();
-
-        // CD-Variablen in die Kategorie verschieben (falls noch direkte Kinder der Instanz)
         foreach (['CDHours', 'CDMinutes', 'CDSeconds'] as $ident) {
             $varID = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
             if ($varID) {
@@ -68,8 +69,8 @@ class AutSw3 extends IPSModule {
             }
         }
 
-        // Aktionen auf CD-Variablen setzen via Hilfs-Script (IPS_SetVariableCustomAction benötigt Script-ID)
-        $scriptID = $this->ensureCDActionScript();
+        // Gemeinsames Aktions-Script für alle Sub-Variablen
+        $scriptID = $this->ensureActionScript();
         foreach (['CDHours', 'CDMinutes', 'CDSeconds'] as $ident) {
             $varID = $this->getCDVarID($ident);
             if ($varID) {
@@ -77,13 +78,11 @@ class AutSw3 extends IPSModule {
             }
         }
 
-        // Alte Message-Registrierung aufheben
+        // Ziel-Variable registrieren
         $oldTargetID = $this->ReadAttributeInteger('RegisteredTargetID');
         if ($oldTargetID != 0) {
             $this->UnregisterMessage($oldTargetID, VM_UPDATE);
         }
-
-        // Neue Registrierung für die Ziel-Variable
         $targetID = $this->ReadPropertyInteger('TargetID');
         if ($targetID != 0 && IPS_VariableExists($targetID)) {
             $this->RegisterMessage($targetID, VM_UPDATE);
@@ -92,26 +91,39 @@ class AutSw3 extends IPSModule {
             $this->WriteAttributeInteger('RegisteredTargetID', 0);
         }
 
-        // App-Schalter und Kategorie anzeigen/ausblenden
+        // Countdown sichtbarkeit
         $featureEnabled = $this->ReadPropertyBoolean('CountdownEnabled');
         IPS_SetHidden($this->GetIDForIdent('CDActive'), !$featureEnabled);
         $cdActive = $this->GetValue('CDActive');
         IPS_SetHidden($catID, !($featureEnabled && $cdActive));
         IPS_SetHidden($this->GetIDForIdent('Countdown'), true);
-
         if (!$featureEnabled || !$cdActive) {
             $this->timerStop();
         }
+
+        // Zeitschalter-Kategorien erstellen/aktualisieren
+        $this->applyTimers($scriptID);
+
+        // Location-Subscription für Solar-Modi
+        $this->updateLocationSubscription();
+
+        // Nächsten Zeitschalter planen
+        $this->scheduleNext();
     }
 
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data) {
         if ($Message != VM_UPDATE) {
             return;
         }
-        if ($SenderID != $this->ReadPropertyInteger('TargetID')) {
+        if ($SenderID == $this->ReadPropertyInteger('TargetID')) {
+            $this->TargetChanged();
             return;
         }
-        $this->TargetChanged();
+        $sunriseVarID = $this->ReadAttributeInteger('RegisteredSunriseVarID');
+        if ($sunriseVarID != 0 && $SenderID == $sunriseVarID) {
+            $this->SendDebug('Schedule', 'Solarzeit aktualisiert – scheduleNext', 0);
+            $this->scheduleNext();
+        }
     }
 
     public function RequestAction($ident, $value) {
@@ -142,6 +154,17 @@ class AutSw3 extends IPSModule {
                     $this->timerStop();
                 }
             }
+        } elseif (preg_match('/^T(Active|State|Mode|Hour|Min|Offset)_(\d+)$/', $ident, $m)) {
+            $index = (int)$m[2];
+            $varID = $this->getTimerVarID($ident, $index);
+            if ($varID) {
+                if ($m[1] === 'Active' || $m[1] === 'State') {
+                    SetValueBoolean($varID, (bool)$value);
+                } else {
+                    SetValueInteger($varID, (int)$value);
+                }
+            }
+            $this->scheduleNext();
         }
     }
 
@@ -183,17 +206,13 @@ class AutSw3 extends IPSModule {
         if ($targetID == 0) {
             return;
         }
-
-        $targetState = GetValueBoolean($targetID);
+        $targetState  = GetValueBoolean($targetID);
         $currentState = $this->GetValue('State');
-
         if ($targetState === $currentState) {
             return;
         }
-
         $this->SendDebug('TargetChanged', 'Ziel geändert auf: ' . ($targetState ? 'EIN' : 'AUS'), 0);
         $this->SetValue('State', $targetState);
-
         if (!$targetState) {
             $this->timerStop();
         } elseif ($this->isCountdownActive()) {
@@ -207,7 +226,6 @@ class AutSw3 extends IPSModule {
     public function CountdownTick() {
         $remaining = $this->getCountdownRemaining() - 1;
         $this->SendDebug('CountdownTick', 'Verbleibend: ' . $remaining . 's', 0);
-
         if ($remaining <= 0) {
             $this->SendDebug('CountdownTick', 'Countdown abgelaufen – schalte aus', 0);
             $this->timerStop();
@@ -217,38 +235,231 @@ class AutSw3 extends IPSModule {
         }
     }
 
-    // Erstellt/aktualisiert ein verstecktes Hilfs-Script für CD-Variablen-Aktionen
-    private function ensureCDActionScript(): int {
-        $scriptID = @IPS_GetObjectIDByIdent('CDActionScript', $this->InstanceID);
-        if (!$scriptID) {
-            $scriptID = IPS_CreateScript(0);
-            IPS_SetParent($scriptID, $this->InstanceID);
-            IPS_SetIdent($scriptID, 'CDActionScript');
-            IPS_SetName($scriptID, 'CD-Aktion');
-            IPS_SetHidden($scriptID, true);
+    public function ScheduleTick() {
+        $now    = time();
+        $timers = json_decode($this->ReadPropertyString('TimerList'), true);
+        if (!is_array($timers)) {
+            $this->scheduleNext();
+            return;
         }
-        IPS_SetScriptContent($scriptID,
-            '<?php' . "\n" .
-            'IPS_RequestAction(' . $this->InstanceID . ', IPS_GetObject($_IPS[\'VARIABLE\'])[\'ObjectIdent\'], $_IPS[\'VALUE\']);'
-        );
-        return $scriptID;
+        foreach ($timers as $i => $timer) {
+            if (!$this->getTimerBool('TActive', $i)) {
+                continue;
+            }
+            $scheduledTime = $this->getTimerScheduledTime($i);
+            if ($scheduledTime === null) {
+                continue;
+            }
+            // Feuern wenn innerhalb des 90-Sekunden-Fensters
+            if ($now >= $scheduledTime && $now < $scheduledTime + 90) {
+                $this->fireTimer($i);
+            }
+        }
+        $this->scheduleNext();
     }
 
-    // Gibt die Countdown-Kategorie-ID zurück, erstellt sie falls nötig
-    private function ensureCountdownCategory(): int {
-        $catID = @IPS_GetObjectIDByIdent('CountdownCat', $this->InstanceID);
+    // ===== ZEITSCHALTER – SCHEDULING =====
+
+    private function scheduleNext() {
+        $timers = json_decode($this->ReadPropertyString('TimerList'), true);
+        if (!is_array($timers) || empty($timers)) {
+            $this->SetTimerInterval('ScheduleTimer', 0);
+            return;
+        }
+        $now      = time();
+        $nextTime = null;
+        foreach ($timers as $i => $timer) {
+            if (!$this->getTimerBool('TActive', $i)) {
+                continue;
+            }
+            $scheduledTime = $this->getTimerScheduledTime($i);
+            if ($scheduledTime === null) {
+                continue;
+            }
+            if ($scheduledTime <= $now) {
+                $scheduledTime += 86400; // morgen
+            }
+            if ($nextTime === null || $scheduledTime < $nextTime) {
+                $nextTime = $scheduledTime;
+            }
+        }
+        if ($nextTime === null) {
+            $this->SetTimerInterval('ScheduleTimer', 0);
+            return;
+        }
+        $intervalMs = ($nextTime - $now) * 1000;
+        $this->SetTimerInterval('ScheduleTimer', max(1000, $intervalMs));
+        $this->SendDebug('Schedule', 'Nächster Timer: ' . date('H:i:s', $nextTime), 0);
+    }
+
+    private function fireTimer(int $index) {
+        $state = $this->getTimerBool('TState', $index);
+        $this->SendDebug('Timer', 'Timer ' . $index . ' feuert → ' . ($state ? 'EIN' : 'AUS'), 0);
+        $this->SetSwitch($state);
+    }
+
+    private function getTimerScheduledTime(int $index): ?int {
+        $mode   = $this->getTimerInt('TMode', $index);
+        $offset = $this->getTimerInt('TOffset', $index) * 60; // → Sekunden
+        if ($mode === 0) {
+            $hour = $this->getTimerInt('THour', $index);
+            $min  = $this->getTimerInt('TMin',  $index);
+            return mktime($hour, $min, 0);
+        }
+        $solarTime = $this->getSolarTime($mode);
+        if ($solarTime === null) {
+            return null;
+        }
+        return $solarTime + $offset;
+    }
+
+    private function getSolarTime(int $mode): ?int {
+        $locationIDs = @IPS_GetInstanceListByModuleID('{45AE3035-AEF6-4A4B-876D-A2DF51BB4E6E}');
+        if (empty($locationIDs)) {
+            $this->SendDebug('Solar', 'Location Control nicht gefunden', 0);
+            return null;
+        }
+        // Mehrere mögliche Ident-Namen je IPS-Version
+        $identMap = [
+            1 => ['Sunrise',             'Sonnenaufgang'],
+            2 => ['Sunset',              'Sonnenuntergang'],
+            3 => ['CivilSunrise',        'BuergerSonnenaufgang'],
+            4 => ['CivilSunset',         'BuergerSonnenuntergang'],
+            5 => ['NauticalSunrise',     'NautSonnenaufgang'],
+            6 => ['NauticalSunset',      'NautSonnenuntergang'],
+            7 => ['AstronomicalSunrise', 'AstroSonnenaufgang'],
+            8 => ['AstronomicalSunset',  'AstroSonnenuntergang'],
+        ];
+        if (!isset($identMap[$mode])) {
+            return null;
+        }
+        foreach ($locationIDs as $locID) {
+            foreach ($identMap[$mode] as $ident) {
+                $varID = @IPS_GetObjectIDByIdent($ident, $locID);
+                if ($varID && IPS_VariableExists($varID)) {
+                    $val = GetValueInteger($varID);
+                    $this->SendDebug('Solar', 'Modus ' . $mode . ' → ' . date('H:i:s', $val), 0);
+                    return $val;
+                }
+            }
+        }
+        $this->SendDebug('Solar', 'Solar-Variable für Modus ' . $mode . ' nicht gefunden', 0);
+        return null;
+    }
+
+    private function updateLocationSubscription() {
+        $oldVarID = $this->ReadAttributeInteger('RegisteredSunriseVarID');
+        if ($oldVarID != 0) {
+            $this->UnregisterMessage($oldVarID, VM_UPDATE);
+            $this->WriteAttributeInteger('RegisteredSunriseVarID', 0);
+        }
+        $timers = json_decode($this->ReadPropertyString('TimerList'), true);
+        if (empty($timers)) {
+            return;
+        }
+        $locationIDs = @IPS_GetInstanceListByModuleID('{45AE3035-AEF6-4A4B-876D-A2DF51BB4E6E}');
+        if (empty($locationIDs)) {
+            return;
+        }
+        foreach (['Sunrise', 'Sonnenaufgang'] as $ident) {
+            $varID = @IPS_GetObjectIDByIdent($ident, $locationIDs[0]);
+            if ($varID && IPS_VariableExists($varID)) {
+                $this->RegisterMessage($varID, VM_UPDATE);
+                $this->WriteAttributeInteger('RegisteredSunriseVarID', $varID);
+                return;
+            }
+        }
+    }
+
+    // ===== ZEITSCHALTER – KATEGORIEN & VARIABLEN =====
+
+    private function applyTimers(int $scriptID) {
+        $timers = json_decode($this->ReadPropertyString('TimerList'), true);
+        if (!is_array($timers)) {
+            $timers = [];
+        }
+        foreach ($timers as $i => $timer) {
+            $name  = !empty($timer['TimerName']) ? $timer['TimerName'] : ('Timer ' . ($i + 1));
+            $catID = $this->ensureTimerCategory($i, $name);
+            $this->ensureTimerVars($i, $catID, $scriptID);
+        }
+        // Überschüssige Kategorien aus alter Konfiguration löschen
+        $oldCount = $this->ReadAttributeInteger('TimerCount');
+        for ($i = count($timers); $i < $oldCount; $i++) {
+            $catID = @IPS_GetObjectIDByIdent('TimerCat_' . $i, $this->InstanceID);
+            if ($catID) {
+                foreach (IPS_GetChildrenIDs($catID) as $childID) {
+                    if (IPS_VariableExists($childID)) {
+                        IPS_DeleteVariable($childID);
+                    }
+                }
+                IPS_DeleteCategory($catID);
+            }
+        }
+        $this->WriteAttributeInteger('TimerCount', count($timers));
+    }
+
+    private function ensureTimerCategory(int $index, string $name): int {
+        $ident = 'TimerCat_' . $index;
+        $catID = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
         if (!$catID) {
             $catID = IPS_CreateCategory();
             IPS_SetParent($catID, $this->InstanceID);
-            IPS_SetIdent($catID, 'CountdownCat');
-            IPS_SetName($catID, 'Countdown-Zeit');
-            IPS_SetIcon($catID, 'Clock');
-            IPS_SetPosition($catID, 3);
+            IPS_SetIdent($catID, $ident);
+            IPS_SetIcon($catID, 'Calendar');
         }
+        IPS_SetName($catID, $name);
+        IPS_SetPosition($catID, 10 + $index);
         return $catID;
     }
 
-    // Findet eine CD-Variable zuerst in der Kategorie, dann als direktes Kind
+    private function ensureTimerVars(int $index, int $catID, int $scriptID) {
+        $s = '_' . $index;
+        $this->ensureTimerVar($catID, 'TActive' . $s, 0, 'Aktiv',          '~Switch',         0, $scriptID);
+        $this->ensureTimerVar($catID, 'TState'  . $s, 0, 'Schaltziel',     '~Switch',         1, $scriptID);
+        $this->ensureTimerVar($catID, 'TMode'   . $s, 1, 'Zeitmodus',      'AutSw3.TimeMode', 2, $scriptID);
+        $this->ensureTimerVar($catID, 'THour'   . $s, 1, 'Stunde',         'AutSw3.Hours',    3, $scriptID);
+        $this->ensureTimerVar($catID, 'TMin'    . $s, 1, 'Minute',         'AutSw3.Minutes',  4, $scriptID);
+        $this->ensureTimerVar($catID, 'TOffset' . $s, 1, 'Versatz (min)',  'AutSw3.Offset',   5, $scriptID);
+    }
+
+    private function ensureTimerVar(int $catID, string $ident, int $type, string $name, string $profile, int $position, int $scriptID) {
+        $varID = @IPS_GetObjectIDByIdent($ident, $catID);
+        if (!$varID) {
+            $varID = IPS_CreateVariable($type);
+            IPS_SetParent($varID, $catID);
+            IPS_SetIdent($varID, $ident);
+        }
+        IPS_SetName($varID, $name);
+        IPS_SetPosition($varID, $position);
+        IPS_SetVariableCustomProfile($varID, $profile);
+        IPS_SetVariableCustomAction($varID, $scriptID);
+    }
+
+    private function getTimerVarID(string $ident, int $index): int {
+        $catID = @IPS_GetObjectIDByIdent('TimerCat_' . $index, $this->InstanceID);
+        if (!$catID) {
+            return 0;
+        }
+        return (int)@IPS_GetObjectIDByIdent($ident, $catID);
+    }
+
+    private function getTimerBool(string $prefix, int $index): bool {
+        $varID = $this->getTimerVarID($prefix . '_' . $index, $index);
+        return $varID ? GetValueBoolean($varID) : false;
+    }
+
+    private function getTimerInt(string $prefix, int $index): int {
+        $varID = $this->getTimerVarID($prefix . '_' . $index, $index);
+        return $varID ? GetValueInteger($varID) : 0;
+    }
+
+    // ===== COUNTDOWN =====
+
+    private function isCountdownActive(): bool {
+        return $this->ReadPropertyBoolean('CountdownEnabled') && $this->GetValue('CDActive');
+    }
+
     private function getCDVarID(string $ident): int {
         $catID = @IPS_GetObjectIDByIdent('CountdownCat', $this->InstanceID);
         if ($catID) {
@@ -258,10 +469,6 @@ class AutSw3 extends IPSModule {
             }
         }
         return (int)@IPS_GetObjectIDByIdent($ident, $this->InstanceID);
-    }
-
-    private function isCountdownActive(): bool {
-        return $this->ReadPropertyBoolean('CountdownEnabled') && $this->GetValue('CDActive');
     }
 
     private function getCDSeconds(): int {
@@ -279,10 +486,7 @@ class AutSw3 extends IPSModule {
     }
 
     private function formatDuration(int $seconds): string {
-        $h = intdiv($seconds, 3600);
-        $m = intdiv($seconds % 3600, 60);
-        $s = $seconds % 60;
-        return sprintf('%02d:%02d:%02d', $h, $m, $s);
+        return sprintf('%02d:%02d:%02d', intdiv($seconds, 3600), intdiv($seconds % 3600, 60), $seconds % 60);
     }
 
     private function timerStart(int $seconds) {
@@ -296,6 +500,37 @@ class AutSw3 extends IPSModule {
         $this->SetTimerInterval('CountdownTimer', 0);
         $this->SetValue('Countdown', '');
         IPS_SetHidden($this->GetIDForIdent('Countdown'), true);
+    }
+
+    // ===== HILFSMETHODEN =====
+
+    private function ensureActionScript(): int {
+        $scriptID = @IPS_GetObjectIDByIdent('CDActionScript', $this->InstanceID);
+        if (!$scriptID) {
+            $scriptID = IPS_CreateScript(0);
+            IPS_SetParent($scriptID, $this->InstanceID);
+            IPS_SetIdent($scriptID, 'CDActionScript');
+            IPS_SetName($scriptID, 'Aktion');
+            IPS_SetHidden($scriptID, true);
+        }
+        IPS_SetScriptContent($scriptID,
+            '<?php' . "\n" .
+            'IPS_RequestAction(' . $this->InstanceID . ', IPS_GetObject($_IPS[\'VARIABLE\'])[\'ObjectIdent\'], $_IPS[\'VALUE\']);'
+        );
+        return $scriptID;
+    }
+
+    private function ensureCountdownCategory(): int {
+        $catID = @IPS_GetObjectIDByIdent('CountdownCat', $this->InstanceID);
+        if (!$catID) {
+            $catID = IPS_CreateCategory();
+            IPS_SetParent($catID, $this->InstanceID);
+            IPS_SetIdent($catID, 'CountdownCat');
+            IPS_SetName($catID, 'Countdown-Zeit');
+            IPS_SetIcon($catID, 'Clock');
+            IPS_SetPosition($catID, 3);
+        }
+        return $catID;
     }
 
     private function ensureProfiles() {
@@ -313,6 +548,23 @@ class AutSw3 extends IPSModule {
             IPS_CreateVariableProfile('AutSw3.Seconds', 1);
             IPS_SetVariableProfileValues('AutSw3.Seconds', 0, 59, 1);
             IPS_SetVariableProfileText('AutSw3.Seconds', '', ' s');
+        }
+        if (!IPS_VariableProfileExists('AutSw3.TimeMode')) {
+            IPS_CreateVariableProfile('AutSw3.TimeMode', 1);
+            IPS_SetVariableProfileAssociation('AutSw3.TimeMode', 0, 'Manuell',                  'Clock', -1);
+            IPS_SetVariableProfileAssociation('AutSw3.TimeMode', 1, 'Sonnenaufgang',             'Sun',   -1);
+            IPS_SetVariableProfileAssociation('AutSw3.TimeMode', 2, 'Sonnenuntergang',           'Moon',  -1);
+            IPS_SetVariableProfileAssociation('AutSw3.TimeMode', 3, 'Bürgerl. Sonnenaufgang',    'Sun',   -1);
+            IPS_SetVariableProfileAssociation('AutSw3.TimeMode', 4, 'Bürgerl. Sonnenuntergang',  'Moon',  -1);
+            IPS_SetVariableProfileAssociation('AutSw3.TimeMode', 5, 'Naut. Sonnenaufgang',       'Sun',   -1);
+            IPS_SetVariableProfileAssociation('AutSw3.TimeMode', 6, 'Naut. Sonnenuntergang',     'Moon',  -1);
+            IPS_SetVariableProfileAssociation('AutSw3.TimeMode', 7, 'Astron. Sonnenaufgang',     'Sun',   -1);
+            IPS_SetVariableProfileAssociation('AutSw3.TimeMode', 8, 'Astron. Sonnenuntergang',   'Moon',  -1);
+        }
+        if (!IPS_VariableProfileExists('AutSw3.Offset')) {
+            IPS_CreateVariableProfile('AutSw3.Offset', 1);
+            IPS_SetVariableProfileValues('AutSw3.Offset', -120, 120, 5);
+            IPS_SetVariableProfileText('AutSw3.Offset', '', ' min');
         }
     }
 }
