@@ -30,9 +30,7 @@ class AutSw3 extends IPSModule {
         // Profile sicherstellen bevor Variablen damit registriert werden
         $this->ensureProfiles();
 
-        $this->RegisterVariableInteger('CDHours',   'Stunden',  'AutSw3.Hours',   1);
-        $this->RegisterVariableInteger('CDMinutes', 'Minuten',  'AutSw3.Minutes', 2);
-        $this->RegisterVariableInteger('CDSeconds', 'Sekunden', 'AutSw3.Seconds', 3);
+        $this->RegisterVariableInteger('CDDuration', 'Countdown-Zeit', '~Duration', 1);
 
         // Migration: alte Integer-Countdown-Variable löschen falls vorhanden
         $oldID = @IPS_GetObjectIDByIdent('Countdown', $this->InstanceID);
@@ -62,30 +60,21 @@ class AutSw3 extends IPSModule {
         $this->EnableAction('State');
         $this->EnableAction('CDActive');
 
-        // Countdown-Kategorie
-        $catID = $this->ensureCountdownCategory();
-        foreach (['CDHours', 'CDMinutes', 'CDSeconds'] as $ident) {
-            if (@IPS_GetObjectIDByIdent($ident, $catID)) {
-                // Schon in der Kategorie – Duplikat als direktes Kind löschen falls vorhanden
-                $dupID = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
-                if ($dupID) {
-                    IPS_DeleteVariable($dupID);
-                }
-                continue;
-            }
-            $varID = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
-            if ($varID) {
-                IPS_SetParent($varID, $catID);
-            }
-        }
-
         // Gemeinsames Aktions-Script für alle Sub-Variablen
         $scriptID = $this->ensureActionScript();
-        foreach (['CDHours', 'CDMinutes', 'CDSeconds'] as $ident) {
-            $varID = $this->getCDVarID($ident);
-            if ($varID) {
-                IPS_SetVariableCustomAction($varID, $scriptID);
-            }
+
+        // Countdown-Variable: CDDuration direkt unter der Instanz lassen (keine Kategorie mehr nötig)
+        // Migration: alte CDHours/CDMinutes/CDSeconds + Kategorie entfernen
+        $this->migrateCDToSingleVar($scriptID);
+
+        // CDDuration Action zuweisen
+        $durID = @IPS_GetObjectIDByIdent('CDDuration', $this->InstanceID);
+        if (!$durID) {
+            $durID = @IPS_GetObjectIDByIdent('CDDuration',
+                (int)@IPS_GetObjectIDByIdent('CountdownCat', $this->InstanceID));
+        }
+        if ($durID) {
+            IPS_SetVariableCustomAction($durID, $scriptID);
         }
 
         // Ziel-Variable registrieren
@@ -105,7 +94,10 @@ class AutSw3 extends IPSModule {
         $featureEnabled = $this->ReadPropertyBoolean('CountdownEnabled');
         IPS_SetHidden($this->GetIDForIdent('CDActive'), !$featureEnabled);
         $cdActive = $this->GetValue('CDActive');
-        IPS_SetHidden($catID, !($featureEnabled && $cdActive));
+        $durVarID = $this->getCDVarID('CDDuration');
+        if ($durVarID) {
+            IPS_SetHidden($durVarID, !($featureEnabled && $cdActive));
+        }
         IPS_SetHidden($this->GetIDForIdent('Countdown'), true);
         if (!$featureEnabled || !$cdActive) {
             $this->timerStop();
@@ -146,8 +138,10 @@ class AutSw3 extends IPSModule {
             $this->SetSwitch((bool)$value);
         } elseif ($ident === 'CDActive') {
             $this->SetValue('CDActive', (bool)$value);
-            $catID = $this->ensureCountdownCategory();
-            IPS_SetHidden($catID, !$value);
+            $durVarID = $this->getCDVarID('CDDuration');
+            if ($durVarID) {
+                IPS_SetHidden($durVarID, !$value);
+            }
             if ($value && $this->GetValue('State')) {
                 $total = $this->getCDSeconds();
                 if ($total > 0) {
@@ -156,13 +150,13 @@ class AutSw3 extends IPSModule {
             } else {
                 $this->timerStop();
             }
-        } elseif (in_array($ident, ['CDHours', 'CDMinutes', 'CDSeconds'])) {
-            $varID = $this->getCDVarID($ident);
+        } elseif ($ident === 'CDDuration') {
+            $varID = $this->getCDVarID('CDDuration');
             if ($varID) {
                 SetValueInteger($varID, (int)$value);
             }
             if ($this->GetValue('State') && $this->isCountdownActive()) {
-                $total = $this->getCDSeconds();
+                $total = (int)$value;
                 if ($total > 0) {
                     $this->timerStart($total);
                 } else {
@@ -532,9 +526,7 @@ class AutSw3 extends IPSModule {
     }
 
     private function getCDSeconds(): int {
-        return GetValueInteger($this->getCDVarID('CDHours'))   * 3600
-             + GetValueInteger($this->getCDVarID('CDMinutes')) * 60
-             + GetValueInteger($this->getCDVarID('CDSeconds'));
+        return GetValueInteger($this->getCDVarID('CDDuration'));
     }
 
     private function getCountdownRemaining(): int {
@@ -563,6 +555,58 @@ class AutSw3 extends IPSModule {
     }
 
     // ===== HILFSMETHODEN =====
+
+    private function migrateCDToSingleVar(int $scriptID) {
+        $catID = @IPS_GetObjectIDByIdent('CountdownCat', $this->InstanceID);
+
+        // CDDuration sicherstellen (direkt unter Instanz)
+        $durID = @IPS_GetObjectIDByIdent('CDDuration', $this->InstanceID);
+        if (!$durID && $catID) {
+            $durID = @IPS_GetObjectIDByIdent('CDDuration', $catID);
+        }
+        if (!$durID) {
+            $durID = IPS_CreateVariable(1);
+            IPS_SetParent($durID, $this->InstanceID);
+            IPS_SetIdent($durID, 'CDDuration');
+        }
+        IPS_SetName($durID, 'Countdown-Zeit');
+        IPS_SetPosition($durID, 2);
+        IPS_SetVariableCustomProfile($durID, '~Duration');
+        IPS_SetVariableCustomAction($durID, $scriptID);
+        // Sicherstellen dass es direkt unter der Instanz hängt
+        if (IPS_GetObject($durID)['ParentID'] !== $this->InstanceID) {
+            IPS_SetParent($durID, $this->InstanceID);
+        }
+
+        // Alte CDHours/CDMinutes/CDSeconds migrieren und löschen
+        $oldIdents = ['CDHours', 'CDMinutes', 'CDSeconds'];
+        $oldValues = [0, 0, 0];
+        $found = false;
+        foreach ($oldIdents as $k => $oi) {
+            $id = $catID ? @IPS_GetObjectIDByIdent($oi, $catID) : false;
+            if (!$id) { $id = @IPS_GetObjectIDByIdent($oi, $this->InstanceID); }
+            if ($id) {
+                $oldValues[$k] = GetValueInteger($id);
+                $found = true;
+            }
+        }
+        if ($found && GetValueInteger($durID) == 0) {
+            SetValueInteger($durID, $oldValues[0] * 3600 + $oldValues[1] * 60 + $oldValues[2]);
+        }
+        foreach ($oldIdents as $oi) {
+            $id = $catID ? @IPS_GetObjectIDByIdent($oi, $catID) : false;
+            if (!$id) { $id = @IPS_GetObjectIDByIdent($oi, $this->InstanceID); }
+            if ($id) { IPS_DeleteVariable($id); }
+        }
+
+        // Leere Countdown-Kategorie entfernen
+        if ($catID) {
+            $children = IPS_GetChildrenIDs($catID);
+            if (empty($children)) {
+                IPS_DeleteCategory($catID);
+            }
+        }
+    }
 
     private function ensureActionScript(): int {
         $scriptID = @IPS_GetObjectIDByIdent('CDActionScript', $this->InstanceID);
