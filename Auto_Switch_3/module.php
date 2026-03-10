@@ -14,6 +14,8 @@ class AutSw3 extends IPSModule {
         $this->RegisterPropertyInteger('TargetID', 0);
         $this->RegisterPropertyBoolean('CountdownEnabled', false);
         $this->RegisterPropertyString('TimerList', '[]');
+        $this->RegisterPropertyFloat('Latitude', 0.0);
+        $this->RegisterPropertyFloat('Longitude', 0.0);
 
         $this->RegisterAttributeInteger('RegisteredTargetID', 0);
         $this->RegisterAttributeInteger('CountdownTimerID', 0); // Cleanup alter Versionen
@@ -342,22 +344,13 @@ class AutSw3 extends IPSModule {
         if (!isset($keyMap[$mode])) {
             return null;
         }
-        // Koordinaten aus der Location Control lesen
-        $locationIDs = @IPS_GetInstanceListByModuleID('{45AE3035-AEF6-4A4B-876D-A2DF51BB4E6E}');
-        if (empty($locationIDs)) {
-            $this->SendDebug('Solar', 'Location Control nicht gefunden', 0);
+        $lat = $this->ReadPropertyFloat('Latitude');
+        $lon = $this->ReadPropertyFloat('Longitude');
+        if ($lat == 0.0 && $lon == 0.0) {
+            $this->SendDebug('Solar', 'Koordinaten nicht konfiguriert (Breitengrad/Längengrad in der Form eintragen)', 0);
             return null;
         }
-        $config = json_decode(IPS_GetConfiguration($locationIDs[0]), true);
-        // Verschiedene mögliche Schlüsselnamen für Koordinaten
-        $lat = $config['Latitude']  ?? ($config['latitude']  ?? ($config['Lat'] ?? ($config['lat'] ?? null)));
-        $lon = $config['Longitude'] ?? ($config['longitude'] ?? ($config['Lon'] ?? ($config['lon'] ?? null)));
-        if ($lat === null || $lon === null) {
-            $this->SendDebug('Solar', 'Koordinaten nicht gefunden. Vorhandene Keys: ' . implode(', ', array_keys($config)), 0);
-            return null;
-        }
-        // Solar-Zeiten via PHP date_sun_info() berechnen (kein IPS-Variablen-Lookup nötig)
-        $sunInfo = date_sun_info(time(), (float)$lat, (float)$lon);
+        $sunInfo = date_sun_info(time(), $lat, $lon);
         $key     = $keyMap[$mode];
         if (empty($sunInfo[$key])) {
             $this->SendDebug('Solar', '"' . $key . '" nicht verfügbar (Polartag/-nacht?)', 0);
@@ -368,35 +361,12 @@ class AutSw3 extends IPSModule {
     }
 
     private function updateLocationSubscription() {
+        // Solar-Zeiten werden via date_sun_info() direkt berechnet – kein Variablen-Abonnement nötig.
+        // Profile werden täglich beim ScheduleTick aktualisiert.
         $oldVarID = $this->ReadAttributeInteger('RegisteredSunriseVarID');
         if ($oldVarID != 0) {
             $this->UnregisterMessage($oldVarID, VM_UPDATE);
             $this->WriteAttributeInteger('RegisteredSunriseVarID', 0);
-        }
-        $timers = json_decode($this->ReadPropertyString('TimerList'), true);
-        if (empty($timers)) {
-            return;
-        }
-        $locationIDs = @IPS_GetInstanceListByModuleID('{45AE3035-AEF6-4A4B-876D-A2DF51BB4E6E}');
-        if (empty($locationIDs)) {
-            return;
-        }
-        // Bekannte Idents versuchen, dann beliebige Variable als Tages-Trigger
-        foreach (['Sunrise', 'Sunset', 'Sonnenaufgang', 'Sonnenuntergang'] as $ident) {
-            $varID = @IPS_GetObjectIDByIdent($ident, $locationIDs[0]);
-            if ($varID && IPS_VariableExists($varID)) {
-                $this->RegisterMessage($varID, VM_UPDATE);
-                $this->WriteAttributeInteger('RegisteredSunriseVarID', $varID);
-                return;
-            }
-        }
-        // Fallback: erste Variable unter der Location-Instanz
-        foreach (IPS_GetChildrenIDs($locationIDs[0]) as $childID) {
-            if (IPS_VariableExists($childID)) {
-                $this->RegisterMessage($childID, VM_UPDATE);
-                $this->WriteAttributeInteger('RegisteredSunriseVarID', $childID);
-                return;
-            }
         }
     }
 

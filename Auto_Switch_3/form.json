@@ -16,6 +16,31 @@
       "caption": "Countdown-Funktion aktivieren (Zeit wird in der App eingestellt)"
     },
     {
+      "type": "Label",
+      "caption": "Koordinaten für Solar-Zeiten (Breitengrad / Längengrad)"
+    },
+    {
+      "type": "RowLayout",
+      "items": [
+        {
+          "name": "Latitude",
+          "type": "NumberSpinner",
+          "caption": "Breitengrad",
+          "digits": 6,
+          "minimum": -90,
+          "maximum": 90
+        },
+        {
+          "name": "Longitude",
+          "type": "NumberSpinner",
+          "caption": "Längengrad",
+          "digits": 6,
+          "minimum": -180,
+          "maximum": 180
+        }
+      ]
+    },
+    {
       "type": "List",
       "name": "TimerList",
       "caption": "Zeitschalter",
