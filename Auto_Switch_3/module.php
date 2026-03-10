@@ -60,22 +60,14 @@ class AutSw3 extends IPSModule {
         $this->EnableAction('State');
         $this->EnableAction('CDActive');
 
-        // Gemeinsames Aktions-Script für alle Sub-Variablen
+        // Gemeinsames Aktions-Script für Timer-Sub-Variablen
         $scriptID = $this->ensureActionScript();
 
-        // Countdown-Variable: CDDuration direkt unter der Instanz lassen (keine Kategorie mehr nötig)
-        // Migration: alte CDHours/CDMinutes/CDSeconds + Kategorie entfernen
-        $this->migrateCDToSingleVar($scriptID);
+        // CDDuration ist eine Modul-Variable → EnableAction reicht
+        $this->EnableAction('CDDuration');
 
-        // CDDuration Action zuweisen
-        $durID = @IPS_GetObjectIDByIdent('CDDuration', $this->InstanceID);
-        if (!$durID) {
-            $durID = @IPS_GetObjectIDByIdent('CDDuration',
-                (int)@IPS_GetObjectIDByIdent('CountdownCat', $this->InstanceID));
-        }
-        if ($durID) {
-            IPS_SetVariableCustomAction($durID, $scriptID);
-        }
+        // Migration: alte CDHours/CDMinutes/CDSeconds + Kategorie entfernen
+        $this->migrateCDToSingleVar();
 
         // Ziel-Variable registrieren
         $oldTargetID = $this->ReadAttributeInteger('RegisteredTargetID');
@@ -556,27 +548,9 @@ class AutSw3 extends IPSModule {
 
     // ===== HILFSMETHODEN =====
 
-    private function migrateCDToSingleVar(int $scriptID) {
+    private function migrateCDToSingleVar() {
         $catID = @IPS_GetObjectIDByIdent('CountdownCat', $this->InstanceID);
-
-        // CDDuration sicherstellen (direkt unter Instanz)
-        $durID = @IPS_GetObjectIDByIdent('CDDuration', $this->InstanceID);
-        if (!$durID && $catID) {
-            $durID = @IPS_GetObjectIDByIdent('CDDuration', $catID);
-        }
-        if (!$durID) {
-            $durID = IPS_CreateVariable(1);
-            IPS_SetParent($durID, $this->InstanceID);
-            IPS_SetIdent($durID, 'CDDuration');
-        }
-        IPS_SetName($durID, 'Countdown-Zeit');
-        IPS_SetPosition($durID, 2);
-        IPS_SetVariableCustomProfile($durID, '~Duration');
-        IPS_SetVariableCustomAction($durID, $scriptID);
-        // Sicherstellen dass es direkt unter der Instanz hängt
-        if (IPS_GetObject($durID)['ParentID'] !== $this->InstanceID) {
-            IPS_SetParent($durID, $this->InstanceID);
-        }
+        $durID = $this->GetIDForIdent('CDDuration');
 
         // Alte CDHours/CDMinutes/CDSeconds migrieren und löschen
         $oldIdents = ['CDHours', 'CDMinutes', 'CDSeconds'];
