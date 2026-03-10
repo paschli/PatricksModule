@@ -25,6 +25,11 @@
       "caption": "Location Control"
     },
     {
+      "type": "Button",
+      "caption": "Solar-Zeiten jetzt aktualisieren",
+      "onClick": "AutSw3_ProfileUpdateTick($id);"
+    },
+    {
       "type": "List",
       "name": "TimerList",
       "caption": "Zeitschalter",

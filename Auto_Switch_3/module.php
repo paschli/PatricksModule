@@ -354,13 +354,31 @@ class AutSw3 extends IPSModule {
             $this->SendDebug('Solar', 'Location Control nicht konfiguriert (Instanz in der Form auswählen)', 0);
             return null;
         }
-        $config = json_decode(IPS_GetConfiguration($locationID), true);
+        // Versuch 1: Koordinaten aus Instanz-Konfiguration
+        $config = json_decode(IPS_GetConfiguration($locationID), true) ?? [];
         $lat = $config['Latitude']  ?? ($config['latitude']  ?? ($config['Lat'] ?? ($config['lat'] ?? null)));
         $lon = $config['Longitude'] ?? ($config['longitude'] ?? ($config['Lon'] ?? ($config['lon'] ?? null)));
+        // Versuch 2: Koordinaten aus Kind-Variablen der Instanz
         if ($lat === null || $lon === null) {
-            $this->SendDebug('Solar', 'Koordinaten nicht gefunden. Keys: ' . implode(', ', array_keys($config)), 0);
+            foreach (IPS_GetChildrenIDs($locationID) as $childID) {
+                if (!IPS_VariableExists($childID)) {
+                    continue;
+                }
+                $ident = strtolower(IPS_GetObject($childID)['ObjectIdent']);
+                if ($lat === null && (str_contains($ident, 'lat') || str_contains($ident, 'breite'))) {
+                    $lat = GetValueFloat($childID);
+                } elseif ($lon === null && (str_contains($ident, 'lon') || str_contains($ident, 'lng') || str_contains($ident, 'laenge') || str_contains($ident, 'länge'))) {
+                    $lon = GetValueFloat($childID);
+                }
+            }
+        }
+        if ($lat === null || $lon === null) {
+            $configKeys   = implode(', ', array_keys($config));
+            $childIdents  = implode(', ', array_map(fn($id) => IPS_GetObject($id)['ObjectIdent'], IPS_GetChildrenIDs($locationID)));
+            $this->SendDebug('Solar', 'Koordinaten nicht gefunden. Config-Keys: [' . $configKeys . '] Child-Idents: [' . $childIdents . ']', 0);
             return null;
         }
+        $this->SendDebug('Solar', 'Koordinaten: lat=' . $lat . ' lon=' . $lon, 0);
         $sunInfo = date_sun_info(time(), (float)$lat, (float)$lon);
         $key     = $keyMap[$mode];
         if (empty($sunInfo[$key])) {
