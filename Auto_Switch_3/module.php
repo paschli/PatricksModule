@@ -42,8 +42,9 @@ class AutSw3 extends IPSModule {
         $this->RegisterVariableString('Countdown', 'Verbleibend', '', 2);
 
         // Timer registrieren – NUR in Create() erlaubt
-        $this->RegisterTimer('CountdownTimer', 0, 'AutSw3_CountdownTick(' . $this->InstanceID . ');');
-        $this->RegisterTimer('ScheduleTimer',  0, 'AutSw3_ScheduleTick('  . $this->InstanceID . ');');
+        $this->RegisterTimer('CountdownTimer',     0, 'AutSw3_CountdownTick('     . $this->InstanceID . ');');
+        $this->RegisterTimer('ScheduleTimer',      0, 'AutSw3_ScheduleTick('      . $this->InstanceID . ');');
+        $this->RegisterTimer('ProfileUpdateTimer', 0, 'AutSw3_ProfileUpdateTick(' . $this->InstanceID . ');');
     }
 
     public function ApplyChanges() {
@@ -118,6 +119,7 @@ class AutSw3 extends IPSModule {
 
         // Profil-Beschriftungen mit aktuellen Solar-Zeiten aktualisieren
         $this->updateTimeModeProfile();
+        $this->scheduleProfileUpdate();
 
         // Nächsten Zeitschalter planen
         $this->scheduleNext();
@@ -270,8 +272,12 @@ class AutSw3 extends IPSModule {
                 $this->fireTimer($i);
             }
         }
-        $this->updateTimeModeProfile(); // Solar-Zeiten tagesfrisch halten
         $this->scheduleNext();
+    }
+
+    public function ProfileUpdateTick() {
+        $this->updateTimeModeProfile();
+        $this->scheduleProfileUpdate();
     }
 
     // ===== ZEITSCHALTER – SCHEDULING =====
@@ -363,6 +369,14 @@ class AutSw3 extends IPSModule {
         }
         $this->SendDebug('Solar', 'Modus ' . $mode . ' (' . $key . '): ' . date('H:i', $sunInfo[$key]), 0);
         return (int)$sunInfo[$key];
+    }
+
+    private function scheduleProfileUpdate() {
+        // Täglich um 00:05 Uhr Solar-Zeiten im Profil aktualisieren
+        $nextUpdate = mktime(0, 5, 0, (int)date('n'), (int)date('j') + 1);
+        $intervalMs = ($nextUpdate - time()) * 1000;
+        $this->SetTimerInterval('ProfileUpdateTimer', max(60000, $intervalMs));
+        $this->SendDebug('Solar', 'Profilaktualisierung geplant: ' . date('d.m.Y H:i', $nextUpdate), 0);
     }
 
     private function updateLocationSubscription() {
