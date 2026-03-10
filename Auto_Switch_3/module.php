@@ -14,8 +14,7 @@ class AutSw3 extends IPSModule {
         $this->RegisterPropertyInteger('TargetID', 0);
         $this->RegisterPropertyBoolean('CountdownEnabled', false);
         $this->RegisterPropertyString('TimerList', '[]');
-        $this->RegisterPropertyFloat('Latitude', 0.0);
-        $this->RegisterPropertyFloat('Longitude', 0.0);
+        $this->RegisterPropertyInteger('LocationID', 0);
 
         $this->RegisterAttributeInteger('RegisteredTargetID', 0);
         $this->RegisterAttributeInteger('CountdownTimerID', 0); // Cleanup alter Versionen
@@ -344,13 +343,19 @@ class AutSw3 extends IPSModule {
         if (!isset($keyMap[$mode])) {
             return null;
         }
-        $lat = $this->ReadPropertyFloat('Latitude');
-        $lon = $this->ReadPropertyFloat('Longitude');
-        if ($lat == 0.0 && $lon == 0.0) {
-            $this->SendDebug('Solar', 'Koordinaten nicht konfiguriert (Breitengrad/Längengrad in der Form eintragen)', 0);
+        $locationID = $this->ReadPropertyInteger('LocationID');
+        if ($locationID == 0 || !IPS_InstanceExists($locationID)) {
+            $this->SendDebug('Solar', 'Location Control nicht konfiguriert (Instanz in der Form auswählen)', 0);
             return null;
         }
-        $sunInfo = date_sun_info(time(), $lat, $lon);
+        $config = json_decode(IPS_GetConfiguration($locationID), true);
+        $lat = $config['Latitude']  ?? ($config['latitude']  ?? ($config['Lat'] ?? ($config['lat'] ?? null)));
+        $lon = $config['Longitude'] ?? ($config['longitude'] ?? ($config['Lon'] ?? ($config['lon'] ?? null)));
+        if ($lat === null || $lon === null) {
+            $this->SendDebug('Solar', 'Koordinaten nicht gefunden. Keys: ' . implode(', ', array_keys($config)), 0);
+            return null;
+        }
+        $sunInfo = date_sun_info(time(), (float)$lat, (float)$lon);
         $key     = $keyMap[$mode];
         if (empty($sunInfo[$key])) {
             $this->SendDebug('Solar', '"' . $key . '" nicht verfügbar (Polartag/-nacht?)', 0);
