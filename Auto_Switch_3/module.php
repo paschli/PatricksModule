@@ -325,8 +325,8 @@ class AutSw3 extends IPSModule {
         $offset = $this->getTimerInt('TOffset', $index) * 60; // → Sekunden
         if ($mode === 0) {
             $timeVal = $this->getTimerInt('TTime', $index);
-            $hour    = intdiv($timeVal, 3600);
-            $min     = intdiv($timeVal % 3600, 60);
+            $hour    = (int)date('G', $timeVal);
+            $min     = (int)date('i', $timeVal);
             return mktime($hour, $min, 0);
         }
         $solarTime = $this->getSolarTime($mode);
