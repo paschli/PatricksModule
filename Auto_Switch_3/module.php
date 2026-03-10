@@ -169,7 +169,7 @@ class AutSw3 extends IPSModule {
                     $this->timerStop();
                 }
             }
-        } elseif (preg_match('/^T(Active|State|Mode|Hour|Min|Offset)_(\d+)$/', $ident, $m)) {
+        } elseif (preg_match('/^T(Active|State|Mode|Time|Offset)_(\d+)$/', $ident, $m)) {
             $index = (int)$m[2];
             $varID = $this->getTimerVarID($ident, $index);
             if ($varID) {
@@ -324,8 +324,9 @@ class AutSw3 extends IPSModule {
         $mode   = $this->getTimerInt('TMode',   $index);
         $offset = $this->getTimerInt('TOffset', $index) * 60; // → Sekunden
         if ($mode === 0) {
-            $hour = $this->getTimerInt('THour', $index);
-            $min  = $this->getTimerInt('TMin',  $index);
+            $timeVal = $this->getTimerInt('TTime', $index);
+            $hour    = intdiv($timeVal, 3600);
+            $min     = intdiv($timeVal % 3600, 60);
             return mktime($hour, $min, 0);
         }
         $solarTime = $this->getSolarTime($mode);
@@ -461,12 +462,25 @@ class AutSw3 extends IPSModule {
 
     private function ensureTimerVars(int $index, int $catID, int $scriptID) {
         $s = '_' . $index;
-        $this->ensureTimerVar($catID, 'TActive' . $s, 0, 'Aktiv',          '~Switch',         0, $scriptID);
-        $this->ensureTimerVar($catID, 'TState'  . $s, 0, 'Schaltziel',     '~Switch',         1, $scriptID);
-        $this->ensureTimerVar($catID, 'TMode'   . $s, 1, 'Zeitmodus',      'AutSw3.TimeMode', 2, $scriptID);
-        $this->ensureTimerVar($catID, 'THour'   . $s, 1, 'Stunde',         'AutSw3.Hours',    3, $scriptID);
-        $this->ensureTimerVar($catID, 'TMin'    . $s, 1, 'Minute',         'AutSw3.Minutes',  4, $scriptID);
-        $this->ensureTimerVar($catID, 'TOffset' . $s, 1, 'Versatz (min)',  'AutSw3.Offset',   5, $scriptID);
+        $this->ensureTimerVar($catID, 'TActive' . $s, 0, 'Aktiv',          '~Switch',              0, $scriptID);
+        $this->ensureTimerVar($catID, 'TState'  . $s, 0, 'Schaltziel',     '~Switch',              1, $scriptID);
+        $this->ensureTimerVar($catID, 'TMode'   . $s, 1, 'Zeitmodus',      'AutSw3.TimeMode',      2, $scriptID);
+        $this->ensureTimerVar($catID, 'TTime'   . $s, 1, 'Uhrzeit',        '~UnixTimestampTime',   3, $scriptID);
+        $this->ensureTimerVar($catID, 'TOffset' . $s, 1, 'Versatz (min)',  'AutSw3.Offset',        4, $scriptID);
+
+        // Migration: alte THour/TMin-Variablen in TTime überführen und löschen
+        $oldHourID = @IPS_GetObjectIDByIdent('THour' . $s, $catID);
+        $oldMinID  = @IPS_GetObjectIDByIdent('TMin'  . $s, $catID);
+        if ($oldHourID || $oldMinID) {
+            $oldHour = $oldHourID ? GetValueInteger($oldHourID) : 0;
+            $oldMin  = $oldMinID  ? GetValueInteger($oldMinID)  : 0;
+            $tTimeID = @IPS_GetObjectIDByIdent('TTime' . $s, $catID);
+            if ($tTimeID && GetValueInteger($tTimeID) == 0 && ($oldHour > 0 || $oldMin > 0)) {
+                SetValueInteger($tTimeID, $oldHour * 3600 + $oldMin * 60);
+            }
+            if ($oldHourID) { IPS_DeleteVariable($oldHourID); }
+            if ($oldMinID)  { IPS_DeleteVariable($oldMinID);  }
+        }
     }
 
     private function ensureTimerVar(int $catID, string $ident, int $type, string $name, string $profile, int $position, int $scriptID) {
