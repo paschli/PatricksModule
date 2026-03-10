@@ -21,7 +21,7 @@
     },
     {
       "name": "LocationID",
-      "type": "SelectModule",
+      "type": "SelectInstance",
       "caption": "Location Control"
     },
     {
