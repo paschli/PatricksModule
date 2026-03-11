@@ -30,7 +30,9 @@ class AutSw3 extends IPSModule {
         // Profile sicherstellen bevor Variablen damit registriert werden
         $this->ensureProfiles();
 
-        $this->RegisterVariableInteger('CDDuration', 'Countdown-Zeit', '~Duration', 1);
+        $this->RegisterVariableInteger('CDHours',   'Stunden',  'AutSw3.Hours',   2);
+        $this->RegisterVariableInteger('CDMinutes', 'Minuten',  'AutSw3.Minutes', 3);
+        $this->RegisterVariableInteger('CDSeconds', 'Sekunden', 'AutSw3.Seconds', 4);
 
         // Migration: alte Integer-Countdown-Variable löschen falls vorhanden
         $oldID = @IPS_GetObjectIDByIdent('Countdown', $this->InstanceID);
@@ -63,10 +65,12 @@ class AutSw3 extends IPSModule {
         // Gemeinsames Aktions-Script für Timer-Sub-Variablen
         $scriptID = $this->ensureActionScript();
 
-        // CDDuration ist eine Modul-Variable → EnableAction reicht
-        $this->EnableAction('CDDuration');
+        // Countdown-Variablen als Modul-Variablen steuerbar machen
+        $this->EnableAction('CDHours');
+        $this->EnableAction('CDMinutes');
+        $this->EnableAction('CDSeconds');
 
-        // Migration: alte CDHours/CDMinutes/CDSeconds + Kategorie entfernen
+        // Migration: CDDuration (alte Version) löschen falls vorhanden
         $this->migrateCDToSingleVar();
 
         // Ziel-Variable registrieren
@@ -86,10 +90,10 @@ class AutSw3 extends IPSModule {
         $featureEnabled = $this->ReadPropertyBoolean('CountdownEnabled');
         IPS_SetHidden($this->GetIDForIdent('CDActive'), !$featureEnabled);
         $cdActive = $this->GetValue('CDActive');
-        $durVarID = $this->getCDVarID('CDDuration');
-        if ($durVarID) {
-            IPS_SetHidden($durVarID, !($featureEnabled && $cdActive));
-        }
+        $showCD = $featureEnabled && $cdActive;
+        IPS_SetHidden($this->GetIDForIdent('CDHours'),   !$showCD);
+        IPS_SetHidden($this->GetIDForIdent('CDMinutes'), !$showCD);
+        IPS_SetHidden($this->GetIDForIdent('CDSeconds'), !$showCD);
         IPS_SetHidden($this->GetIDForIdent('Countdown'), true);
         if (!$featureEnabled || !$cdActive) {
             $this->timerStop();
@@ -130,10 +134,9 @@ class AutSw3 extends IPSModule {
             $this->SetSwitch((bool)$value);
         } elseif ($ident === 'CDActive') {
             $this->SetValue('CDActive', (bool)$value);
-            $durVarID = $this->getCDVarID('CDDuration');
-            if ($durVarID) {
-                IPS_SetHidden($durVarID, !$value);
-            }
+            IPS_SetHidden($this->GetIDForIdent('CDHours'),   !$value);
+            IPS_SetHidden($this->GetIDForIdent('CDMinutes'), !$value);
+            IPS_SetHidden($this->GetIDForIdent('CDSeconds'), !$value);
             if ($value && $this->GetValue('State')) {
                 $total = $this->getCDSeconds();
                 if ($total > 0) {
@@ -142,13 +145,10 @@ class AutSw3 extends IPSModule {
             } else {
                 $this->timerStop();
             }
-        } elseif ($ident === 'CDDuration') {
-            $varID = $this->getCDVarID('CDDuration');
-            if ($varID) {
-                SetValueInteger($varID, (int)$value);
-            }
+        } elseif (in_array($ident, ['CDHours', 'CDMinutes', 'CDSeconds'])) {
+            $this->SetValue($ident, (int)$value);
             if ($this->GetValue('State') && $this->isCountdownActive()) {
-                $total = (int)$value;
+                $total = $this->getCDSeconds();
                 if ($total > 0) {
                     $this->timerStart($total);
                 } else {
@@ -518,7 +518,9 @@ class AutSw3 extends IPSModule {
     }
 
     private function getCDSeconds(): int {
-        return GetValueInteger($this->getCDVarID('CDDuration'));
+        return $this->GetValue('CDHours')   * 3600
+             + $this->GetValue('CDMinutes') * 60
+             + $this->GetValue('CDSeconds');
     }
 
     private function getCountdownRemaining(): int {
@@ -549,36 +551,24 @@ class AutSw3 extends IPSModule {
     // ===== HILFSMETHODEN =====
 
     private function migrateCDToSingleVar() {
+        // CDDuration (alte Version) löschen falls vorhanden
+        $durID = @IPS_GetObjectIDByIdent('CDDuration', $this->InstanceID);
+        if ($durID && IPS_VariableExists($durID)) {
+            $durVal = GetValueInteger($durID);
+            if ($durVal > 0 && $this->GetValue('CDHours') == 0
+                            && $this->GetValue('CDMinutes') == 0
+                            && $this->GetValue('CDSeconds') == 0) {
+                $this->SetValue('CDHours',   intdiv($durVal, 3600));
+                $this->SetValue('CDMinutes', intdiv($durVal % 3600, 60));
+                $this->SetValue('CDSeconds', $durVal % 60);
+            }
+            IPS_DeleteVariable($durID);
+        }
+
+        // Leere CountdownCat entfernen
         $catID = @IPS_GetObjectIDByIdent('CountdownCat', $this->InstanceID);
-        $durID = $this->GetIDForIdent('CDDuration');
-
-        // Alte CDHours/CDMinutes/CDSeconds migrieren und löschen
-        $oldIdents = ['CDHours', 'CDMinutes', 'CDSeconds'];
-        $oldValues = [0, 0, 0];
-        $found = false;
-        foreach ($oldIdents as $k => $oi) {
-            $id = $catID ? @IPS_GetObjectIDByIdent($oi, $catID) : false;
-            if (!$id) { $id = @IPS_GetObjectIDByIdent($oi, $this->InstanceID); }
-            if ($id) {
-                $oldValues[$k] = GetValueInteger($id);
-                $found = true;
-            }
-        }
-        if ($found && GetValueInteger($durID) == 0) {
-            SetValueInteger($durID, $oldValues[0] * 3600 + $oldValues[1] * 60 + $oldValues[2]);
-        }
-        foreach ($oldIdents as $oi) {
-            $id = $catID ? @IPS_GetObjectIDByIdent($oi, $catID) : false;
-            if (!$id) { $id = @IPS_GetObjectIDByIdent($oi, $this->InstanceID); }
-            if ($id) { IPS_DeleteVariable($id); }
-        }
-
-        // Leere Countdown-Kategorie entfernen
-        if ($catID) {
-            $children = IPS_GetChildrenIDs($catID);
-            if (empty($children)) {
-                IPS_DeleteCategory($catID);
-            }
+        if ($catID && empty(IPS_GetChildrenIDs($catID))) {
+            IPS_DeleteCategory($catID);
         }
     }
 
