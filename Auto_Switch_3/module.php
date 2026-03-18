@@ -28,6 +28,9 @@ class AutSw3 extends IPSModule {
         $this->RegisterVariableBoolean('CDActive', 'Countdown aktiv', '~Switch', 1);
         IPS_SetIcon($this->GetIDForIdent('CDActive'), 'Clock');
 
+        $this->RegisterVariableBoolean('TimerActive', 'Zeitschalter', '~Switch', 3);
+        IPS_SetIcon($this->GetIDForIdent('TimerActive'), 'Calendar');
+
         // Migration: alte Integer-Countdown-Variable löschen falls vorhanden
         $oldID = @IPS_GetObjectIDByIdent('Countdown', $this->InstanceID);
         if ($oldID && IPS_VariableExists($oldID) && IPS_GetVariable($oldID)['VariableType'] !== 3) {
@@ -55,6 +58,7 @@ class AutSw3 extends IPSModule {
 
         $this->EnableAction('State');
         $this->EnableAction('CDActive');
+        $this->EnableAction('TimerActive');
 
         // Gemeinsames Aktions-Script für Timer-Sub-Variablen und Countdown-Kategorie
         $scriptID = $this->ensureActionScript();
@@ -67,6 +71,10 @@ class AutSw3 extends IPSModule {
 
         // Migration: CDDuration (alte Version) löschen falls vorhanden
         $this->migrateCDToSingleVar();
+
+        // Timer-Elternkategorie erstellen und bestehende TimerCat_N hineinverschieben
+        $timersCatID = $this->ensureTimersCat();
+        $this->migrateTimerCatsToTimersCat($timersCatID);
 
         // Ziel-Variable registrieren
         $oldTargetID = $this->ReadAttributeInteger('RegisteredTargetID');
@@ -90,12 +98,15 @@ class AutSw3 extends IPSModule {
             IPS_SetHidden($cdCatID, !$showCD);
         }
         IPS_SetHidden($this->GetIDForIdent('Countdown'), true);
-        if (!$featureEnabled || !$cdActive) {
+        if (!$showCD) {
             $this->timerStop();
         }
 
+        // Timer-Kategorie Sichtbarkeit
+        IPS_SetHidden($timersCatID, !$this->GetValue('TimerActive'));
+
         // Zeitschalter-Kategorien erstellen/aktualisieren
-        $this->applyTimers($scriptID);
+        $this->applyTimers($scriptID, $timersCatID);
 
         // Location-Subscription für Solar-Modi
         $this->updateLocationSubscription();
@@ -150,6 +161,17 @@ class AutSw3 extends IPSModule {
                 } else {
                     $this->timerStop();
                 }
+            }
+        } elseif ($ident === 'TimerActive') {
+            $this->SetValue('TimerActive', (bool)$value);
+            $timersCatID = @IPS_GetObjectIDByIdent('TimersCat', $this->InstanceID);
+            if ($timersCatID) {
+                IPS_SetHidden($timersCatID, !$value);
+            }
+            if ($value) {
+                $this->scheduleNext();
+            } else {
+                $this->SetTimerInterval('ScheduleTimer', 0);
             }
         } elseif (preg_match('/^T(Active|State|Mode|Time|Offset)_(\d+)$/', $ident, $m)) {
             $index = (int)$m[2];
@@ -240,6 +262,9 @@ class AutSw3 extends IPSModule {
     }
 
     public function ScheduleTick() {
+        if (!$this->GetValue('TimerActive')) {
+            return;
+        }
         $now    = time();
         $timers = json_decode($this->ReadPropertyString('TimerList'), true);
         if (!is_array($timers)) {
@@ -270,6 +295,10 @@ class AutSw3 extends IPSModule {
     // ===== ZEITSCHALTER – SCHEDULING =====
 
     private function scheduleNext() {
+        if (!$this->GetValue('TimerActive')) {
+            $this->SetTimerInterval('ScheduleTimer', 0);
+            return;
+        }
         $timers = json_decode($this->ReadPropertyString('TimerList'), true);
         if (!is_array($timers) || empty($timers)) {
             $this->SetTimerInterval('ScheduleTimer', 0);
@@ -407,20 +436,23 @@ class AutSw3 extends IPSModule {
 
     // ===== ZEITSCHALTER – KATEGORIEN & VARIABLEN =====
 
-    private function applyTimers(int $scriptID) {
+    private function applyTimers(int $scriptID, int $timersCatID) {
         $timers = json_decode($this->ReadPropertyString('TimerList'), true);
         if (!is_array($timers)) {
             $timers = [];
         }
         foreach ($timers as $i => $timer) {
             $name  = !empty($timer['TimerName']) ? $timer['TimerName'] : ('Timer ' . ($i + 1));
-            $catID = $this->ensureTimerCategory($i, $name);
+            $catID = $this->ensureTimerCategory($i, $name, $timersCatID);
             $this->ensureTimerVars($i, $catID, $scriptID);
         }
         // Überschüssige Kategorien aus alter Konfiguration löschen
         $oldCount = $this->ReadAttributeInteger('TimerCount');
         for ($i = count($timers); $i < $oldCount; $i++) {
-            $catID = @IPS_GetObjectIDByIdent('TimerCat_' . $i, $this->InstanceID);
+            $catID = @IPS_GetObjectIDByIdent('TimerCat_' . $i, $timersCatID);
+            if (!$catID) {
+                $catID = @IPS_GetObjectIDByIdent('TimerCat_' . $i, $this->InstanceID);
+            }
             if ($catID) {
                 foreach (IPS_GetChildrenIDs($catID) as $childID) {
                     if (IPS_VariableExists($childID)) {
@@ -433,17 +465,17 @@ class AutSw3 extends IPSModule {
         $this->WriteAttributeInteger('TimerCount', count($timers));
     }
 
-    private function ensureTimerCategory(int $index, string $name): int {
+    private function ensureTimerCategory(int $index, string $name, int $timersCatID): int {
         $ident = 'TimerCat_' . $index;
-        $catID = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
+        $catID = @IPS_GetObjectIDByIdent($ident, $timersCatID);
         if (!$catID) {
             $catID = IPS_CreateCategory();
-            IPS_SetParent($catID, $this->InstanceID);
+            IPS_SetParent($catID, $timersCatID);
             IPS_SetIdent($catID, $ident);
             IPS_SetIcon($catID, 'Calendar');
         }
         IPS_SetName($catID, $name);
-        IPS_SetPosition($catID, 10 + $index);
+        IPS_SetPosition($catID, $index);
         return $catID;
     }
 
@@ -484,7 +516,14 @@ class AutSw3 extends IPSModule {
     }
 
     private function getTimerVarID(string $ident, int $index): int {
-        $catID = @IPS_GetObjectIDByIdent('TimerCat_' . $index, $this->InstanceID);
+        // TimersCat suchen (neue Position), Fallback direkt unter Instanz (vor Migration)
+        $timersCatID = @IPS_GetObjectIDByIdent('TimersCat', $this->InstanceID);
+        $catID = $timersCatID
+            ? @IPS_GetObjectIDByIdent('TimerCat_' . $index, $timersCatID)
+            : 0;
+        if (!$catID) {
+            $catID = @IPS_GetObjectIDByIdent('TimerCat_' . $index, $this->InstanceID);
+        }
         if (!$catID) {
             return 0;
         }
@@ -604,6 +643,30 @@ class AutSw3 extends IPSModule {
             'IPS_RequestAction(' . $this->InstanceID . ', IPS_GetObject($_IPS[\'VARIABLE\'])[\'ObjectIdent\'], $_IPS[\'VALUE\']);'
         );
         return $scriptID;
+    }
+
+    private function ensureTimersCat(): int {
+        $catID = @IPS_GetObjectIDByIdent('TimersCat', $this->InstanceID);
+        if (!$catID) {
+            $catID = IPS_CreateCategory();
+            IPS_SetParent($catID, $this->InstanceID);
+            IPS_SetIdent($catID, 'TimersCat');
+            IPS_SetIcon($catID, 'Calendar');
+        }
+        IPS_SetName($catID, 'Zeitschalter');
+        IPS_SetPosition($catID, 4);
+        return $catID;
+    }
+
+    private function migrateTimerCatsToTimersCat(int $timersCatID) {
+        $count = $this->ReadAttributeInteger('TimerCount');
+        for ($i = 0; $i < $count; $i++) {
+            $catID = @IPS_GetObjectIDByIdent('TimerCat_' . $i, $this->InstanceID);
+            if ($catID) {
+                IPS_SetParent($catID, $timersCatID);
+                IPS_SetPosition($catID, $i);
+            }
+        }
     }
 
     private function ensureCountdownTimeCategory(int $scriptID): int {
