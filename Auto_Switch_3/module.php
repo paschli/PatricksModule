@@ -20,6 +20,7 @@ class AutSw3 extends IPSModule {
         $this->RegisterAttributeInteger('CountdownTimerID', 0); // Cleanup alter Versionen
         $this->RegisterAttributeInteger('RegisteredSunriseVarID', 0);
         $this->RegisterAttributeInteger('TimerCount', 0);
+        $this->RegisterAttributeInteger('CountdownEndTime', 0);
 
         $this->RegisterVariableBoolean('State', 'Schalter', '~Switch', 0);
         IPS_SetIcon($this->GetIDForIdent('State'), 'Power');
@@ -227,7 +228,12 @@ class AutSw3 extends IPSModule {
     }
 
     public function CountdownTick() {
-        $remaining = $this->getCountdownRemaining() - 1;
+        $endTime = $this->ReadAttributeInteger('CountdownEndTime');
+        if ($endTime == 0) {
+            $this->timerStop();
+            return;
+        }
+        $remaining = $endTime - time();
         $this->SendDebug('CountdownTick', 'Verbleibend: ' . $remaining . 's', 0);
         if ($remaining <= 0) {
             $this->SendDebug('CountdownTick', 'Countdown abgelaufen – schalte aus', 0);
@@ -523,19 +529,12 @@ class AutSw3 extends IPSModule {
              + $this->GetValue('CDSeconds');
     }
 
-    private function getCountdownRemaining(): int {
-        $parts = explode(':', $this->GetValue('Countdown'));
-        if (count($parts) === 3) {
-            return (int)$parts[0] * 3600 + (int)$parts[1] * 60 + (int)$parts[2];
-        }
-        return 0;
-    }
-
     private function formatDuration(int $seconds): string {
         return sprintf('%02d:%02d:%02d', intdiv($seconds, 3600), intdiv($seconds % 3600, 60), $seconds % 60);
     }
 
     private function timerStart(int $seconds) {
+        $this->WriteAttributeInteger('CountdownEndTime', time() + $seconds);
         $this->SetValue('Countdown', $this->formatDuration($seconds));
         IPS_SetHidden($this->GetIDForIdent('Countdown'), false);
         $this->SetTimerInterval('CountdownTimer', 1000);
@@ -543,6 +542,7 @@ class AutSw3 extends IPSModule {
     }
 
     private function timerStop() {
+        $this->WriteAttributeInteger('CountdownEndTime', 0);
         $this->SetTimerInterval('CountdownTimer', 0);
         $this->SetValue('Countdown', '');
         IPS_SetHidden($this->GetIDForIdent('Countdown'), true);
