@@ -28,19 +28,12 @@ class AutSw3 extends IPSModule {
         $this->RegisterVariableBoolean('CDActive', 'Countdown aktiv', '~Switch', 1);
         IPS_SetIcon($this->GetIDForIdent('CDActive'), 'Clock');
 
-        // Profile sicherstellen bevor Variablen damit registriert werden
-        $this->ensureProfiles();
-
-        $this->RegisterVariableInteger('CDHours',   'Stunden',  'AutSw3.Hours',   2);
-        $this->RegisterVariableInteger('CDMinutes', 'Minuten',  'AutSw3.Minutes', 3);
-        $this->RegisterVariableInteger('CDSeconds', 'Sekunden', 'AutSw3.Seconds', 4);
-
         // Migration: alte Integer-Countdown-Variable löschen falls vorhanden
         $oldID = @IPS_GetObjectIDByIdent('Countdown', $this->InstanceID);
         if ($oldID && IPS_VariableExists($oldID) && IPS_GetVariable($oldID)['VariableType'] !== 3) {
             IPS_DeleteVariable($oldID);
         }
-        $this->RegisterVariableString('Countdown', 'Verbleibend', '', 2);
+        $this->RegisterVariableString('Countdown', 'Verbleibend', '', 5);
 
         // Timer registrieren – NUR in Create() erlaubt
         $this->RegisterTimer('CountdownTimer',     0, 'AutSw3_CountdownTick('     . $this->InstanceID . ');');
@@ -63,13 +56,14 @@ class AutSw3 extends IPSModule {
         $this->EnableAction('State');
         $this->EnableAction('CDActive');
 
-        // Gemeinsames Aktions-Script für Timer-Sub-Variablen
+        // Gemeinsames Aktions-Script für Timer-Sub-Variablen und Countdown-Kategorie
         $scriptID = $this->ensureActionScript();
 
-        // Countdown-Variablen als Modul-Variablen steuerbar machen
-        $this->EnableAction('CDHours');
-        $this->EnableAction('CDMinutes');
-        $this->EnableAction('CDSeconds');
+        // Countdown-Kategorie mit Stunden/Minuten/Sekunden erstellen
+        $this->ensureCountdownTimeCategory($scriptID);
+
+        // Migration: direkte CDHours/CDMinutes/CDSeconds → Kategorie
+        $this->migrateCDVarsToCategory();
 
         // Migration: CDDuration (alte Version) löschen falls vorhanden
         $this->migrateCDToSingleVar();
@@ -87,14 +81,14 @@ class AutSw3 extends IPSModule {
             $this->WriteAttributeInteger('RegisteredTargetID', 0);
         }
 
-        // Countdown sichtbarkeit
+        // Countdown Sichtbarkeit
         $featureEnabled = $this->ReadPropertyBoolean('CountdownEnabled');
         IPS_SetHidden($this->GetIDForIdent('CDActive'), !$featureEnabled);
-        $cdActive = $this->GetValue('CDActive');
-        $showCD = $featureEnabled && $cdActive;
-        IPS_SetHidden($this->GetIDForIdent('CDHours'),   !$showCD);
-        IPS_SetHidden($this->GetIDForIdent('CDMinutes'), !$showCD);
-        IPS_SetHidden($this->GetIDForIdent('CDSeconds'), !$showCD);
+        $showCD = $featureEnabled && $this->GetValue('CDActive');
+        $cdCatID = @IPS_GetObjectIDByIdent('CountdownTimeCat', $this->InstanceID);
+        if ($cdCatID) {
+            IPS_SetHidden($cdCatID, !$showCD);
+        }
         IPS_SetHidden($this->GetIDForIdent('Countdown'), true);
         if (!$featureEnabled || !$cdActive) {
             $this->timerStop();
@@ -135,9 +129,10 @@ class AutSw3 extends IPSModule {
             $this->SetSwitch((bool)$value);
         } elseif ($ident === 'CDActive') {
             $this->SetValue('CDActive', (bool)$value);
-            IPS_SetHidden($this->GetIDForIdent('CDHours'),   !$value);
-            IPS_SetHidden($this->GetIDForIdent('CDMinutes'), !$value);
-            IPS_SetHidden($this->GetIDForIdent('CDSeconds'), !$value);
+            $cdCatID = @IPS_GetObjectIDByIdent('CountdownTimeCat', $this->InstanceID);
+            if ($cdCatID) {
+                IPS_SetHidden($cdCatID, !$value);
+            }
             if ($value && $this->GetValue('State')) {
                 $total = $this->getCDSeconds();
                 if ($total > 0) {
@@ -147,7 +142,7 @@ class AutSw3 extends IPSModule {
                 $this->timerStop();
             }
         } elseif (in_array($ident, ['CDHours', 'CDMinutes', 'CDSeconds'])) {
-            $this->SetValue($ident, (int)$value);
+            $this->setCDTimeVar($ident, (int)$value);
             if ($this->GetValue('State') && $this->isCountdownActive()) {
                 $total = $this->getCDSeconds();
                 if ($total > 0) {
@@ -512,21 +507,30 @@ class AutSw3 extends IPSModule {
         return $this->ReadPropertyBoolean('CountdownEnabled') && $this->GetValue('CDActive');
     }
 
-    private function getCDVarID(string $ident): int {
-        $catID = @IPS_GetObjectIDByIdent('CountdownCat', $this->InstanceID);
-        if ($catID) {
-            $varID = @IPS_GetObjectIDByIdent($ident, $catID);
-            if ($varID) {
-                return $varID;
-            }
+    private function getCDTimeVar(string $ident): int {
+        $catID = @IPS_GetObjectIDByIdent('CountdownTimeCat', $this->InstanceID);
+        if (!$catID) {
+            return 0;
         }
-        return (int)@IPS_GetObjectIDByIdent($ident, $this->InstanceID);
+        $varID = @IPS_GetObjectIDByIdent($ident, $catID);
+        return $varID ? GetValueInteger($varID) : 0;
+    }
+
+    private function setCDTimeVar(string $ident, int $value) {
+        $catID = @IPS_GetObjectIDByIdent('CountdownTimeCat', $this->InstanceID);
+        if (!$catID) {
+            return;
+        }
+        $varID = @IPS_GetObjectIDByIdent($ident, $catID);
+        if ($varID) {
+            SetValueInteger($varID, $value);
+        }
     }
 
     private function getCDSeconds(): int {
-        return $this->GetValue('CDHours')   * 3600
-             + $this->GetValue('CDMinutes') * 60
-             + $this->GetValue('CDSeconds');
+        return $this->getCDTimeVar('CDHours')   * 3600
+             + $this->getCDTimeVar('CDMinutes') * 60
+             + $this->getCDTimeVar('CDSeconds');
     }
 
     private function formatDuration(int $seconds): string {
@@ -550,22 +554,36 @@ class AutSw3 extends IPSModule {
 
     // ===== HILFSMETHODEN =====
 
+    private function migrateCDVarsToCategory() {
+        // CDHours/CDMinutes/CDSeconds direkt am Modul (alte Version) → Kategorie
+        foreach (['CDHours', 'CDMinutes', 'CDSeconds'] as $ident) {
+            $oldID = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
+            if ($oldID && IPS_VariableExists($oldID)) {
+                $value = GetValueInteger($oldID);
+                if ($value > 0 && $this->getCDTimeVar($ident) == 0) {
+                    $this->setCDTimeVar($ident, $value);
+                }
+                IPS_DeleteVariable($oldID);
+            }
+        }
+    }
+
     private function migrateCDToSingleVar() {
-        // CDDuration (alte Version) löschen falls vorhanden
+        // CDDuration (älteste Version) löschen falls vorhanden
         $durID = @IPS_GetObjectIDByIdent('CDDuration', $this->InstanceID);
         if ($durID && IPS_VariableExists($durID)) {
             $durVal = GetValueInteger($durID);
-            if ($durVal > 0 && $this->GetValue('CDHours') == 0
-                            && $this->GetValue('CDMinutes') == 0
-                            && $this->GetValue('CDSeconds') == 0) {
-                $this->SetValue('CDHours',   intdiv($durVal, 3600));
-                $this->SetValue('CDMinutes', intdiv($durVal % 3600, 60));
-                $this->SetValue('CDSeconds', $durVal % 60);
+            if ($durVal > 0 && $this->getCDTimeVar('CDHours') == 0
+                            && $this->getCDTimeVar('CDMinutes') == 0
+                            && $this->getCDTimeVar('CDSeconds') == 0) {
+                $this->setCDTimeVar('CDHours',   intdiv($durVal, 3600));
+                $this->setCDTimeVar('CDMinutes', intdiv($durVal % 3600, 60));
+                $this->setCDTimeVar('CDSeconds', $durVal % 60);
             }
             IPS_DeleteVariable($durID);
         }
 
-        // Leere CountdownCat entfernen
+        // Leere CountdownCat (alte Version) entfernen
         $catID = @IPS_GetObjectIDByIdent('CountdownCat', $this->InstanceID);
         if ($catID && empty(IPS_GetChildrenIDs($catID))) {
             IPS_DeleteCategory($catID);
@@ -588,16 +606,19 @@ class AutSw3 extends IPSModule {
         return $scriptID;
     }
 
-    private function ensureCountdownCategory(): int {
-        $catID = @IPS_GetObjectIDByIdent('CountdownCat', $this->InstanceID);
+    private function ensureCountdownTimeCategory(int $scriptID): int {
+        $catID = @IPS_GetObjectIDByIdent('CountdownTimeCat', $this->InstanceID);
         if (!$catID) {
             $catID = IPS_CreateCategory();
             IPS_SetParent($catID, $this->InstanceID);
-            IPS_SetIdent($catID, 'CountdownCat');
-            IPS_SetName($catID, 'Countdown-Zeit');
+            IPS_SetIdent($catID, 'CountdownTimeCat');
             IPS_SetIcon($catID, 'Clock');
-            IPS_SetPosition($catID, 3);
         }
+        IPS_SetName($catID, 'Countdown-Zeit');
+        IPS_SetPosition($catID, 2);
+        $this->ensureTimerVar($catID, 'CDHours',   1, 'Stunden',  'AutSw3.Hours',   0, $scriptID);
+        $this->ensureTimerVar($catID, 'CDMinutes', 1, 'Minuten',  'AutSw3.Minutes', 1, $scriptID);
+        $this->ensureTimerVar($catID, 'CDSeconds', 1, 'Sekunden', 'AutSw3.Seconds', 2, $scriptID);
         return $catID;
     }
 
