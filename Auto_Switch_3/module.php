@@ -73,7 +73,7 @@ class AutSw3 extends IPSModule {
         $this->migrateCDToSingleVar();
 
         // Timer-Elternkategorie erstellen und bestehende TimerCat_N hineinverschieben
-        $timersCatID = $this->ensureTimersCat();
+        $timersCatID = $this->ensureTimersCat($scriptID);
         $this->migrateTimerCatsToTimersCat($timersCatID);
 
         // Ziel-Variable registrieren
@@ -161,6 +161,64 @@ class AutSw3 extends IPSModule {
                 } else {
                     $this->timerStop();
                 }
+            }
+        } elseif ($ident === 'NewTimerName') {
+            $timersCatID = @IPS_GetObjectIDByIdent('TimersCat', $this->InstanceID);
+            if ($timersCatID) {
+                $varID = @IPS_GetObjectIDByIdent('NewTimerName', $timersCatID);
+                if ($varID) {
+                    SetValueString($varID, (string)$value);
+                }
+            }
+        } elseif ($ident === 'AddTimer') {
+            if (!(bool)$value) {
+                return;
+            }
+            $timers = json_decode($this->ReadPropertyString('TimerList'), true);
+            if (!is_array($timers)) {
+                $timers = [];
+            }
+            $timersCatID = @IPS_GetObjectIDByIdent('TimersCat', $this->InstanceID);
+            $nameVarID   = $timersCatID ? @IPS_GetObjectIDByIdent('NewTimerName', $timersCatID) : 0;
+            $name        = ($nameVarID && trim(GetValueString($nameVarID)) !== '')
+                ? trim(GetValueString($nameVarID))
+                : ('Timer ' . (count($timers) + 1));
+            $timers[] = ['TimerName' => $name];
+            IPS_SetProperty($this->InstanceID, 'TimerList', json_encode($timers));
+            IPS_ApplyChanges($this->InstanceID);
+            // Eingabefeld und Button zurücksetzen
+            if ($nameVarID) {
+                SetValueString($nameVarID, '');
+            }
+            $timersCatID = @IPS_GetObjectIDByIdent('TimersCat', $this->InstanceID);
+            if ($timersCatID) {
+                $addVarID = @IPS_GetObjectIDByIdent('AddTimer', $timersCatID);
+                if ($addVarID) {
+                    SetValueBoolean($addVarID, false);
+                }
+            }
+        } elseif (preg_match('/^TDelete_(\d+)$/', $ident, $m)) {
+            if (!(bool)$value) {
+                return;
+            }
+            $index  = (int)$m[1];
+            $timers = json_decode($this->ReadPropertyString('TimerList'), true);
+            if (!is_array($timers) || !isset($timers[$index])) {
+                return;
+            }
+            // Konfigurationen aller verbleibenden Timer sichern
+            $saved = [];
+            for ($i = 0; $i < count($timers); $i++) {
+                if ($i !== $index) {
+                    $saved[] = $this->readTimerConfig($i);
+                }
+            }
+            array_splice($timers, $index, 1);
+            IPS_SetProperty($this->InstanceID, 'TimerList', json_encode($timers));
+            IPS_ApplyChanges($this->InstanceID); // baut Kategorien neu auf (Werte = 0)
+            // Gesicherte Konfigurationen in die neuen Indizes schreiben
+            foreach ($saved as $newIndex => $config) {
+                $this->writeTimerConfig($newIndex, $config);
             }
         } elseif ($ident === 'TimerActive') {
             $this->SetValue('TimerActive', (bool)$value);
@@ -486,6 +544,7 @@ class AutSw3 extends IPSModule {
         $this->ensureTimerVar($catID, 'TMode'   . $s, 1, 'Zeitmodus',      'AutSw3.TimeMode',      2, $scriptID);
         $this->ensureTimerVar($catID, 'TTime'   . $s, 1, 'Uhrzeit',        '~UnixTimestampTime',   3, $scriptID);
         $this->ensureTimerVar($catID, 'TOffset' . $s, 1, 'Versatz (min)',  'AutSw3.Offset',        4, $scriptID);
+        $this->ensureTimerVar($catID, 'TDelete' . $s, 0, 'Timer löschen',  '~Switch',              5, $scriptID);
 
         // Migration: alte THour/TMin-Variablen in TTime überführen und löschen
         $oldHourID = @IPS_GetObjectIDByIdent('THour' . $s, $catID);
@@ -645,7 +704,7 @@ class AutSw3 extends IPSModule {
         return $scriptID;
     }
 
-    private function ensureTimersCat(): int {
+    private function ensureTimersCat(int $scriptID): int {
         $catID = @IPS_GetObjectIDByIdent('TimersCat', $this->InstanceID);
         if (!$catID) {
             $catID = IPS_CreateCategory();
@@ -655,7 +714,37 @@ class AutSw3 extends IPSModule {
         }
         IPS_SetName($catID, 'Zeitschalter');
         IPS_SetPosition($catID, 4);
+
+        // Namenseingabe für neuen Timer
+        $this->ensureTimerVar($catID, 'NewTimerName', 3, 'Timer-Name', '~String', 0, $scriptID);
+
+        // "Hinzufügen"-Schalter
+        $this->ensureTimerVar($catID, 'AddTimer', 0, 'Timer hinzufügen', '~Switch', 1, $scriptID);
+
         return $catID;
+    }
+
+    private function readTimerConfig(int $index): array {
+        return [
+            'TActive' => $this->getTimerBool('TActive', $index),
+            'TState'  => $this->getTimerBool('TState',  $index),
+            'TMode'   => $this->getTimerInt('TMode',    $index),
+            'TTime'   => $this->getTimerInt('TTime',    $index),
+            'TOffset' => $this->getTimerInt('TOffset',  $index),
+        ];
+    }
+
+    private function writeTimerConfig(int $index, array $config) {
+        $varID = $this->getTimerVarID('TActive_' . $index, $index);
+        if ($varID) { SetValueBoolean($varID, $config['TActive']); }
+        $varID = $this->getTimerVarID('TState_' . $index, $index);
+        if ($varID) { SetValueBoolean($varID, $config['TState']); }
+        $varID = $this->getTimerVarID('TMode_' . $index, $index);
+        if ($varID) { SetValueInteger($varID, $config['TMode']); }
+        $varID = $this->getTimerVarID('TTime_' . $index, $index);
+        if ($varID) { SetValueInteger($varID, $config['TTime']); }
+        $varID = $this->getTimerVarID('TOffset_' . $index, $index);
+        if ($varID) { SetValueInteger($varID, $config['TOffset']); }
     }
 
     private function migrateTimerCatsToTimersCat(int $timersCatID) {
