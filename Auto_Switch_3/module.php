@@ -162,39 +162,24 @@ class AutSw3 extends IPSModule {
                     $this->timerStop();
                 }
             }
-        } elseif ($ident === 'NewTimerName') {
-            $timersCatID = @IPS_GetObjectIDByIdent('TimersCat', $this->InstanceID);
-            if ($timersCatID) {
-                $varID = @IPS_GetObjectIDByIdent('NewTimerName', $timersCatID);
-                if ($varID) {
-                    SetValueString($varID, (string)$value);
-                }
-            }
         } elseif ($ident === 'AddTimer') {
-            if (!(bool)$value) {
+            $name = trim((string)$value);
+            if ($name === '') {
                 return;
             }
             $timers = json_decode($this->ReadPropertyString('TimerList'), true);
             if (!is_array($timers)) {
                 $timers = [];
             }
-            $timersCatID = @IPS_GetObjectIDByIdent('TimersCat', $this->InstanceID);
-            $nameVarID   = $timersCatID ? @IPS_GetObjectIDByIdent('NewTimerName', $timersCatID) : 0;
-            $name        = ($nameVarID && trim(GetValueString($nameVarID)) !== '')
-                ? trim(GetValueString($nameVarID))
-                : ('Timer ' . (count($timers) + 1));
             $timers[] = ['TimerName' => $name];
             IPS_SetProperty($this->InstanceID, 'TimerList', json_encode($timers));
             IPS_ApplyChanges($this->InstanceID);
-            // Eingabefeld und Button zurücksetzen
-            if ($nameVarID) {
-                SetValueString($nameVarID, '');
-            }
+            // Eingabefeld zurücksetzen
             $timersCatID = @IPS_GetObjectIDByIdent('TimersCat', $this->InstanceID);
             if ($timersCatID) {
                 $addVarID = @IPS_GetObjectIDByIdent('AddTimer', $timersCatID);
                 if ($addVarID) {
-                    SetValueBoolean($addVarID, false);
+                    SetValueString($addVarID, '');
                 }
             }
         } elseif (preg_match('/^TDelete_(\d+)$/', $ident, $m)) {
@@ -715,11 +700,16 @@ class AutSw3 extends IPSModule {
         IPS_SetName($catID, 'Zeitschalter');
         IPS_SetPosition($catID, 4);
 
-        // Namenseingabe für neuen Timer
-        $this->ensureTimerVar($catID, 'NewTimerName', 3, 'Timer-Name', '~String', 0, $scriptID);
+        // Migration: alten Bool-AddTimer + NewTimerName löschen falls vorhanden
+        foreach (['NewTimerName', 'AddTimer'] as $ident) {
+            $oldID = @IPS_GetObjectIDByIdent($ident, $catID);
+            if ($oldID && IPS_VariableExists($oldID) && IPS_GetVariable($oldID)['VariableType'] !== 3) {
+                IPS_DeleteVariable($oldID);
+            }
+        }
 
-        // "Hinzufügen"-Schalter
-        $this->ensureTimerVar($catID, 'AddTimer', 0, 'Timer hinzufügen', '~Switch', 1, $scriptID);
+        // String-Eingabe: Name → Erstellen
+        $this->ensureTimerVar($catID, 'AddTimer', 3, 'Timer hinzufügen', '~String', 0, $scriptID);
 
         return $catID;
     }
