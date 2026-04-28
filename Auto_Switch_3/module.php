@@ -234,7 +234,7 @@ class AutSw3 extends IPSModule {
                 if ($tOffsetID) { IPS_SetHidden($tOffsetID, (int)$value === 0); }
             }
             $this->updateTimerCategoryName($index);
-            if (in_array($m[1], ['Mode', 'Time', 'Offset'])) {
+            if (in_array($m[1], ['Active', 'Mode', 'Time', 'Offset'])) {
                 $this->sortTimerCategories();
             }
             if ($m[1] !== 'State') {
@@ -760,16 +760,22 @@ class AutSw3 extends IPSModule {
         }
         $entries = [];
         for ($i = 0; $i < count($timers); $i++) {
+            $active        = $this->getTimerBool('TActive', $i);
             $scheduledTime = $this->getTimerScheduledTime($i);
             if ($scheduledTime !== null) {
                 $tod     = (int)date('G', $scheduledTime) * 3600 + (int)date('i', $scheduledTime) * 60;
-                $sortKey = ($tod - 60 + 86400) % 86400;
+                $timeKey = ($tod - 60 + 86400) % 86400;
             } else {
-                $sortKey = PHP_INT_MAX;
+                $timeKey = PHP_INT_MAX;
             }
-            $entries[] = ['index' => $i, 'sortKey' => $sortKey];
+            $entries[] = ['index' => $i, 'active' => $active, 'timeKey' => $timeKey];
         }
-        usort($entries, fn($a, $b) => $a['sortKey'] <=> $b['sortKey']);
+        usort($entries, function ($a, $b) {
+            if ($a['active'] !== $b['active']) {
+                return $a['active'] ? -1 : 1; // aktive zuerst
+            }
+            return $a['timeKey'] <=> $b['timeKey'];
+        });
         foreach ($entries as $pos => $entry) {
             $catID = @IPS_GetObjectIDByIdent('TimerCat_' . $entry['index'], $timersCatID);
             if ($catID) {
