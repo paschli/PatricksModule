@@ -709,7 +709,10 @@ class AutSw3 extends IPSModule {
 
         $scheduledTime = $this->getTimerScheduledTime($index);
         $name = $baseName;
-        if ($scheduledTime !== null) {
+        $active = $this->getTimerBool('TActive', $index);
+        if (!$active) {
+            $name .= ' (inaktiv)';
+        } elseif ($scheduledTime !== null) {
             $state  = $this->getTimerBool('TState', $index);
             $mode   = $this->getTimerInt('TMode', $index);
             $prefix = ($mode === 0) ? 'M' : 'S';
