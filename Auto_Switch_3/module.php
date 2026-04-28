@@ -710,8 +710,10 @@ class AutSw3 extends IPSModule {
         $scheduledTime = $this->getTimerScheduledTime($index);
         $name = $baseName;
         if ($scheduledTime !== null) {
-            $state = $this->getTimerBool('TState', $index);
-            $name .= ' (' . date('H:i', $scheduledTime) . ' / ' . ($state ? 'An' : 'Aus') . ')';
+            $state  = $this->getTimerBool('TState', $index);
+            $mode   = $this->getTimerInt('TMode', $index);
+            $prefix = ($mode === 0) ? 'M' : 'S';
+            $name  .= ' (' . $prefix . ' ' . date('H:i', $scheduledTime) . ' / ' . ($state ? 'An' : 'Aus') . ')';
         }
         IPS_SetName($catID, $name);
     }
