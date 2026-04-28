@@ -234,6 +234,9 @@ class AutSw3 extends IPSModule {
                 if ($tOffsetID) { IPS_SetHidden($tOffsetID, (int)$value === 0); }
             }
             $this->updateTimerCategoryName($index);
+            if (in_array($m[1], ['Mode', 'Time', 'Offset'])) {
+                $this->sortTimerCategories();
+            }
             if ($m[1] !== 'State') {
                 $this->scheduleNext();
             }
@@ -516,6 +519,7 @@ class AutSw3 extends IPSModule {
             }
         }
         $this->WriteAttributeInteger('TimerCount', count($timers));
+        $this->sortTimerCategories();
     }
 
     private function ensureTimerCategory(int $index, string $name, int $timersCatID): int {
@@ -741,6 +745,36 @@ class AutSw3 extends IPSModule {
         }
         for ($i = 0; $i < count($timers); $i++) {
             $this->updateTimerCategoryName($i);
+        }
+        $this->sortTimerCategories();
+    }
+
+    private function sortTimerCategories() {
+        $timersCatID = @IPS_GetObjectIDByIdent('TimersCat', $this->InstanceID);
+        if (!$timersCatID) {
+            return;
+        }
+        $timers = json_decode($this->ReadPropertyString('TimerList'), true);
+        if (!is_array($timers) || empty($timers)) {
+            return;
+        }
+        $entries = [];
+        for ($i = 0; $i < count($timers); $i++) {
+            $scheduledTime = $this->getTimerScheduledTime($i);
+            if ($scheduledTime !== null) {
+                $tod     = (int)date('G', $scheduledTime) * 3600 + (int)date('i', $scheduledTime) * 60;
+                $sortKey = ($tod - 60 + 86400) % 86400;
+            } else {
+                $sortKey = PHP_INT_MAX;
+            }
+            $entries[] = ['index' => $i, 'sortKey' => $sortKey];
+        }
+        usort($entries, fn($a, $b) => $a['sortKey'] <=> $b['sortKey']);
+        foreach ($entries as $pos => $entry) {
+            $catID = @IPS_GetObjectIDByIdent('TimerCat_' . $entry['index'], $timersCatID);
+            if ($catID) {
+                IPS_SetPosition($catID, $pos + 1); // +1: AddTimer liegt auf Position 0
+            }
         }
     }
 
