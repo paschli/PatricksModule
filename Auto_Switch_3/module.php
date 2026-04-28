@@ -131,6 +131,7 @@ class AutSw3 extends IPSModule {
         if ($sunriseVarID != 0 && $SenderID == $sunriseVarID) {
             $this->SendDebug('Schedule', 'Solarzeit aktualisiert', 0);
             $this->updateTimeModeProfile();
+            $this->updateAllTimerCategoryNames();
             $this->scheduleNext();
         }
     }
@@ -226,6 +227,7 @@ class AutSw3 extends IPSModule {
                     SetValueInteger($varID, (int)$value);
                 }
             }
+            $this->updateTimerCategoryName($index);
             if ($m[1] !== 'State') {
                 $this->scheduleNext();
             }
@@ -332,6 +334,7 @@ class AutSw3 extends IPSModule {
 
     public function ProfileUpdateTick() {
         $this->updateTimeModeProfile();
+        $this->updateAllTimerCategoryNames();
         $this->scheduleProfileUpdate();
     }
 
@@ -488,6 +491,7 @@ class AutSw3 extends IPSModule {
             $name  = !empty($timer['TimerName']) ? $timer['TimerName'] : ('Timer ' . ($i + 1));
             $catID = $this->ensureTimerCategory($i, $name, $timersCatID);
             $this->ensureTimerVars($i, $catID, $scriptID);
+            $this->updateTimerCategoryName($i);
         }
         // Überschüssige Kategorien aus alter Konfiguration löschen
         $oldCount = $this->ReadAttributeInteger('TimerCount');
@@ -687,6 +691,39 @@ class AutSw3 extends IPSModule {
             'IPS_RequestAction(' . $this->InstanceID . ', IPS_GetObject($_IPS[\'VARIABLE\'])[\'ObjectIdent\'], $_IPS[\'VALUE\']);'
         );
         return $scriptID;
+    }
+
+    private function updateTimerCategoryName(int $index) {
+        $timersCatID = @IPS_GetObjectIDByIdent('TimersCat', $this->InstanceID);
+        if (!$timersCatID) {
+            return;
+        }
+        $catID = @IPS_GetObjectIDByIdent('TimerCat_' . $index, $timersCatID);
+        if (!$catID) {
+            return;
+        }
+        $timers   = json_decode($this->ReadPropertyString('TimerList'), true);
+        $baseName = (is_array($timers) && !empty($timers[$index]['TimerName']))
+            ? $timers[$index]['TimerName']
+            : ('Timer ' . ($index + 1));
+
+        $scheduledTime = $this->getTimerScheduledTime($index);
+        $name = $baseName;
+        if ($scheduledTime !== null) {
+            $state = $this->getTimerBool('TState', $index);
+            $name .= ' (' . date('H:i', $scheduledTime) . ' / ' . ($state ? 'An' : 'Aus') . ')';
+        }
+        IPS_SetName($catID, $name);
+    }
+
+    private function updateAllTimerCategoryNames() {
+        $timers = json_decode($this->ReadPropertyString('TimerList'), true);
+        if (!is_array($timers)) {
+            return;
+        }
+        for ($i = 0; $i < count($timers); $i++) {
+            $this->updateTimerCategoryName($i);
+        }
     }
 
     private function ensureTimersCat(int $scriptID): int {
