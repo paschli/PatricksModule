@@ -227,6 +227,12 @@ class AutSw3 extends IPSModule {
                     SetValueInteger($varID, (int)$value);
                 }
             }
+            if ($m[1] === 'Mode') {
+                $tTimeID = $this->getTimerVarID('TTime_' . $index, $index);
+                if ($tTimeID) {
+                    IPS_SetHidden($tTimeID, (int)$value !== 0);
+                }
+            }
             $this->updateTimerCategoryName($index);
             if ($m[1] !== 'State') {
                 $this->scheduleNext();
@@ -534,6 +540,12 @@ class AutSw3 extends IPSModule {
         $this->ensureTimerVar($catID, 'TTime'   . $s, 1, 'Uhrzeit',        '~UnixTimestampTime',   3, $scriptID);
         $this->ensureTimerVar($catID, 'TOffset' . $s, 1, 'Versatz (min)',  'AutSw3.Offset',        4, $scriptID);
         $this->ensureTimerVar($catID, 'TDelete' . $s, 0, 'Timer löschen',  '~Switch',              5, $scriptID);
+
+        // TTime nur bei Manuell-Modus sichtbar
+        $tTimeID = @IPS_GetObjectIDByIdent('TTime' . $s, $catID);
+        if ($tTimeID) {
+            IPS_SetHidden($tTimeID, $this->getTimerInt('TMode', $index) !== 0);
+        }
 
         // Migration: alte THour/TMin-Variablen in TTime überführen und löschen
         $oldHourID = @IPS_GetObjectIDByIdent('THour' . $s, $catID);
