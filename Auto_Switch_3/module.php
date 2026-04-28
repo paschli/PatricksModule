@@ -228,10 +228,10 @@ class AutSw3 extends IPSModule {
                 }
             }
             if ($m[1] === 'Mode') {
-                $tTimeID = $this->getTimerVarID('TTime_' . $index, $index);
-                if ($tTimeID) {
-                    IPS_SetHidden($tTimeID, (int)$value !== 0);
-                }
+                $tTimeID   = $this->getTimerVarID('TTime_'   . $index, $index);
+                $tOffsetID = $this->getTimerVarID('TOffset_' . $index, $index);
+                if ($tTimeID)   { IPS_SetHidden($tTimeID,   (int)$value !== 0); }
+                if ($tOffsetID) { IPS_SetHidden($tOffsetID, (int)$value === 0); }
             }
             $this->updateTimerCategoryName($index);
             if ($m[1] !== 'State') {
@@ -541,11 +541,12 @@ class AutSw3 extends IPSModule {
         $this->ensureTimerVar($catID, 'TOffset' . $s, 1, 'Versatz (min)',  'AutSw3.Offset',        4, $scriptID);
         $this->ensureTimerVar($catID, 'TDelete' . $s, 0, 'Timer löschen',  '~Switch',              5, $scriptID);
 
-        // TTime nur bei Manuell-Modus sichtbar
-        $tTimeID = @IPS_GetObjectIDByIdent('TTime' . $s, $catID);
-        if ($tTimeID) {
-            IPS_SetHidden($tTimeID, $this->getTimerInt('TMode', $index) !== 0);
-        }
+        // TTime nur bei Manuell-Modus sichtbar, TOffset nur bei Solar-Modi
+        $mode     = $this->getTimerInt('TMode', $index);
+        $tTimeID  = @IPS_GetObjectIDByIdent('TTime'   . $s, $catID);
+        $tOffsetID = @IPS_GetObjectIDByIdent('TOffset' . $s, $catID);
+        if ($tTimeID)   { IPS_SetHidden($tTimeID,   $mode !== 0); }
+        if ($tOffsetID) { IPS_SetHidden($tOffsetID, $mode === 0); }
 
         // Migration: alte THour/TMin-Variablen in TTime überführen und löschen
         $oldHourID = @IPS_GetObjectIDByIdent('THour' . $s, $catID);
