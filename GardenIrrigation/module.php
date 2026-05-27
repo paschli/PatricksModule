@@ -117,11 +117,12 @@ class GardenIrrigation extends IPSModule {
         $this->RegisterAttributeFloat(  'ZoneTargetLiters',   0.0);
         $this->RegisterAttributeFloat(  'FertDispensedMl',    0.0);
         $this->RegisterAttributeFloat(  'LastPulseCountF',     0.0);
-        $this->RegisterAttributeInteger('LastPulseTime',      0);
+        $this->RegisterAttributeFloat(  'LastPulseTimeF',      0.0); // microtime(true)
         $this->RegisterAttributeFloat(  'CurrentFlowRate',    0.0);
         $this->RegisterAttributeInteger('RainBlockUntil',     0);
         $this->RegisterAttributeBoolean('FertPumpRunning',     false);
         $this->RegisterAttributeInteger('RegisteredRainID',   0);
+        $this->RegisterAttributeInteger('RegisteredFlowID',   0);
 
         // ── Statistik-Historie (JSON: {"2026-05-20": 12.3, ...}) ─────────────
         $this->RegisterAttributeString('DailyHistoryTotal',  '{}');
@@ -185,11 +186,19 @@ class GardenIrrigation extends IPSModule {
             $this->WriteAttributeInteger('RegisteredRainID', 0);
         }
 
-        // Puls-Startwert merken
+        // Durchflusszähler abonnieren (event-driven statt Timer)
+        $oldFlowID = $this->ReadAttributeInteger('RegisteredFlowID');
+        if ($oldFlowID != 0) {
+            $this->UnregisterMessage($oldFlowID, VM_UPDATE);
+        }
         $flowID = $this->ReadPropertyInteger('FlowCounterID');
         if ($flowID != 0 && IPS_VariableExists($flowID)) {
+            $this->RegisterMessage($flowID, VM_UPDATE);
+            $this->WriteAttributeInteger('RegisteredFlowID', $flowID);
             $this->WriteAttributeFloat('LastPulseCountF', GetValueFloat($flowID));
-            $this->WriteAttributeInteger('LastPulseTime',  time());
+            $this->WriteAttributeFloat('LastPulseTimeF',   (float)microtime(true));
+        } else {
+            $this->WriteAttributeInteger('RegisteredFlowID', 0);
         }
 
         // Leck-Timer starten wenn keine Zone läuft
@@ -217,6 +226,12 @@ class GardenIrrigation extends IPSModule {
         $rainID = $this->ReadAttributeInteger('RegisteredRainID');
         if ($rainID != 0 && $SenderID == $rainID) {
             $this->onRainUpdate();
+            return;
+        }
+
+        $flowID = $this->ReadAttributeInteger('RegisteredFlowID');
+        if ($flowID != 0 && $SenderID == $flowID) {
+            $this->onFlowUpdate($TimeStamp);
         }
     }
 
@@ -295,7 +310,7 @@ class GardenIrrigation extends IPSModule {
         $flowID = $this->ReadPropertyInteger('FlowCounterID');
         if ($flowID != 0 && IPS_VariableExists($flowID)) {
             $this->WriteAttributeFloat('LastPulseCountF', GetValueFloat($flowID));
-            $this->WriteAttributeInteger('LastPulseTime',  time());
+            $this->WriteAttributeFloat('LastPulseTimeF',   (float)microtime(true));
         }
 
         // Anzeige
@@ -310,8 +325,8 @@ class GardenIrrigation extends IPSModule {
         // Sicherheits-Timer
         $this->SetTimerInterval('ZoneTimer', $this->ReadPropertyInteger('MaxZoneRuntimeMin') * 60 * 1000);
 
-        // Flow-Messung starten (alle 5 Sek.)
-        $this->SetTimerInterval('FlowTimer', 5000);
+        // Watchdog: wenn 10s kein Durchfluss-Update → Durchfluss = 0
+        $this->SetTimerInterval('FlowTimer', 10000);
 
         // Leck-Timer pausieren
         $this->SetTimerInterval('LeakTimer', 0);
@@ -393,21 +408,41 @@ class GardenIrrigation extends IPSModule {
     }
 
     /**
-     * Durchfluss-Tick – alle 5 Sek. Volumen akkumulieren.
+     * FlowTick – Watchdog: wird gefeuert wenn 10s kein VM_UPDATE vom Durchflusszähler kam.
+     * → kein Durchfluss mehr, Rate auf 0 setzen.
      */
     public function FlowTick() {
+        $zone = $this->ReadAttributeInteger('CurrentZone');
+        if ($zone == self::ZONE_NONE) return;
+
+        $this->SendDebug('Flow', 'Watchdog: kein Durchfluss seit 10s → Rate = 0', 0);
+        $this->SetValue('FlowRate', 0.0);
+        $this->WriteAttributeFloat('CurrentFlowRate', 0.0);
+        // Watchdog weiter laufen lassen (bleibt auf 10s)
+    }
+
+    /**
+     * Wird bei jeder VM_UPDATE-Nachricht des Durchflusszählers aufgerufen.
+     * Berechnet Durchfluss und akkumuliert Volumen event-getrieben.
+     */
+    private function onFlowUpdate(float $timestamp) {
         $flowID = $this->ReadPropertyInteger('FlowCounterID');
         if ($flowID == 0 || !IPS_VariableExists($flowID)) return;
 
-        $now          = time();
         $currentCount = GetValueFloat($flowID);
         $lastCount    = $this->ReadAttributeFloat('LastPulseCountF');
-        $lastTime     = $this->ReadAttributeInteger('LastPulseTime');
-        $deltaTime    = max(1, $now - $lastTime);
+        $lastTime     = $this->ReadAttributeFloat('LastPulseTimeF');
+        $deltaTime    = max(0.1, $timestamp - $lastTime); // Sekunden (float, min 100ms)
         $deltaPulses  = $currentCount - $lastCount;
 
         $this->WriteAttributeFloat('LastPulseCountF', $currentCount);
-        $this->WriteAttributeInteger('LastPulseTime',  $now);
+        $this->WriteAttributeFloat('LastPulseTimeF',   $timestamp);
+
+        // Watchdog zurücksetzen
+        $zone = $this->ReadAttributeInteger('CurrentZone');
+        if ($zone != self::ZONE_NONE) {
+            $this->SetTimerInterval('FlowTimer', 10000);
+        }
 
         if ($deltaPulses <= 0) {
             $this->SetValue('FlowRate', 0.0);
@@ -422,7 +457,6 @@ class GardenIrrigation extends IPSModule {
         $this->SetValue('FlowRate', round($flowRate, 1));
 
         // Volumen nur akkumulieren wenn Zone aktiv
-        $zone = $this->ReadAttributeInteger('CurrentZone');
         if ($zone == self::ZONE_NONE) return;
 
         $K           = $this->calculateK($flowRate);
@@ -436,13 +470,13 @@ class GardenIrrigation extends IPSModule {
         $target = $this->ReadAttributeFloat('ZoneTargetLiters');
 
         $this->SendDebug('Flow', sprintf(
-            'Q=%.1f l/min | K=%.0f P/L | ΔV=%.3f L | %.1f / %.1f L',
-            $flowRate, $K, $deltaLiters, $newVolume, $target
+            'Q=%.2f l/min | Δt=%.2fs | K=%.0f P/L | ΔV=%.3f L | %.1f / %.1f L',
+            $flowRate, $deltaTime, $K, $deltaLiters, $newVolume, $target
         ), 0);
 
         // Düngerpumpe: Zielmenge in ml erreicht?
         if ($this->ReadAttributeBoolean('FertPumpRunning')) {
-            $ratio     = $this->ReadPropertyFloat('FertRatioPercent') / 100.0; // z.B. 0.04 bei 4%
+            $ratio     = $this->ReadPropertyFloat('FertRatioPercent') / 100.0;
             $dispensed = $this->ReadAttributeFloat('FertDispensedMl') + $deltaLiters * $ratio * 1000.0;
             $this->WriteAttributeFloat('FertDispensedMl', $dispensed);
 
@@ -472,15 +506,15 @@ class GardenIrrigation extends IPSModule {
         $flowID = $this->ReadPropertyInteger('FlowCounterID');
         if ($flowID == 0 || !IPS_VariableExists($flowID)) return;
 
-        $now          = time();
+        $now          = (float)microtime(true);
         $currentCount = GetValueFloat($flowID);
         $lastCount    = $this->ReadAttributeFloat('LastPulseCountF');
-        $lastTime     = $this->ReadAttributeInteger('LastPulseTime');
-        $deltaTime    = max(1, $now - $lastTime);
+        $lastTime     = $this->ReadAttributeFloat('LastPulseTimeF');
+        $deltaTime    = max(1.0, $now - $lastTime);
         $deltaPulses  = $currentCount - $lastCount;
 
         $this->WriteAttributeFloat('LastPulseCountF', $currentCount);
-        $this->WriteAttributeInteger('LastPulseTime',  $now);
+        $this->WriteAttributeFloat('LastPulseTimeF',   $now);
 
         if ($deltaPulses <= 0) {
             $this->SetValue('LeakDetected', false);
