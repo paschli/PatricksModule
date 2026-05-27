@@ -132,15 +132,15 @@ class GardenIrrigation extends IPSModule {
 
         // ── Variablen ────────────────────────────────────────────────────────
         $this->RegisterVariableString( 'Status',       'Status',         '',                    0);
-        $this->RegisterVariableInteger('ActiveZone',   'Aktive Zone',    'GardenIrr.Zone',      1);
-        $this->RegisterVariableFloat(  'FlowRate',     'Durchfluss',     'GardenIrr.FlowRate',  2);
-        $this->RegisterVariableFloat(  'ZoneVolume',   'Volumen Zone',   'GardenIrr.Volume',    3);
-        $this->RegisterVariableFloat(  'TargetVolume', 'Ziel-Volumen',   'GardenIrr.Volume',    4);
-        $this->RegisterVariableFloat(  'RainValue',    'Regen',          'GardenIrr.RainMm',    5);
-        $this->RegisterVariableBoolean('RainBlocked',  'Regen-Sperre',   '~Switch',             6);
-        $this->RegisterVariableBoolean('LeakDetected', 'Leck erkannt',   '~Alert',              7);
-        $this->RegisterVariableBoolean('AutoMode',     'Automatik',      '~Switch',             8);
-        $this->RegisterVariableBoolean('EmergencyStop','Notaus',         '~Switch',             9);
+        $this->RegisterVariableBoolean('AutoMode',     'Automatik',      '~Switch',             1);
+        $this->RegisterVariableFloat(  'RainValue',    'Regen',          'GardenIrr.RainMm',    3);
+        $this->RegisterVariableBoolean('RainBlocked',  'Regen-Sperre',   '~Switch',             4);
+        $this->RegisterVariableBoolean('EmergencyStop','Notaus',         '~Switch',             7);
+        $this->RegisterVariableBoolean('LeakDetected', 'Leck erkannt',   '~Alert',              8);
+        $this->RegisterVariableInteger('ActiveZone',   'Aktive Zone',    'GardenIrr.Zone',      10);
+        $this->RegisterVariableFloat(  'FlowRate',     'Durchfluss',     'GardenIrr.FlowRate',  11);
+        $this->RegisterVariableFloat(  'ZoneVolume',   'Volumen Zone',   'GardenIrr.Volume',    12);
+        $this->RegisterVariableFloat(  'TargetVolume', 'Ziel-Volumen',   'GardenIrr.Volume',    13);
 
         IPS_SetIcon($this->GetIDForIdent('Status'),        'Plant');
         IPS_SetIcon($this->GetIDForIdent('ActiveZone'),    'Irrigation');
@@ -1059,7 +1059,7 @@ class GardenIrrigation extends IPSModule {
             IPS_SetIcon($konfCatID, 'Settings');
         }
         IPS_SetName($konfCatID, 'Konfiguration');
-        IPS_SetPosition($konfCatID, 10);
+        IPS_SetPosition($konfCatID, 6);
 
         $zoneIcons = [
             'Rasen'  => 'Lawn',
@@ -1345,7 +1345,7 @@ class GardenIrrigation extends IPSModule {
             IPS_SetIcon($statCatID, 'Graph');
         }
         IPS_SetName($statCatID, 'Statistik');
-        IPS_SetPosition($statCatID, 9);
+        IPS_SetPosition($statCatID, 5);
 
         // Gesamtwerte
         $this->ensureStatVarObj($statCatID, 'StatTodayTotal', 'Heute gesamt',         0);
@@ -1411,7 +1411,7 @@ class GardenIrrigation extends IPSModule {
             IPS_SetIcon($catID, 'Gear');
         }
         IPS_SetName($catID, 'Manuell starten');
-        IPS_SetPosition($catID, 12);
+        IPS_SetPosition($catID, 2);
 
         $this->ensureVar($catID, 'ManualZone',   1, 'Zone',           'GardenIrr.Zone',   0, $scriptID);
         $this->ensureVar($catID, 'ManualLiters', 2, 'Menge (Liter)',  'GardenIrr.Volume', 1, $scriptID);
