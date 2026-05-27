@@ -1438,19 +1438,13 @@ class GardenIrrigation extends IPSModule {
         }
 
         // Dünger/Wasser-Verhältnis [%]  – Bereich 0–10 %, Schritt 0.5
-        if (IPS_VariableProfileExists('GardenIrr.FertPercent')) {
-            // Bereich ggf. korrigieren (war 0-20 in älterer Version)
-            $p = IPS_GetVariableProfile('GardenIrr.FertPercent');
-            if ($p['MaxValue'] != 10) {
-                IPS_DeleteVariableProfile('GardenIrr.FertPercent');
-            }
-        }
+        // Werte werden immer neu gesetzt, damit Bereichsänderungen sofort wirken
         if (!IPS_VariableProfileExists('GardenIrr.FertPercent')) {
             IPS_CreateVariableProfile('GardenIrr.FertPercent', 2);
-            IPS_SetVariableProfileValues('GardenIrr.FertPercent', 0, 10, 0.5);
-            IPS_SetVariableProfileText('GardenIrr.FertPercent',   '', ' %');
-            IPS_SetVariableProfileDigits('GardenIrr.FertPercent', 1);
         }
+        IPS_SetVariableProfileValues('GardenIrr.FertPercent', 0, 10, 0.5);
+        IPS_SetVariableProfileText('GardenIrr.FertPercent',   '', ' %');
+        IPS_SetVariableProfileDigits('GardenIrr.FertPercent', 1);
 
         // Verzögerung [s]
         if (!IPS_VariableProfileExists('GardenIrr.Seconds')) {
