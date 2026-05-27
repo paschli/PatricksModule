@@ -1049,7 +1049,7 @@ class GardenIrrigation extends IPSModule {
         IPS_SetPosition($allgDueCatID, 0);
 
         $this->ensureKonfVar($allgDueCatID, 'KonfFertRatioPercent',
-            'Dünger/Wasser-Verhältnis (%)', 3, '~String', 0, $scriptID);
+            'Dünger/Wasser-Verhältnis (%)', 2, '~Float', 0, $scriptID);
         $this->ensureKonfVar($allgDueCatID, 'KonfFertDelaySeconds',
             'Verzögerung nach Ventilöffnung', 1, 'GardenIrr.Seconds', 1, $scriptID);
 
@@ -1207,9 +1207,9 @@ class GardenIrrigation extends IPSModule {
     }
 
     private function syncKonfAllgemein(int $dueCatID, int $bewCatID) {
-        // Düngen – FertRatioPercent als String-Variable (Texteingabe)
+        // Düngen
         $this->setVarInCat($dueCatID, 'KonfFertRatioPercent',
-            number_format($this->ReadPropertyFloat('FertRatioPercent'), 1, '.', ''));
+            $this->ReadPropertyFloat('FertRatioPercent'));
         $this->setVarInCat($dueCatID, 'KonfFertDelaySeconds',
             $this->ReadPropertyInteger('FertDelaySeconds'));
 
