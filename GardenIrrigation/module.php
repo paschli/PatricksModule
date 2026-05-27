@@ -85,6 +85,8 @@ class GardenIrrigation extends IPSModule {
             }
             // Feuchtigkeitsschwelle (alle Zonen, bei Zonen ohne Sensor schlicht ignoriert)
             $this->RegisterPropertyFloat($z . 'MoistureThreshold', 70.0);
+            // Regen-Schwelle in mm – nicht bewässern wenn Regensensor ≥ diesem Wert
+            $this->RegisterPropertyFloat($z . 'RainThresholdMm', 3.0);
             // Dünger-Wochentage (Teilmenge der Bewässerungs-Tage)
             foreach (self::DAY_PROPS as $day) {
                 $this->RegisterPropertyBoolean($z . 'FertDay' . $day, false);
@@ -195,6 +197,9 @@ class GardenIrrigation extends IPSModule {
 
         // Laufzeit-Variablen nur einblenden wenn tatsächlich eine Zone aktiv ist
         $this->setRunningVarsVisible($this->ReadAttributeInteger('CurrentZone') != self::ZONE_NONE);
+
+        // RainBlocked-Anzeige aktualisieren
+        $this->SetValue('RainBlocked', $this->isRainBlockedForAnyZone());
 
         $this->scheduleNext();
         $this->updateStatus();
@@ -347,12 +352,6 @@ class GardenIrrigation extends IPSModule {
         if (!$this->GetValue('AutoMode')) return;
 
         $this->SendDebug('Schedule', 'Tick ausgelöst', 0);
-
-        if ($this->isRainBlocked()) {
-            $this->SendDebug('Schedule', 'Regen-Sperre – überspringe', 0);
-            $this->scheduleNext();
-            return;
-        }
 
         if ($this->ReadAttributeInteger('CurrentZone') != self::ZONE_NONE) {
             $this->scheduleNext();
@@ -524,6 +523,12 @@ class GardenIrrigation extends IPSModule {
     private function startZoneFromConfig(array $cfg) {
         $zone         = (int)$cfg['zone'];
         $targetLiters = (float)$cfg['targetLiters'];
+
+        if ($this->isRainBlockedForZone($zone)) {
+            $this->SendDebug('Zone', self::ZONE_NAMES[$zone] . ': Regen-Sperre – überspringe', 0);
+            $this->dequeueNext();
+            return;
+        }
 
         if ($this->isMoistureOk($zone)) {
             $this->SendDebug('Zone', self::ZONE_NAMES[$zone] . ': Feuchte ausreichend – überspringe', 0);
@@ -762,31 +767,46 @@ class GardenIrrigation extends IPSModule {
         $rainID = $this->ReadPropertyInteger('RainSensorID');
         if ($rainID == 0 || !IPS_VariableExists($rainID)) return;
 
-        $raining = GetValueBoolean($rainID);
-        if ($raining) {
-            $until = time() + $this->ReadPropertyInteger('RainBlockHours') * 3600;
-            $this->WriteAttributeInteger('RainBlockUntil', $until);
-            $this->SetValue('RainBlocked', true);
-            $this->SendDebug('Rain', 'Regen – Sperre bis ' . date('d.m.Y H:i', $until), 0);
+        $mm = GetValueFloat($rainID);
+        $this->SendDebug('Rain', sprintf('Sensor-Wert: %.1f mm', $mm), 0);
 
-            if ($this->ReadAttributeInteger('CurrentZone') != self::ZONE_NONE) {
-                $this->SendDebug('Rain', 'Bewässerung wird gestoppt', 0);
-                $this->StopAll();
-            }
+        // RainBlocked-Variable zeigt an ob IRGENDEINE Zone gesperrt wäre
+        $anyBlocked = $this->isRainBlockedForAnyZone($mm);
+        $this->SetValue('RainBlocked', $anyBlocked);
+
+        // Laufende Zone stoppen wenn deren Schwelle überschritten
+        $currentZone = $this->ReadAttributeInteger('CurrentZone');
+        if ($currentZone != self::ZONE_NONE && $this->isRainBlockedForZone($currentZone, $mm)) {
+            $this->SendDebug('Rain', 'Laufende Zone ' . self::ZONE_NAMES[$currentZone] . ' wird durch Regen gestoppt', 0);
+            $this->StopAll();
         }
-        // Regen aufgehört: Sperre bleibt bis Ablauf (isRainBlocked prüft Zeit)
     }
 
-    private function isRainBlocked(): bool {
-        $until = $this->ReadAttributeInteger('RainBlockUntil');
-        if ($until == 0) return false;
+    /** Gibt true zurück wenn der Regensensor-Wert die Schwelle der Zone überschreitet. */
+    private function isRainBlockedForZone(int $zone, float $mm = -1.0): bool {
+        $rainID = $this->ReadPropertyInteger('RainSensorID');
+        if ($rainID == 0 || !IPS_VariableExists($rainID)) return false;
 
-        if (time() >= $until) {
-            $this->WriteAttributeInteger('RainBlockUntil', 0);
-            $this->SetValue('RainBlocked', false);
-            return false;
+        if ($mm < 0) $mm = GetValueFloat($rainID);
+        $prefix = $this->zonePrefixById($zone);
+        if (!$prefix) return false;
+
+        $threshold = $this->ReadPropertyFloat($prefix . 'RainThresholdMm');
+        if ($threshold <= 0) return false; // 0 = Regen-Sperre deaktiviert
+
+        $blocked = $mm >= $threshold;
+        if ($blocked) {
+            $this->SendDebug('Rain', sprintf('%s: %.1f mm ≥ Schwelle %.1f mm – überspringe', self::ZONE_NAMES[$zone], $mm, $threshold), 0);
         }
-        return true;
+        return $blocked;
+    }
+
+    /** Gibt true zurück wenn mindestens eine Zone durch Regen gesperrt wäre. */
+    private function isRainBlockedForAnyZone(float $mm = -1.0): bool {
+        foreach (self::ZONE_PREFIX as $prefix => $zone) {
+            if ($this->isRainBlockedForZone($zone, $mm)) return true;
+        }
+        return false;
     }
 
     /**
@@ -995,9 +1015,10 @@ class GardenIrrigation extends IPSModule {
         if ($zone == self::ZONE_NONE) {
             if ($this->GetValue('LeakDetected')) {
                 $status = '🚨 Leck erkannt! Hauptventil gesperrt.';
-            } elseif ($this->isRainBlocked()) {
-                $until  = $this->ReadAttributeInteger('RainBlockUntil');
-                $status = '🌧 Regen-Sperre bis ' . date('H:i', $until);
+            } elseif ($this->isRainBlockedForAnyZone()) {
+                $rainID = $this->ReadPropertyInteger('RainSensorID');
+                $mm     = ($rainID && IPS_VariableExists($rainID)) ? GetValueFloat($rainID) : 0.0;
+                $status = sprintf('🌧 Regen-Sperre aktiv (%.1f mm)', $mm);
             } elseif ($this->GetValue('AutoMode')) {
                 $status = '✅ Bereit – Automatik aktiv';
             } else {
@@ -1140,6 +1161,11 @@ class GardenIrrigation extends IPSModule {
                 if ($oldID) IPS_DeleteVariable($oldID);
             }
 
+            // Regen-Schwelle (alle Zonen)
+            $this->ensureKonfVar($bewCatID, 'Konf' . $prefix . 'RainThresholdMm',
+                'Regen-Schwelle (0 = deaktiviert)', 2, 'GardenIrr.RainMm', $dayOffset, $scriptID);
+            $dayOffset++;
+
             // Wochentage Bewässern
             foreach ($dayLabels as $dayIdx => $label) {
                 $this->ensureKonfVar($bewCatID, 'Konf' . $prefix . 'Day' . self::DAY_PROPS[$dayIdx],
@@ -1215,6 +1241,10 @@ class GardenIrrigation extends IPSModule {
             $this->setVarInCat($bewCatID, 'Konf' . $prefix . 'MoistureThreshold',
                 $this->ReadPropertyFloat($prefix . 'MoistureThreshold'));
         }
+
+        // Regen-Schwelle (alle Zonen)
+        $this->setVarInCat($bewCatID, 'Konf' . $prefix . 'RainThresholdMm',
+            $this->ReadPropertyFloat($prefix . 'RainThresholdMm'));
 
         foreach (self::DAY_PROPS as $day) {
             $this->setVarInCat($bewCatID, 'Konf' . $prefix . 'Day' . $day,
@@ -1475,6 +1505,14 @@ class GardenIrrigation extends IPSModule {
             IPS_SetVariableProfileText('GardenIrr.Moisture',   '', ' %');
             IPS_SetVariableProfileDigits('GardenIrr.Moisture', 0);
         }
+
+        // Regen-Schwelle [mm] – Werteingabe (step=0)
+        if (!IPS_VariableProfileExists('GardenIrr.RainMm')) {
+            IPS_CreateVariableProfile('GardenIrr.RainMm', 2);
+        }
+        IPS_SetVariableProfileValues('GardenIrr.RainMm', 0, 50, 0);
+        IPS_SetVariableProfileText('GardenIrr.RainMm',   '', ' mm');
+        IPS_SetVariableProfileDigits('GardenIrr.RainMm', 1);
 
         // Dünger/Wasser-Verhältnis [%] – Werteingabe (step=0 → kein Slider, direktes Eingabefeld)
         if (!IPS_VariableProfileExists('GardenIrr.FertPercentInput')) {

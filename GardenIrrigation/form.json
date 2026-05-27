@@ -12,7 +12,7 @@
     { "name": "FertPumpID",   "type": "SelectVariable", "caption": "Dünger-Pumpe",                      "validVariableTypes": [0] },
     { "name": "SoilHeckeID",  "type": "SelectVariable", "caption": "Bodenfeuchte Hecke (%)",            "validVariableTypes": [1] },
     { "name": "SoilHangID",   "type": "SelectVariable", "caption": "Bodenfeuchte Hang (%)",             "validVariableTypes": [1] },
-    { "name": "RainSensorID", "type": "SelectVariable", "caption": "Regensensor (Boolean)",             "validVariableTypes": [0] },
+    { "name": "RainSensorID", "type": "SelectVariable", "caption": "Regensensor (mm, Float)",           "validVariableTypes": [2] },
     { "name": "TempSensorID", "type": "SelectVariable", "caption": "Temperatursensor (°C)",             "validVariableTypes": [2] },
     { "name": "FlowCounterID","type": "SelectVariable", "caption": "Durchflussmesser – absoluter Zähler (Float)", "validVariableTypes": [2] },
 
