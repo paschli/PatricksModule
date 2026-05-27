@@ -115,12 +115,15 @@ class GardenIrrigation extends IPSModule {
         $this->RegisterAttributeInteger('LastPulseTime',      0);
         $this->RegisterAttributeFloat(  'CurrentFlowRate',    0.0);
         $this->RegisterAttributeInteger('RainBlockUntil',     0);
-        $this->RegisterAttributeFloat(  'TodayVolumeLiters',  0.0);
-        $this->RegisterAttributeString( 'TodayDate',          '');
-        $this->RegisterAttributeFloat(  'WeekVolumeLiters',   0.0);
-        $this->RegisterAttributeString( 'WeekStart',          '');
-        $this->RegisterAttributeBoolean('FertPumpRunning',    false);
+        $this->RegisterAttributeBoolean('FertPumpRunning',     false);
         $this->RegisterAttributeInteger('RegisteredRainID',   0);
+
+        // ── Statistik-Historie (JSON: {"2026-05-20": 12.3, ...}) ─────────────
+        $this->RegisterAttributeString('DailyHistoryTotal',  '{}');
+        $this->RegisterAttributeString('DailyHistoryRasen',  '{}');
+        $this->RegisterAttributeString('DailyHistoryHecke',  '{}');
+        $this->RegisterAttributeString('DailyHistoryHang',   '{}');
+        $this->RegisterAttributeString('DailyHistoryGarage', '{}');
 
         // ── Variablen ────────────────────────────────────────────────────────
         $this->RegisterVariableString( 'Status',       'Status',         '',                    0);
@@ -128,19 +131,14 @@ class GardenIrrigation extends IPSModule {
         $this->RegisterVariableFloat(  'FlowRate',     'Durchfluss',     'GardenIrr.FlowRate',  2);
         $this->RegisterVariableFloat(  'ZoneVolume',   'Volumen Zone',   'GardenIrr.Volume',    3);
         $this->RegisterVariableFloat(  'TargetVolume', 'Ziel-Volumen',   'GardenIrr.Volume',    4);
-        $this->RegisterVariableFloat(  'DailyVolume',  'Heute gesamt',   'GardenIrr.Volume',    5);
-        $this->RegisterVariableFloat(  'WeeklyVolume', 'Diese Woche',    'GardenIrr.Volume',    6);
-        $this->RegisterVariableFloat(  'DailyCost',    'Kosten heute',   'GardenIrr.Cost',      7);
-        $this->RegisterVariableBoolean('RainBlocked',  'Regen-Sperre',   '~Switch',             8);
-        $this->RegisterVariableBoolean('LeakDetected', 'Leck erkannt',   '~Alert',              9);
-        $this->RegisterVariableBoolean('AutoMode',     'Automatik',      '~Switch',             10);
-        $this->RegisterVariableBoolean('EmergencyStop','Notaus',         '~Switch',             11);
+        $this->RegisterVariableBoolean('RainBlocked',  'Regen-Sperre',   '~Switch',             5);
+        $this->RegisterVariableBoolean('LeakDetected', 'Leck erkannt',   '~Alert',              6);
+        $this->RegisterVariableBoolean('AutoMode',     'Automatik',      '~Switch',             7);
+        $this->RegisterVariableBoolean('EmergencyStop','Notaus',         '~Switch',             8);
 
         IPS_SetIcon($this->GetIDForIdent('Status'),        'Plant');
         IPS_SetIcon($this->GetIDForIdent('ActiveZone'),    'Irrigation');
         IPS_SetIcon($this->GetIDForIdent('FlowRate'),      'Gauge');
-        IPS_SetIcon($this->GetIDForIdent('DailyVolume'),   'Information');
-        IPS_SetIcon($this->GetIDForIdent('WeeklyVolume'),  'Calendar');
         IPS_SetIcon($this->GetIDForIdent('RainBlocked'),   'Cloud');
         IPS_SetIcon($this->GetIDForIdent('LeakDetected'),  'Alert');
         IPS_SetIcon($this->GetIDForIdent('AutoMode'),      'Execute');
@@ -159,7 +157,9 @@ class GardenIrrigation extends IPSModule {
         parent::ApplyChanges();
 
         $this->ensureProfiles();
+        $this->ensureStatistikCategory();
         $this->ensureManualCategory();
+        $this->cleanupOldVariables();
 
         $this->EnableAction('AutoMode');
         $this->EnableAction('EmergencyStop');
@@ -410,7 +410,7 @@ class GardenIrrigation extends IPSModule {
 
         $this->WriteAttributeFloat('ZoneVolumeLiters', $newVolume);
         $this->SetValue('ZoneVolume', round($newVolume, 1));
-        $this->accumulateDailyVolume($deltaLiters);
+        $this->accumulateDailyVolume($deltaLiters, $zone);
 
         $target = $this->ReadAttributeFloat('ZoneTargetLiters');
 
@@ -831,30 +831,89 @@ class GardenIrrigation extends IPSModule {
     // PRIVATE – STATISTIK
     // =========================================================================
 
-    private function accumulateDailyVolume(float $liters) {
-        $today = date('Y-m-d');
-        if ($this->ReadAttributeString('TodayDate') !== $today) {
-            $this->WriteAttributeString('TodayDate',        $today);
-            $this->WriteAttributeFloat( 'TodayVolumeLiters', 0.0);
+    private function accumulateDailyVolume(float $liters, int $zone) {
+        // Gesamt-Historie aktualisieren
+        $totalHistory = $this->addToHistory(
+            $this->ReadAttributeString('DailyHistoryTotal'), $liters
+        );
+        $this->WriteAttributeString('DailyHistoryTotal', $totalHistory);
+
+        // Zonen-Historie aktualisieren
+        $prefix = $this->zonePrefixById($zone);
+        if ($prefix !== null) {
+            $attrKey     = 'DailyHistory' . $prefix;
+            $zoneHistory = $this->addToHistory(
+                $this->ReadAttributeString($attrKey), $liters
+            );
+            $this->WriteAttributeString($attrKey, $zoneHistory);
         }
 
-        $newDaily = $this->ReadAttributeFloat('TodayVolumeLiters') + $liters;
-        $this->WriteAttributeFloat('TodayVolumeLiters', $newDaily);
-        $this->SetValue('DailyVolume', round($newDaily, 1));
+        $this->updateStatistik();
+    }
 
-        // Kosten
-        $price = $this->ReadPropertyFloat('WaterPrice');
-        $this->SetValue('DailyCost', round($newDaily / 1000.0 * $price, 4));
+    /**
+     * Fügt Liter zum jeweiligen Tages-Eintrag im JSON-History-String hinzu
+     * und beschneidet auf die letzten 7 Tage.
+     */
+    private function addToHistory(string $historyJson, float $liters): string {
+        $history = json_decode($historyJson, true) ?: [];
+        $today   = date('Y-m-d');
+        $history[$today] = round(($history[$today] ?? 0.0) + $liters, 3);
 
-        // Wochenvolumen
-        $week = date('o-W');
-        if ($this->ReadAttributeString('WeekStart') !== $week) {
-            $this->WriteAttributeString('WeekStart',        $week);
-            $this->WriteAttributeFloat( 'WeekVolumeLiters', 0.0);
+        // Nur die letzten 7 Tage behalten
+        $cutoff = date('Y-m-d', strtotime('-6 days'));
+        foreach (array_keys($history) as $date) {
+            if ($date < $cutoff) unset($history[$date]);
         }
-        $newWeekly = $this->ReadAttributeFloat('WeekVolumeLiters') + $liters;
-        $this->WriteAttributeFloat('WeekVolumeLiters', $newWeekly);
-        $this->SetValue('WeeklyVolume', round($newWeekly, 1));
+        return json_encode($history);
+    }
+
+    /** Summe der letzten 7 Tage aus History-JSON */
+    private function getLast7Days(string $historyJson): float {
+        $history = json_decode($historyJson, true) ?: [];
+        $total   = 0.0;
+        for ($i = 0; $i < 7; $i++) {
+            $date   = date('Y-m-d', strtotime("-$i days"));
+            $total += $history[$date] ?? 0.0;
+        }
+        return round($total, 1);
+    }
+
+    /** Tageswert aus History-JSON */
+    private function getTodayVolume(string $historyJson): float {
+        $history = json_decode($historyJson, true) ?: [];
+        return round($history[date('Y-m-d')] ?? 0.0, 1);
+    }
+
+    /** Aktualisiert alle Statistik-Variablen in der StatCat-Kategorie */
+    private function updateStatistik() {
+        $totalHistory = $this->ReadAttributeString('DailyHistoryTotal');
+        $this->setStatVar('StatTodayTotal', $this->getTodayVolume($totalHistory));
+        $this->setStatVar('StatLast7Total', $this->getLast7Days($totalHistory));
+
+        foreach (array_keys(self::ZONE_PREFIX) as $prefix) {
+            $history = $this->ReadAttributeString('DailyHistory' . $prefix);
+            $this->setStatVar('StatToday_' . $prefix, $this->getTodayVolume($history));
+            $this->setStatVar('StatLast7_' . $prefix, $this->getLast7Days($history));
+        }
+    }
+
+    /** Setzt eine Statistik-Variable (sucht in StatCat und Zonen-Unterkategorien) */
+    private function setStatVar(string $ident, float $value) {
+        $statCatID = @IPS_GetObjectIDByIdent('StatCat', $this->InstanceID);
+        if (!$statCatID) return;
+
+        // Direkt in StatCat
+        $varID = @IPS_GetObjectIDByIdent($ident, $statCatID);
+        if ($varID) { SetValueFloat($varID, $value); return; }
+
+        // In Zonen-Unterkategorien
+        foreach (array_keys(self::ZONE_PREFIX) as $prefix) {
+            $zoneCatID = @IPS_GetObjectIDByIdent('StatZone_' . $prefix, $statCatID);
+            if (!$zoneCatID) continue;
+            $varID = @IPS_GetObjectIDByIdent($ident, $zoneCatID);
+            if ($varID) { SetValueFloat($varID, $value); return; }
+        }
     }
 
     // =========================================================================
@@ -912,6 +971,70 @@ class GardenIrrigation extends IPSModule {
         }
 
         $this->SetValue('Status', $status);
+    }
+
+    private function ensureStatistikCategory() {
+        $statCatID = @IPS_GetObjectIDByIdent('StatCat', $this->InstanceID);
+        if (!$statCatID) {
+            $statCatID = IPS_CreateCategory();
+            IPS_SetParent($statCatID, $this->InstanceID);
+            IPS_SetIdent($statCatID, 'StatCat');
+            IPS_SetIcon($statCatID, 'Graph');
+        }
+        IPS_SetName($statCatID, 'Statistik');
+        IPS_SetPosition($statCatID, 9);
+
+        // Gesamtwerte
+        $this->ensureStatVarObj($statCatID, 'StatTodayTotal', 'Heute gesamt',         0);
+        $this->ensureStatVarObj($statCatID, 'StatLast7Total', 'Letzte 7 Tage gesamt', 1);
+
+        // Zonen-Unterkategorien
+        $icons = [
+            'Rasen'  => 'Lawn',
+            'Hecke'  => 'Plant',
+            'Hang'   => 'Irrigation',
+            'Garage' => 'Garage',
+        ];
+        $pos = 2;
+        foreach (self::ZONE_PREFIX as $prefix => $zone) {
+            $zoneCatID = @IPS_GetObjectIDByIdent('StatZone_' . $prefix, $statCatID);
+            if (!$zoneCatID) {
+                $zoneCatID = IPS_CreateCategory();
+                IPS_SetParent($zoneCatID, $statCatID);
+                IPS_SetIdent($zoneCatID, 'StatZone_' . $prefix);
+            }
+            IPS_SetName($zoneCatID, self::ZONE_NAMES[$zone]);
+            IPS_SetPosition($zoneCatID, $pos++);
+            IPS_SetIcon($zoneCatID, $icons[$prefix] ?? 'Plant');
+
+            $this->ensureStatVarObj($zoneCatID, 'StatToday_' . $prefix, 'Heute',         0);
+            $this->ensureStatVarObj($zoneCatID, 'StatLast7_' . $prefix, 'Letzte 7 Tage', 1);
+        }
+    }
+
+    private function ensureStatVarObj(int $catID, string $ident, string $name, int $pos) {
+        $varID = @IPS_GetObjectIDByIdent($ident, $catID);
+        if (!$varID) {
+            $varID = IPS_CreateVariable(2); // Float
+            IPS_SetParent($varID, $catID);
+            IPS_SetIdent($varID, $ident);
+        }
+        IPS_SetName($varID, $name);
+        IPS_SetPosition($varID, $pos);
+        IPS_SetVariableCustomProfile($varID, 'GardenIrr.Volume');
+    }
+
+    /**
+     * Entfernt veraltete direkt-registrierte Statistik-Variablen,
+     * die durch die StatCat-Kategorie abgelöst wurden.
+     */
+    private function cleanupOldVariables() {
+        foreach (['DailyVolume', 'WeeklyVolume', 'DailyCost'] as $ident) {
+            $varID = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
+            if ($varID && IPS_VariableExists($varID)) {
+                IPS_DeleteVariable($varID);
+            }
+        }
     }
 
     private function ensureManualCategory() {
