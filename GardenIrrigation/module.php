@@ -83,9 +83,11 @@ class GardenIrrigation extends IPSModule {
                     : true;
                 $this->RegisterPropertyBoolean($z . 'Day' . $day, $default);
             }
-            // Feuchtigkeitsschwelle nur für Hecke + Hang
-            if (in_array($z, ['Hecke', 'Hang'])) {
-                $this->RegisterPropertyFloat($z . 'MoistureThreshold', 70.0);
+            // Feuchtigkeitsschwelle (alle Zonen, bei Zonen ohne Sensor schlicht ignoriert)
+            $this->RegisterPropertyFloat($z . 'MoistureThreshold', 70.0);
+            // Dünger-Wochentage (Teilmenge der Bewässerungs-Tage)
+            foreach (self::DAY_PROPS as $day) {
+                $this->RegisterPropertyBoolean($z . 'FertDay' . $day, false);
             }
         }
 
@@ -158,6 +160,7 @@ class GardenIrrigation extends IPSModule {
 
         $this->ensureProfiles();
         $this->ensureStatistikCategory();
+        $this->ensureKonfigurationCategory();
         $this->ensureManualCategory();
         $this->cleanupOldVariables();
 
@@ -203,6 +206,12 @@ class GardenIrrigation extends IPSModule {
     }
 
     public function RequestAction($ident, $value) {
+        // ── Konfigurationskategorie: alle Konf*-Variablen ────────────────────
+        if (substr($ident, 0, 4) === 'Konf') {
+            $this->handleKonfChange($ident, $value);
+            return;
+        }
+
         switch ($ident) {
             case 'AutoMode':
                 $this->SetValue('AutoMode', (bool)$value);
@@ -647,6 +656,13 @@ class GardenIrrigation extends IPSModule {
 
         if (!$this->ReadPropertyBoolean($prefix . 'FertEnabled')) return;
 
+        // Düngung nur an konfigurierten Wochentagen
+        $day = self::DAY_PROPS[(int)date('N') - 1]; // 0=Mo … 6=So
+        if (!$this->ReadPropertyBoolean($prefix . 'FertDay' . $day)) {
+            $this->SendDebug('Fert', 'Heute kein Dünger-Tag für ' . $prefix, 0);
+            return;
+        }
+
         $delayMs = $this->ReadPropertyInteger('FertDelaySeconds') * 1000;
         $this->SetTimerInterval('FertStartTimer', max(1000, $delayMs));
         $this->SendDebug('Fert', 'Pumpenstart in ' . $this->ReadPropertyInteger('FertDelaySeconds') . ' Sek.', 0);
@@ -750,21 +766,23 @@ class GardenIrrigation extends IPSModule {
 
     /**
      * Gibt true zurück wenn die Bodenfeuchte ausreichend ist (Zone überspringen).
+     * Sensor-Zuordnung: Hecke + HeckeGarage → SoilHeckeID | Hang → SoilHangID | Rasen → kein Sensor
      */
     private function isMoistureOk(int $zone): bool {
-        $prefix   = $this->zonePrefixById($zone);
-        $sensorID = 0;
-        $threshold = 70.0;
+        $prefix    = $this->zonePrefixById($zone);
+        $threshold = $prefix ? $this->ReadPropertyFloat($prefix . 'MoistureThreshold') : 70.0;
 
-        if ($zone == self::ZONE_HECKE) {
-            $sensorID  = $this->ReadPropertyInteger('SoilHeckeID');
-            $threshold = $prefix ? $this->ReadPropertyFloat($prefix . 'MoistureThreshold') : 70.0;
-        } elseif ($zone == self::ZONE_HANG) {
-            $sensorID  = $this->ReadPropertyInteger('SoilHangID');
-            $threshold = $prefix ? $this->ReadPropertyFloat($prefix . 'MoistureThreshold') : 70.0;
-        } elseif ($zone == self::ZONE_HECKE_GARAGE) {
-            $sensorID  = $this->ReadPropertyInteger('SoilHeckeID'); // Näherungswert
-            $threshold = 80.0; // etwas toleranter da kein eigener Sensor
+        // Sensor-ID nach Zone ermitteln
+        switch ($zone) {
+            case self::ZONE_HECKE:
+            case self::ZONE_HECKE_GARAGE:
+                $sensorID = $this->ReadPropertyInteger('SoilHeckeID');
+                break;
+            case self::ZONE_HANG:
+                $sensorID = $this->ReadPropertyInteger('SoilHangID');
+                break;
+            default:
+                return false; // Kein Sensor → nie überspringen
         }
 
         if ($sensorID == 0 || !IPS_VariableExists($sensorID)) return false;
@@ -973,6 +991,187 @@ class GardenIrrigation extends IPSModule {
         $this->SetValue('Status', $status);
     }
 
+    // =========================================================================
+    // PRIVATE – KONFIGURATIONSKATEGORIE
+    // =========================================================================
+
+    private function ensureKonfigurationCategory() {
+        $scriptID = $this->ensureActionScript();
+
+        $konfCatID = @IPS_GetObjectIDByIdent('KonfCat', $this->InstanceID);
+        if (!$konfCatID) {
+            $konfCatID = IPS_CreateCategory();
+            IPS_SetParent($konfCatID, $this->InstanceID);
+            IPS_SetIdent($konfCatID, 'KonfCat');
+            IPS_SetIcon($konfCatID, 'Settings');
+        }
+        IPS_SetName($konfCatID, 'Konfiguration');
+        IPS_SetPosition($konfCatID, 10);
+
+        $zoneIcons = [
+            'Rasen'  => 'Lawn',
+            'Hecke'  => 'Plant',
+            'Hang'   => 'Irrigation',
+            'Garage' => 'Garage',
+        ];
+        $dayLabels = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+        $pos = 0;
+
+        foreach (self::ZONE_PREFIX as $prefix => $zone) {
+            // ── Zonen-Kategorie ──────────────────────────────────────────────
+            $zoneCatID = @IPS_GetObjectIDByIdent('KonfZone_' . $prefix, $konfCatID);
+            if (!$zoneCatID) {
+                $zoneCatID = IPS_CreateCategory();
+                IPS_SetParent($zoneCatID, $konfCatID);
+                IPS_SetIdent($zoneCatID, 'KonfZone_' . $prefix);
+            }
+            IPS_SetName($zoneCatID, self::ZONE_NAMES[$zone]);
+            IPS_SetIcon($zoneCatID, $zoneIcons[$prefix] ?? 'Plant');
+            IPS_SetPosition($zoneCatID, $pos++);
+
+            // ── Bewässern-Kategorie ──────────────────────────────────────────
+            $bewCatID = @IPS_GetObjectIDByIdent('KonfBew_' . $prefix, $zoneCatID);
+            if (!$bewCatID) {
+                $bewCatID = IPS_CreateCategory();
+                IPS_SetParent($bewCatID, $zoneCatID);
+                IPS_SetIdent($bewCatID, 'KonfBew_' . $prefix);
+                IPS_SetIcon($bewCatID, 'Irrigation');
+            }
+            IPS_SetName($bewCatID, 'Bewässern');
+            IPS_SetPosition($bewCatID, 0);
+
+            $this->ensureKonfVar($bewCatID, 'Konf' . $prefix . 'TargetLiters',
+                'Ziel-Volumen', 2, 'GardenIrr.VolumeEdit', 0, $scriptID);
+            $this->ensureKonfVar($bewCatID, 'Konf' . $prefix . 'MaxLiters',
+                'Max-Volumen (Sicherheit)', 2, 'GardenIrr.VolumeEdit', 1, $scriptID);
+            $this->ensureKonfVar($bewCatID, 'Konf' . $prefix . 'ScheduleTime',
+                'Bewässerungszeit', 1, '~UnixTimestampTime', 2, $scriptID);
+            $this->ensureKonfVar($bewCatID, 'Konf' . $prefix . 'MoistureThreshold',
+                'Bodenfeuchte-Schwelle', 2, 'GardenIrr.Moisture', 3, $scriptID);
+
+            // Wochentage Bewässern
+            foreach ($dayLabels as $dayIdx => $label) {
+                $this->ensureKonfVar($bewCatID, 'Konf' . $prefix . 'Day' . self::DAY_PROPS[$dayIdx],
+                    $label, 0, '~Switch', 4 + $dayIdx, $scriptID);
+            }
+
+            // ── Düngen-Kategorie ─────────────────────────────────────────────
+            $dueCatID = @IPS_GetObjectIDByIdent('KonfDue_' . $prefix, $zoneCatID);
+            if (!$dueCatID) {
+                $dueCatID = IPS_CreateCategory();
+                IPS_SetParent($dueCatID, $zoneCatID);
+                IPS_SetIdent($dueCatID, 'KonfDue_' . $prefix);
+                IPS_SetIcon($dueCatID, 'Leaf');
+            }
+            IPS_SetName($dueCatID, 'Düngen');
+            IPS_SetPosition($dueCatID, 1);
+
+            $this->ensureKonfVar($dueCatID, 'Konf' . $prefix . 'FertEnabled',
+                'Düngung aktiv', 0, '~Switch', 0, $scriptID);
+            // Wochentage Düngen
+            foreach ($dayLabels as $dayIdx => $label) {
+                $this->ensureKonfVar($dueCatID, 'Konf' . $prefix . 'FertDay' . self::DAY_PROPS[$dayIdx],
+                    $label, 0, '~Switch', 1 + $dayIdx, $scriptID);
+            }
+            $this->ensureKonfVar($dueCatID, 'Konf' . $prefix . 'FertMlPerL',
+                'Düngermenge', 2, 'GardenIrr.FertRatio', 8, $scriptID);
+
+            // Werte aus Properties synchronisieren
+            $this->syncKonfZone($prefix, $bewCatID, $dueCatID);
+        }
+    }
+
+    private function ensureKonfVar(int $catID, string $ident, string $name, int $type, string $profile, int $pos, int $scriptID) {
+        $varID = @IPS_GetObjectIDByIdent($ident, $catID);
+        if (!$varID) {
+            $varID = IPS_CreateVariable($type);
+            IPS_SetParent($varID, $catID);
+            IPS_SetIdent($varID, $ident);
+        }
+        IPS_SetName($varID, $name);
+        IPS_SetPosition($varID, $pos);
+        IPS_SetVariableCustomProfile($varID, $profile);
+        IPS_SetVariableCustomAction($varID, $scriptID);
+    }
+
+    /**
+     * Synchronisiert Konfigurationsvariablen einer Zone aus den Properties.
+     * Wird bei ApplyChanges aufgerufen, damit die App immer den aktuellen Stand zeigt.
+     */
+    private function syncKonfZone(string $prefix, int $bewCatID, int $dueCatID) {
+        // Bewässern
+        $target = $this->ReadPropertyFloat($prefix . 'TargetLiters');
+        $this->setVarInCat($bewCatID, 'Konf' . $prefix . 'TargetLiters', $target);
+
+        $max = $this->ReadPropertyFloat($prefix . 'MaxLiters');
+        $this->setVarInCat($bewCatID, 'Konf' . $prefix . 'MaxLiters', $max);
+
+        // ScheduleTime: Property = Sekunden seit Mitternacht → Unix-Timestamp für ~UnixTimestampTime
+        $secs = $this->ReadPropertyInteger($prefix . 'ScheduleTime');
+        $h    = intdiv($secs, 3600);
+        $m    = intdiv($secs % 3600, 60);
+        $this->setVarInCat($bewCatID, 'Konf' . $prefix . 'ScheduleTime', mktime($h, $m, 0));
+
+        $this->setVarInCat($bewCatID, 'Konf' . $prefix . 'MoistureThreshold',
+            $this->ReadPropertyFloat($prefix . 'MoistureThreshold'));
+
+        foreach (self::DAY_PROPS as $day) {
+            $this->setVarInCat($bewCatID, 'Konf' . $prefix . 'Day' . $day,
+                $this->ReadPropertyBoolean($prefix . 'Day' . $day));
+        }
+
+        // Düngen
+        $this->setVarInCat($dueCatID, 'Konf' . $prefix . 'FertEnabled',
+            $this->ReadPropertyBoolean($prefix . 'FertEnabled'));
+
+        foreach (self::DAY_PROPS as $day) {
+            $this->setVarInCat($dueCatID, 'Konf' . $prefix . 'FertDay' . $day,
+                $this->ReadPropertyBoolean($prefix . 'FertDay' . $day));
+        }
+
+        $this->setVarInCat($dueCatID, 'Konf' . $prefix . 'FertMlPerL',
+            $this->ReadPropertyFloat($prefix . 'FertMlPerL'));
+    }
+
+    private function setVarInCat(int $catID, string $ident, $value) {
+        $varID = @IPS_GetObjectIDByIdent($ident, $catID);
+        if (!$varID) return;
+        $type = IPS_GetVariable($varID)['VariableType'];
+        switch ($type) {
+            case 0: SetValueBoolean($varID, (bool)$value);   break;
+            case 1: SetValueInteger($varID, (int)$value);    break;
+            case 2: SetValueFloat($varID,   (float)$value);  break;
+            case 3: SetValueString($varID,  (string)$value); break;
+        }
+    }
+
+    /**
+     * Wertet eine Änderung einer Konfigurationsvariable aus,
+     * schreibt sie als Property und triggert ApplyChanges.
+     */
+    private function handleKonfChange(string $ident, $value) {
+        // Konf-Prefix entfernen → Property-Name
+        $propName = substr($ident, 4);
+
+        // ScheduleTime: Variable hat Unix-Timestamp, Property erwartet Sekunden seit Mitternacht
+        if (substr($propName, -12) === 'ScheduleTime') {
+            $h     = (int)date('G', (int)$value);
+            $m     = (int)date('i', (int)$value);
+            $value = $h * 3600 + $m * 60;
+        }
+
+        // Typ des Properties ermitteln und passend setzen
+        $info = IPS_GetProperty($this->InstanceID, $propName);
+        switch (gettype($info)) {
+            case 'boolean': IPS_SetProperty($this->InstanceID, $propName, (bool)$value);   break;
+            case 'integer': IPS_SetProperty($this->InstanceID, $propName, (int)$value);    break;
+            case 'double':  IPS_SetProperty($this->InstanceID, $propName, (float)$value);  break;
+            default:        IPS_SetProperty($this->InstanceID, $propName, (string)$value); break;
+        }
+
+        IPS_ApplyChanges($this->InstanceID);
+    }
+
     private function ensureStatistikCategory() {
         $statCatID = @IPS_GetObjectIDByIdent('StatCat', $this->InstanceID);
         if (!$statCatID) {
@@ -1124,6 +1323,30 @@ class GardenIrrigation extends IPSModule {
             IPS_SetVariableProfileValues('GardenIrr.Cost', 0, 100, 0.01);
             IPS_SetVariableProfileText('GardenIrr.Cost',   '', ' €');
             IPS_SetVariableProfileDigits('GardenIrr.Cost', 4);
+        }
+
+        // Düngermenge [ml/L]  (4 % ≙ 40 ml/L)
+        if (!IPS_VariableProfileExists('GardenIrr.FertRatio')) {
+            IPS_CreateVariableProfile('GardenIrr.FertRatio', 2);
+            IPS_SetVariableProfileValues('GardenIrr.FertRatio', 0, 50, 0.5);
+            IPS_SetVariableProfileText('GardenIrr.FertRatio',   '', ' ml/L');
+            IPS_SetVariableProfileDigits('GardenIrr.FertRatio', 1);
+        }
+
+        // Ziel-/Max-Volumen editierbar [L]
+        if (!IPS_VariableProfileExists('GardenIrr.VolumeEdit')) {
+            IPS_CreateVariableProfile('GardenIrr.VolumeEdit', 2);
+            IPS_SetVariableProfileValues('GardenIrr.VolumeEdit', 1, 500, 1);
+            IPS_SetVariableProfileText('GardenIrr.VolumeEdit',   '', ' L');
+            IPS_SetVariableProfileDigits('GardenIrr.VolumeEdit', 1);
+        }
+
+        // Feuchtigkeitsschwelle [%]
+        if (!IPS_VariableProfileExists('GardenIrr.Moisture')) {
+            IPS_CreateVariableProfile('GardenIrr.Moisture', 2);
+            IPS_SetVariableProfileValues('GardenIrr.Moisture', 0, 100, 1);
+            IPS_SetVariableProfileText('GardenIrr.Moisture',   '', ' %');
+            IPS_SetVariableProfileDigits('GardenIrr.Moisture', 0);
         }
     }
 
