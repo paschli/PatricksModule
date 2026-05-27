@@ -1112,13 +1112,23 @@ class GardenIrrigation extends IPSModule {
                 'Max-Volumen (Sicherheit)', 2, 'GardenIrr.VolumeEdit', 1, $scriptID);
             $this->ensureKonfVar($bewCatID, 'Konf' . $prefix . 'ScheduleTime',
                 'Bewässerungszeit', 1, '~UnixTimestampTime', 2, $scriptID);
-            $this->ensureKonfVar($bewCatID, 'Konf' . $prefix . 'MoistureThreshold',
-                'Bodenfeuchte-Schwelle', 2, 'GardenIrr.Moisture', 3, $scriptID);
+
+            // Bodenfeuchte-Schwelle nur für Zonen mit Sensor (nicht Rasen)
+            $dayOffset = 3;
+            if ($prefix !== 'Rasen') {
+                $this->ensureKonfVar($bewCatID, 'Konf' . $prefix . 'MoistureThreshold',
+                    'Bodenfeuchte-Schwelle', 2, 'GardenIrr.Moisture', 3, $scriptID);
+                $dayOffset = 4;
+            } else {
+                // Alte Variable entfernen falls vorhanden
+                $oldID = @IPS_GetObjectIDByIdent('KonfRasenMoistureThreshold', $bewCatID);
+                if ($oldID) IPS_DeleteVariable($oldID);
+            }
 
             // Wochentage Bewässern
             foreach ($dayLabels as $dayIdx => $label) {
                 $this->ensureKonfVar($bewCatID, 'Konf' . $prefix . 'Day' . self::DAY_PROPS[$dayIdx],
-                    $label, 0, '~Switch', 4 + $dayIdx, $scriptID);
+                    $label, 0, '~Switch', $dayOffset + $dayIdx, $scriptID);
             }
 
             // ── Düngen-Kategorie ─────────────────────────────────────────────
@@ -1185,8 +1195,11 @@ class GardenIrrigation extends IPSModule {
         $m    = intdiv($secs % 3600, 60);
         $this->setVarInCat($bewCatID, 'Konf' . $prefix . 'ScheduleTime', mktime($h, $m, 0));
 
-        $this->setVarInCat($bewCatID, 'Konf' . $prefix . 'MoistureThreshold',
-            $this->ReadPropertyFloat($prefix . 'MoistureThreshold'));
+        // Bodenfeuchte-Schwelle: nur für Zonen mit Sensor (nicht Rasen)
+        if ($prefix !== 'Rasen') {
+            $this->setVarInCat($bewCatID, 'Konf' . $prefix . 'MoistureThreshold',
+                $this->ReadPropertyFloat($prefix . 'MoistureThreshold'));
+        }
 
         foreach (self::DAY_PROPS as $day) {
             $this->setVarInCat($bewCatID, 'Konf' . $prefix . 'Day' . $day,
