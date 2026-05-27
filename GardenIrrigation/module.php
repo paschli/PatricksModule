@@ -1067,7 +1067,7 @@ class GardenIrrigation extends IPSModule {
         $this->ensureKonfVar($allgBewCatID, 'KonfRainBlockHours',
             'Regen-Sperrzeit',              1, 'GardenIrr.Hours',       0, $scriptID);
         $this->ensureKonfVar($allgBewCatID, 'KonfTempBoostThreshold',
-            'Temperatur-Boost ab',          2, '~Temperature.1',         1, $scriptID);
+            'Temperatur-Boost ab',          2, 'GardenIrr.Temperature',  1, $scriptID);
         $this->ensureKonfVar($allgBewCatID, 'KonfTempBoostPercent',
             'Boost pro 5°C über Schwelle',  2, 'GardenIrr.BoostPercent', 2, $scriptID);
         $this->ensureKonfVar($allgBewCatID, 'KonfLeakFlowThreshold',
@@ -1437,10 +1437,17 @@ class GardenIrrigation extends IPSModule {
             IPS_SetVariableProfileDigits('GardenIrr.Moisture', 0);
         }
 
-        // Dünger/Wasser-Verhältnis [%]
+        // Dünger/Wasser-Verhältnis [%]  – Bereich 0–10 %, Schritt 0.5
+        if (IPS_VariableProfileExists('GardenIrr.FertPercent')) {
+            // Bereich ggf. korrigieren (war 0-20 in älterer Version)
+            $p = IPS_GetVariableProfile('GardenIrr.FertPercent');
+            if ($p['MaxValue'] != 10) {
+                IPS_DeleteVariableProfile('GardenIrr.FertPercent');
+            }
+        }
         if (!IPS_VariableProfileExists('GardenIrr.FertPercent')) {
             IPS_CreateVariableProfile('GardenIrr.FertPercent', 2);
-            IPS_SetVariableProfileValues('GardenIrr.FertPercent', 0, 20, 0.5);
+            IPS_SetVariableProfileValues('GardenIrr.FertPercent', 0, 10, 0.5);
             IPS_SetVariableProfileText('GardenIrr.FertPercent',   '', ' %');
             IPS_SetVariableProfileDigits('GardenIrr.FertPercent', 1);
         }
@@ -1466,7 +1473,14 @@ class GardenIrrigation extends IPSModule {
             IPS_SetVariableProfileText('GardenIrr.Minutes', '', ' min');
         }
 
-        // Temperatur-Schwelle [°C] – nutzt eingebautes IPS-Profil
+        // Temperatur-Schwelle [°C] – eigenes editierbares Profil
+        if (!IPS_VariableProfileExists('GardenIrr.Temperature')) {
+            IPS_CreateVariableProfile('GardenIrr.Temperature', 2);
+            IPS_SetVariableProfileValues('GardenIrr.Temperature', 15, 45, 0.5);
+            IPS_SetVariableProfileText('GardenIrr.Temperature',   '', ' °C');
+            IPS_SetVariableProfileDigits('GardenIrr.Temperature', 1);
+        }
+
         // Boost-Prozentsatz [%]
         if (!IPS_VariableProfileExists('GardenIrr.BoostPercent')) {
             IPS_CreateVariableProfile('GardenIrr.BoostPercent', 2);

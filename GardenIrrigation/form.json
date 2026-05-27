@@ -89,7 +89,7 @@
 
     { "type": "Label", "bold": true, "caption": "── Dünger-Steuerung ─────────────────────────────────" },
     { "name": "FertEnabled",       "type": "CheckBox",     "caption": "Dünger-Funktion global aktivieren" },
-    { "name": "FertRatioPercent",  "type": "NumberSpinner","caption": "Dünger/Wasser-Verhältnis (%)", "digits": 1, "minimum": 0, "maximum": 20 },
+    { "name": "FertRatioPercent",  "type": "NumberSpinner","caption": "Dünger/Wasser-Verhältnis (%)", "digits": 1, "minimum": 0, "maximum": 10 },
     { "name": "FertDelaySeconds",  "type": "NumberSpinner","caption": "Verzögerung Pumpenstart nach Ventilöffnung (Sek.)", "minimum": 0, "maximum": 120 },
 
     { "type": "Label", "bold": true, "caption": "── Sensorschwellen & Anpassung ──────────────────────" },
