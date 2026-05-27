@@ -930,8 +930,8 @@ class GardenIrrigation extends IPSModule {
         $today   = date('Y-m-d');
         $history[$today] = round(($history[$today] ?? 0.0) + $liters, 3);
 
-        // Nur die letzten 7 Tage behalten
-        $cutoff = date('Y-m-d', strtotime('-6 days'));
+        // Einträge älter als 366 Tage entfernen (reicht für Jahresstatistik)
+        $cutoff = date('Y-m-d', strtotime('-365 days'));
         foreach (array_keys($history) as $date) {
             if ($date < $cutoff) unset($history[$date]);
         }
@@ -955,11 +955,30 @@ class GardenIrrigation extends IPSModule {
         return round($history[date('Y-m-d')] ?? 0.0, 1);
     }
 
+    /** Jahreswert (laufendes Kalenderjahr) aus History-JSON */
+    private function getYearVolume(string $historyJson): float {
+        $history = json_decode($historyJson, true) ?: [];
+        $year    = date('Y');
+        $total   = 0.0;
+        foreach ($history as $date => $liters) {
+            if (substr($date, 0, 4) === $year) {
+                $total += $liters;
+            }
+        }
+        return round($total, 1);
+    }
+
     /** Aktualisiert alle Statistik-Variablen in der StatCat-Kategorie */
     private function updateStatistik() {
         $totalHistory = $this->ReadAttributeString('DailyHistoryTotal');
+        $yearLiters   = $this->getYearVolume($totalHistory);
+        $price        = $this->ReadPropertyFloat('WaterPrice'); // €/m³
+        $yearCost     = round($yearLiters / 1000.0 * $price, 2); // Liter → m³ × Preis
+
         $this->setStatVar('StatTodayTotal', $this->getTodayVolume($totalHistory));
         $this->setStatVar('StatLast7Total', $this->getLast7Days($totalHistory));
+        $this->setStatVar('StatYearTotal',  $yearLiters);
+        $this->setStatVar('StatYearCost',   $yearCost);
 
         foreach (array_keys(self::ZONE_PREFIX) as $prefix) {
             $history = $this->ReadAttributeString('DailyHistory' . $prefix);
@@ -1348,8 +1367,10 @@ class GardenIrrigation extends IPSModule {
         IPS_SetPosition($statCatID, 5);
 
         // Gesamtwerte
-        $this->ensureStatVarObj($statCatID, 'StatTodayTotal', 'Heute gesamt',         0);
-        $this->ensureStatVarObj($statCatID, 'StatLast7Total', 'Letzte 7 Tage gesamt', 1);
+        $this->ensureStatVarObj($statCatID, 'StatTodayTotal', 'Heute gesamt',              0, 'GardenIrr.Volume');
+        $this->ensureStatVarObj($statCatID, 'StatLast7Total', 'Letzte 7 Tage gesamt',      1, 'GardenIrr.Volume');
+        $this->ensureStatVarObj($statCatID, 'StatYearTotal',  date('Y') . ' gesamt (L)',   2, 'GardenIrr.Volume');
+        $this->ensureStatVarObj($statCatID, 'StatYearCost',   date('Y') . ' Kosten',       3, 'GardenIrr.Cost');
 
         // Zonen-Unterkategorien
         $icons = [
@@ -1375,7 +1396,7 @@ class GardenIrrigation extends IPSModule {
         }
     }
 
-    private function ensureStatVarObj(int $catID, string $ident, string $name, int $pos) {
+    private function ensureStatVarObj(int $catID, string $ident, string $name, int $pos, string $profile = 'GardenIrr.Volume') {
         $varID = @IPS_GetObjectIDByIdent($ident, $catID);
         if (!$varID) {
             $varID = IPS_CreateVariable(2); // Float
@@ -1384,7 +1405,7 @@ class GardenIrrigation extends IPSModule {
         }
         IPS_SetName($varID, $name);
         IPS_SetPosition($varID, $pos);
-        IPS_SetVariableCustomProfile($varID, 'GardenIrr.Volume');
+        IPS_SetVariableCustomProfile($varID, $profile);
     }
 
     /**
