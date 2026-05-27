@@ -14,7 +14,7 @@
     { "name": "SoilHangID",   "type": "SelectVariable", "caption": "Bodenfeuchte Hang (%)",             "validVariableTypes": [1] },
     { "name": "RainSensorID", "type": "SelectVariable", "caption": "Regensensor (Boolean)",             "validVariableTypes": [0] },
     { "name": "TempSensorID", "type": "SelectVariable", "caption": "Temperatursensor (°C)",             "validVariableTypes": [2] },
-    { "name": "FlowCounterID","type": "SelectVariable", "caption": "Durchflussmesser – absoluter Zähler (Integer)", "validVariableTypes": [1] },
+    { "name": "FlowCounterID","type": "SelectVariable", "caption": "Durchflussmesser – absoluter Zähler (Float)", "validVariableTypes": [2] },
 
     { "type": "Label", "bold": true, "caption": "── Durchflussmesser-Kalibrierung  K = A·ln(Q) + B ──" },
     { "type": "Label", "caption": "Voreinstellung aus Kennlinie: A = 149,71 · ln(Q) + 65,507" },

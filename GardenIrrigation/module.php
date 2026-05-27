@@ -114,7 +114,7 @@ class GardenIrrigation extends IPSModule {
         $this->RegisterAttributeFloat(  'ZoneVolumeLiters',   0.0);
         $this->RegisterAttributeFloat(  'ZoneTargetLiters',   0.0);
         $this->RegisterAttributeFloat(  'FertDispensedMl',    0.0);
-        $this->RegisterAttributeInteger('LastPulseCount',     0);
+        $this->RegisterAttributeFloat(  'LastPulseCount',     0.0);
         $this->RegisterAttributeInteger('LastPulseTime',      0);
         $this->RegisterAttributeFloat(  'CurrentFlowRate',    0.0);
         $this->RegisterAttributeInteger('RainBlockUntil',     0);
@@ -184,7 +184,7 @@ class GardenIrrigation extends IPSModule {
         // Puls-Startwert merken
         $flowID = $this->ReadPropertyInteger('FlowCounterID');
         if ($flowID != 0 && IPS_VariableExists($flowID)) {
-            $this->WriteAttributeInteger('LastPulseCount', GetValueInteger($flowID));
+            $this->WriteAttributeFloat('LastPulseCount', GetValueFloat($flowID));
             $this->WriteAttributeInteger('LastPulseTime',  time());
         }
 
@@ -283,7 +283,7 @@ class GardenIrrigation extends IPSModule {
         // Puls-Referenz
         $flowID = $this->ReadPropertyInteger('FlowCounterID');
         if ($flowID != 0 && IPS_VariableExists($flowID)) {
-            $this->WriteAttributeInteger('LastPulseCount', GetValueInteger($flowID));
+            $this->WriteAttributeFloat('LastPulseCount', GetValueFloat($flowID));
             $this->WriteAttributeInteger('LastPulseTime',  time());
         }
 
@@ -395,13 +395,13 @@ class GardenIrrigation extends IPSModule {
         if ($flowID == 0 || !IPS_VariableExists($flowID)) return;
 
         $now          = time();
-        $currentCount = GetValueInteger($flowID);
-        $lastCount    = $this->ReadAttributeInteger('LastPulseCount');
+        $currentCount = GetValueFloat($flowID);
+        $lastCount    = $this->ReadAttributeFloat('LastPulseCount');
         $lastTime     = $this->ReadAttributeInteger('LastPulseTime');
         $deltaTime    = max(1, $now - $lastTime);
         $deltaPulses  = $currentCount - $lastCount;
 
-        $this->WriteAttributeInteger('LastPulseCount', $currentCount);
+        $this->WriteAttributeFloat('LastPulseCount', $currentCount);
         $this->WriteAttributeInteger('LastPulseTime',  $now);
 
         if ($deltaPulses <= 0) {
@@ -468,13 +468,13 @@ class GardenIrrigation extends IPSModule {
         if ($flowID == 0 || !IPS_VariableExists($flowID)) return;
 
         $now          = time();
-        $currentCount = GetValueInteger($flowID);
-        $lastCount    = $this->ReadAttributeInteger('LastPulseCount');
+        $currentCount = GetValueFloat($flowID);
+        $lastCount    = $this->ReadAttributeFloat('LastPulseCount');
         $lastTime     = $this->ReadAttributeInteger('LastPulseTime');
         $deltaTime    = max(1, $now - $lastTime);
         $deltaPulses  = $currentCount - $lastCount;
 
-        $this->WriteAttributeInteger('LastPulseCount', $currentCount);
+        $this->WriteAttributeFloat('LastPulseCount', $currentCount);
         $this->WriteAttributeInteger('LastPulseTime',  $now);
 
         if ($deltaPulses <= 0) {
