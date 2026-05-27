@@ -223,16 +223,16 @@ class GardenIrrigation extends IPSModule {
             case 'ManualStart':
                 if ((bool)$value) {
                     $this->handleManualStart();
-                    $this->SetValue('ManualStart', false);
+                    $this->setManualVar('ManualStart', false);
                 }
                 break;
 
             case 'ManualZone':
-                $this->SetValue('ManualZone', (int)$value);
+                $this->setManualVar('ManualZone', (int)$value);
                 break;
 
             case 'ManualLiters':
-                $this->SetValue('ManualLiters', (float)$value);
+                $this->setManualVar('ManualLiters', (float)$value);
                 break;
         }
     }
@@ -1011,5 +1011,25 @@ class GardenIrrigation extends IPSModule {
     private function zonePrefixById(int $zone): ?string {
         $map = array_flip(self::ZONE_PREFIX); // zone → prefix
         return $map[$zone] ?? null;
+    }
+
+    /**
+     * Setzt den Wert einer Variablen innerhalb von ManualCat.
+     * Nötig weil diese Variablen nicht per RegisterVariable* registriert sind
+     * und daher $this->SetValue() für sie nicht funktioniert.
+     */
+    private function setManualVar(string $ident, $value) {
+        $catID = @IPS_GetObjectIDByIdent('ManualCat', $this->InstanceID);
+        if (!$catID) return;
+        $varID = @IPS_GetObjectIDByIdent($ident, $catID);
+        if (!$varID) return;
+
+        $type = IPS_GetVariable($varID)['VariableType'];
+        switch ($type) {
+            case 0: SetValueBoolean($varID, (bool)$value);   break;
+            case 1: SetValueInteger($varID, (int)$value);    break;
+            case 2: SetValueFloat($varID,   (float)$value);  break;
+            case 3: SetValueString($varID,  (string)$value); break;
+        }
     }
 }
