@@ -1049,7 +1049,7 @@ class GardenIrrigation extends IPSModule {
         IPS_SetPosition($allgDueCatID, 0);
 
         $this->ensureKonfVar($allgDueCatID, 'KonfFertRatioPercent',
-            'Dünger/Wasser-Verhältnis', 2, 'GardenIrr.FertPercentInput', 0, $scriptID);
+            'Dünger/Wasser-Verhältnis (%)', 3, '~String', 0, $scriptID);
         $this->ensureKonfVar($allgDueCatID, 'KonfFertDelaySeconds',
             'Verzögerung nach Ventilöffnung', 1, 'GardenIrr.Seconds', 1, $scriptID);
 
@@ -1149,6 +1149,13 @@ class GardenIrrigation extends IPSModule {
 
     private function ensureKonfVar(int $catID, string $ident, string $name, int $type, string $profile, int $pos, int $scriptID) {
         $varID = @IPS_GetObjectIDByIdent($ident, $catID);
+        if ($varID) {
+            // Typ stimmt nicht überein → Variable löschen und neu anlegen
+            if (IPS_GetVariable($varID)['VariableType'] !== $type) {
+                IPS_DeleteVariable($varID);
+                $varID = 0;
+            }
+        }
         if (!$varID) {
             $varID = IPS_CreateVariable($type);
             IPS_SetParent($varID, $catID);
@@ -1200,9 +1207,9 @@ class GardenIrrigation extends IPSModule {
     }
 
     private function syncKonfAllgemein(int $dueCatID, int $bewCatID) {
-        // Düngen
+        // Düngen – FertRatioPercent als String-Variable (Texteingabe)
         $this->setVarInCat($dueCatID, 'KonfFertRatioPercent',
-            $this->ReadPropertyFloat('FertRatioPercent'));
+            number_format($this->ReadPropertyFloat('FertRatioPercent'), 1, '.', ''));
         $this->setVarInCat($dueCatID, 'KonfFertDelaySeconds',
             $this->ReadPropertyInteger('FertDelaySeconds'));
 
@@ -1249,11 +1256,15 @@ class GardenIrrigation extends IPSModule {
         }
 
         // Typ des Properties ermitteln und passend setzen
+        // Bei Float-Properties: Eingabe kann als String "4.2" oder "4,2" kommen
         $info = IPS_GetProperty($this->InstanceID, $propName);
         switch (gettype($info)) {
             case 'boolean': IPS_SetProperty($this->InstanceID, $propName, (bool)$value);   break;
             case 'integer': IPS_SetProperty($this->InstanceID, $propName, (int)$value);    break;
-            case 'double':  IPS_SetProperty($this->InstanceID, $propName, (float)$value);  break;
+            case 'double':
+                $fval = (float)str_replace(',', '.', trim((string)$value));
+                IPS_SetProperty($this->InstanceID, $propName, $fval);
+                break;
             default:        IPS_SetProperty($this->InstanceID, $propName, (string)$value); break;
         }
 
