@@ -21,19 +21,6 @@
     { "name": "FlowCalibA", "type": "NumberSpinner", "caption": "Faktor A", "digits": 3, "minimum": 1, "maximum": 500 },
     { "name": "FlowCalibB", "type": "NumberSpinner", "caption": "Offset B", "digits": 3, "minimum": 0, "maximum": 500 },
 
-    { "type": "Label", "bold": true, "caption": "── Dünger-Steuerung ─────────────────────────────────" },
-    { "name": "FertEnabled",       "type": "CheckBox",     "caption": "Dünger-Funktion global aktivieren" },
-    { "name": "FertRatioPercent",  "type": "NumberSpinner","caption": "Dünger/Wasser-Verhältnis (%)", "digits": 1, "minimum": 0, "maximum": 10 },
-    { "name": "FertDelaySeconds",  "type": "NumberSpinner","caption": "Verzögerung Pumpenstart nach Ventilöffnung (Sek.)", "minimum": 0, "maximum": 120 },
-
-    { "type": "Label", "bold": true, "caption": "── Sensorschwellen & Anpassung ──────────────────────" },
-    { "name": "RainBlockHours",    "type": "NumberSpinner","caption": "Regen-Sperrzeit nach Regen-Ereignis (Stunden)", "minimum": 0, "maximum": 72 },
-    { "name": "TempBoostThreshold","type": "NumberSpinner","caption": "Temperatur-Boost ab (°C)", "digits": 1, "minimum": 15, "maximum": 45 },
-    { "name": "TempBoostPercent",  "type": "NumberSpinner","caption": "Volumen-Boost pro 5°C über Schwelle (%)", "digits": 1, "minimum": 0, "maximum": 50 },
-    { "name": "LeakFlowThreshold", "type": "NumberSpinner","caption": "Leck-Erkennung: Durchfluss-Alarm ab (l/min) bei geschlossenen Ventilen", "digits": 1, "minimum": 0.1, "maximum": 10 },
-    { "name": "MaxZoneRuntimeMin", "type": "NumberSpinner","caption": "Sicherheits-Timeout je Zone (Minuten)", "minimum": 5, "maximum": 180 },
-    { "name": "WaterPrice",        "type": "NumberSpinner","caption": "Wasserpreis (€/m³) für Kostenberechnung", "digits": 2, "minimum": 0, "maximum": 20 },
-
     { "type": "Label", "bold": true, "caption": "── Aktionen ─────────────────────────────────────────" },
     { "type": "Button", "caption": "Alle Ventile schließen (Notaus)",   "onClick": "GardenIrr_StopAll($id);" },
     { "type": "Button", "caption": "Zeitplan neu berechnen",            "onClick": "GardenIrr_RescheduleNow($id);" }
