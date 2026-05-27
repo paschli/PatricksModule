@@ -136,14 +136,16 @@ class GardenIrrigation extends IPSModule {
         $this->RegisterVariableFloat(  'FlowRate',     'Durchfluss',     'GardenIrr.FlowRate',  2);
         $this->RegisterVariableFloat(  'ZoneVolume',   'Volumen Zone',   'GardenIrr.Volume',    3);
         $this->RegisterVariableFloat(  'TargetVolume', 'Ziel-Volumen',   'GardenIrr.Volume',    4);
-        $this->RegisterVariableBoolean('RainBlocked',  'Regen-Sperre',   '~Switch',             5);
-        $this->RegisterVariableBoolean('LeakDetected', 'Leck erkannt',   '~Alert',              6);
-        $this->RegisterVariableBoolean('AutoMode',     'Automatik',      '~Switch',             7);
-        $this->RegisterVariableBoolean('EmergencyStop','Notaus',         '~Switch',             8);
+        $this->RegisterVariableFloat(  'RainValue',    'Regen',          'GardenIrr.RainMm',    5);
+        $this->RegisterVariableBoolean('RainBlocked',  'Regen-Sperre',   '~Switch',             6);
+        $this->RegisterVariableBoolean('LeakDetected', 'Leck erkannt',   '~Alert',              7);
+        $this->RegisterVariableBoolean('AutoMode',     'Automatik',      '~Switch',             8);
+        $this->RegisterVariableBoolean('EmergencyStop','Notaus',         '~Switch',             9);
 
         IPS_SetIcon($this->GetIDForIdent('Status'),        'Plant');
         IPS_SetIcon($this->GetIDForIdent('ActiveZone'),    'Irrigation');
         IPS_SetIcon($this->GetIDForIdent('FlowRate'),      'Gauge');
+        IPS_SetIcon($this->GetIDForIdent('RainValue'),     'Cloud');
         IPS_SetIcon($this->GetIDForIdent('RainBlocked'),   'Cloud');
         IPS_SetIcon($this->GetIDForIdent('LeakDetected'),  'Alert');
         IPS_SetIcon($this->GetIDForIdent('AutoMode'),      'Execute');
@@ -198,7 +200,11 @@ class GardenIrrigation extends IPSModule {
         // Laufzeit-Variablen nur einblenden wenn tatsächlich eine Zone aktiv ist
         $this->setRunningVarsVisible($this->ReadAttributeInteger('CurrentZone') != self::ZONE_NONE);
 
-        // RainBlocked-Anzeige aktualisieren
+        // Regenwert und RainBlocked-Anzeige aktualisieren
+        $rainID = $this->ReadPropertyInteger('RainSensorID');
+        if ($rainID != 0 && IPS_VariableExists($rainID)) {
+            $this->SetValue('RainValue', round(GetValueFloat($rainID), 1));
+        }
         $this->SetValue('RainBlocked', $this->isRainBlockedForAnyZone());
 
         $this->scheduleNext();
@@ -769,6 +775,7 @@ class GardenIrrigation extends IPSModule {
 
         $mm = GetValueFloat($rainID);
         $this->SendDebug('Rain', sprintf('Sensor-Wert: %.1f mm', $mm), 0);
+        $this->SetValue('RainValue', round($mm, 1));
 
         // RainBlocked-Variable zeigt an ob IRGENDEINE Zone gesperrt wäre
         $anyBlocked = $this->isRainBlockedForAnyZone($mm);
