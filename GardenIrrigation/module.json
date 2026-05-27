@@ -1,0 +1,11 @@
+{
+  "id": "{A3F5C2D8-1E4B-4F7C-9E0D-2B6A8C4E1F3D}",
+  "name": "GardenIrrigation",
+  "type": 3,
+  "vendor": "Patrick",
+  "aliases": ["GardenIrrigation", "Bewässerungssteuerung"],
+  "parentRequirements": [],
+  "childRequirements": [],
+  "implemented": [],
+  "prefix": "GardenIrr"
+}
