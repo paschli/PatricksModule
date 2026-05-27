@@ -14,7 +14,7 @@
  *   Standardwerte: A = 149,71 | B = 65,507
  */
 
-class GardenIrr extends IPSModule {
+class GardenIrrigation extends IPSModule {
 
     // Zonen-Konstanten
     const ZONE_NONE          = 0;
