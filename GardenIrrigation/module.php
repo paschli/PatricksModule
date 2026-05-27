@@ -1049,7 +1049,7 @@ class GardenIrrigation extends IPSModule {
         IPS_SetPosition($allgDueCatID, 0);
 
         $this->ensureKonfVar($allgDueCatID, 'KonfFertRatioPercent',
-            'Dünger/Wasser-Verhältnis (%)', 2, '~Float', 0, $scriptID);
+            'Dünger/Wasser-Verhältnis (%)', 2, 'GardenIrr.FertPercentInput', 0, $scriptID);
         $this->ensureKonfVar($allgDueCatID, 'KonfFertDelaySeconds',
             'Verzögerung nach Ventilöffnung', 1, 'GardenIrr.Seconds', 1, $scriptID);
 
@@ -1448,13 +1448,13 @@ class GardenIrrigation extends IPSModule {
             IPS_SetVariableProfileDigits('GardenIrr.Moisture', 0);
         }
 
-        // Dünger/Wasser-Verhältnis [%] – als Texteingabe (kein Slider)
-        // Kein IPS_SetVariableProfileValues → IPS zeigt Eingabefeld statt Slider
+        // Dünger/Wasser-Verhältnis [%] – Werteingabe (step=0 → kein Slider, direktes Eingabefeld)
         if (!IPS_VariableProfileExists('GardenIrr.FertPercentInput')) {
             IPS_CreateVariableProfile('GardenIrr.FertPercentInput', 2);
-            IPS_SetVariableProfileText('GardenIrr.FertPercentInput',   '', ' %');
-            IPS_SetVariableProfileDigits('GardenIrr.FertPercentInput', 1);
         }
+        IPS_SetVariableProfileValues('GardenIrr.FertPercentInput', 0, 10, 0);
+        IPS_SetVariableProfileText('GardenIrr.FertPercentInput',   '', ' %');
+        IPS_SetVariableProfileDigits('GardenIrr.FertPercentInput', 1);
 
         // Verzögerung [s]
         if (!IPS_VariableProfileExists('GardenIrr.Seconds')) {
