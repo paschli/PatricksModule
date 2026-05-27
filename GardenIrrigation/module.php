@@ -1149,9 +1149,8 @@ class GardenIrrigation extends IPSModule {
                 $this->ensureKonfVar($dueCatID, 'Konf' . $prefix . 'FertDay' . self::DAY_PROPS[$dayIdx],
                     $label, 0, '~Switch', 1 + $dayIdx, $scriptID);
             }
-            // Alte FertMl-Variable entfernen falls vorhanden
-            $oldFertMl = @IPS_GetObjectIDByIdent('Konf' . $prefix . 'FertMl', $dueCatID);
-            if ($oldFertMl) IPS_DeleteVariable($oldFertMl);
+            $this->ensureKonfVar($dueCatID, 'Konf' . $prefix . 'FertMl',
+                'Düngermenge absolut (ml)', 2, 'GardenIrr.FertMl', 8, $scriptID);
 
             // Werte aus Properties synchronisieren
             $this->syncKonfZone($prefix, $bewCatID, $dueCatID);
@@ -1216,7 +1215,8 @@ class GardenIrrigation extends IPSModule {
                 $this->ReadPropertyBoolean($prefix . 'FertDay' . $day));
         }
 
-        // FertMl wird nicht mehr in der App-Kategorie gezeigt (zentral via FertRatioPercent)
+        $this->setVarInCat($dueCatID, 'Konf' . $prefix . 'FertMl',
+            $this->ReadPropertyFloat($prefix . 'FertMl'));
     }
 
     private function syncKonfAllgemein(int $dueCatID, int $bewCatID) {
