@@ -812,7 +812,7 @@ class GardenIrrigation extends IPSModule {
 
         if ($sensorID == 0 || !IPS_VariableExists($sensorID)) return false;
 
-        $moisture = GetValueFloat($sensorID);
+        $moisture = (float)GetValueInteger($sensorID);
         $this->SendDebug('Moisture', sprintf('%s: %.1f%% (Schwelle %.1f%%)', self::ZONE_NAMES[$zone], $moisture, $threshold), 0);
         return $moisture >= $threshold;
     }
