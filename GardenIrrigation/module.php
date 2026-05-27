@@ -93,6 +93,7 @@ class GardenIrrigation extends IPSModule {
 
         // ── Dünger global ────────────────────────────────────────────────────
         $this->RegisterPropertyBoolean('FertEnabled',       false);
+        $this->RegisterPropertyFloat(  'FertRatioPercent',  4.0);  // % Dünger im Wasser
         $this->RegisterPropertyInteger('FertDelaySeconds',  15);
 
         // ── Globale Einstellungen ─────────────────────────────────────────────
@@ -429,9 +430,10 @@ class GardenIrrigation extends IPSModule {
             $flowRate, $K, $deltaLiters, $newVolume, $target
         ), 0);
 
-        // Düngerpumpe: Zielmenge in ml erreicht? (Pumpe fügt fest 4% = 40 ml/L hinzu)
+        // Düngerpumpe: Zielmenge in ml erreicht?
         if ($this->ReadAttributeBoolean('FertPumpRunning')) {
-            $dispensed = $this->ReadAttributeFloat('FertDispensedMl') + $deltaLiters * 40.0;
+            $ratio     = $this->ReadPropertyFloat('FertRatioPercent') / 100.0; // z.B. 0.04 bei 4%
+            $dispensed = $this->ReadAttributeFloat('FertDispensedMl') + $deltaLiters * $ratio * 1000.0;
             $this->WriteAttributeFloat('FertDispensedMl', $dispensed);
 
             $prefix       = $this->zonePrefixById($zone);
@@ -1023,7 +1025,63 @@ class GardenIrrigation extends IPSModule {
             'Garage' => 'Garage',
         ];
         $dayLabels = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
-        $pos = 0;
+
+        // ── Allgemein-Kategorie (Position 0 – steht ganz oben) ──────────────
+        $allgCatID = @IPS_GetObjectIDByIdent('KonfAllgemein', $konfCatID);
+        if (!$allgCatID) {
+            $allgCatID = IPS_CreateCategory();
+            IPS_SetParent($allgCatID, $konfCatID);
+            IPS_SetIdent($allgCatID, 'KonfAllgemein');
+            IPS_SetIcon($allgCatID, 'Settings');
+        }
+        IPS_SetName($allgCatID, 'Allgemein');
+        IPS_SetPosition($allgCatID, 0);
+
+        // Allgemein / Düngen
+        $allgDueCatID = @IPS_GetObjectIDByIdent('KonfAllgDue', $allgCatID);
+        if (!$allgDueCatID) {
+            $allgDueCatID = IPS_CreateCategory();
+            IPS_SetParent($allgDueCatID, $allgCatID);
+            IPS_SetIdent($allgDueCatID, 'KonfAllgDue');
+            IPS_SetIcon($allgDueCatID, 'Leaf');
+        }
+        IPS_SetName($allgDueCatID, 'Düngen');
+        IPS_SetPosition($allgDueCatID, 0);
+
+        $this->ensureKonfVar($allgDueCatID, 'KonfFertRatioPercent',
+            'Dünger/Wasser-Verhältnis', 2, 'GardenIrr.FertPercent', 0, $scriptID);
+        $this->ensureKonfVar($allgDueCatID, 'KonfFertDelaySeconds',
+            'Verzögerung nach Ventilöffnung', 1, 'GardenIrr.Seconds', 1, $scriptID);
+
+        // Allgemein / Bewässern
+        $allgBewCatID = @IPS_GetObjectIDByIdent('KonfAllgBew', $allgCatID);
+        if (!$allgBewCatID) {
+            $allgBewCatID = IPS_CreateCategory();
+            IPS_SetParent($allgBewCatID, $allgCatID);
+            IPS_SetIdent($allgBewCatID, 'KonfAllgBew');
+            IPS_SetIcon($allgBewCatID, 'Irrigation');
+        }
+        IPS_SetName($allgBewCatID, 'Bewässern');
+        IPS_SetPosition($allgBewCatID, 1);
+
+        $this->ensureKonfVar($allgBewCatID, 'KonfRainBlockHours',
+            'Regen-Sperrzeit',              1, 'GardenIrr.Hours',       0, $scriptID);
+        $this->ensureKonfVar($allgBewCatID, 'KonfTempBoostThreshold',
+            'Temperatur-Boost ab',          2, '~Temperature.1',         1, $scriptID);
+        $this->ensureKonfVar($allgBewCatID, 'KonfTempBoostPercent',
+            'Boost pro 5°C über Schwelle',  2, 'GardenIrr.BoostPercent', 2, $scriptID);
+        $this->ensureKonfVar($allgBewCatID, 'KonfLeakFlowThreshold',
+            'Leck-Alarm ab',                2, 'GardenIrr.FlowRate',     3, $scriptID);
+        $this->ensureKonfVar($allgBewCatID, 'KonfMaxZoneRuntimeMin',
+            'Sicherheits-Timeout je Zone',  1, 'GardenIrr.Minutes',      4, $scriptID);
+        $this->ensureKonfVar($allgBewCatID, 'KonfWaterPrice',
+            'Wasserpreis',                  2, 'GardenIrr.WaterPrice',   5, $scriptID);
+
+        // Allgemein synchronisieren
+        $this->syncKonfAllgemein($allgDueCatID, $allgBewCatID);
+
+        // Zonen-Kategorien beginnen ab Position 1
+        $pos = 1;
 
         foreach (self::ZONE_PREFIX as $prefix => $zone) {
             // ── Zonen-Kategorie ──────────────────────────────────────────────
@@ -1139,6 +1197,28 @@ class GardenIrrigation extends IPSModule {
 
         $this->setVarInCat($dueCatID, 'Konf' . $prefix . 'FertMl',
             $this->ReadPropertyFloat($prefix . 'FertMl'));
+    }
+
+    private function syncKonfAllgemein(int $dueCatID, int $bewCatID) {
+        // Düngen
+        $this->setVarInCat($dueCatID, 'KonfFertRatioPercent',
+            $this->ReadPropertyFloat('FertRatioPercent'));
+        $this->setVarInCat($dueCatID, 'KonfFertDelaySeconds',
+            $this->ReadPropertyInteger('FertDelaySeconds'));
+
+        // Bewässern
+        $this->setVarInCat($bewCatID, 'KonfRainBlockHours',
+            $this->ReadPropertyInteger('RainBlockHours'));
+        $this->setVarInCat($bewCatID, 'KonfTempBoostThreshold',
+            $this->ReadPropertyFloat('TempBoostThreshold'));
+        $this->setVarInCat($bewCatID, 'KonfTempBoostPercent',
+            $this->ReadPropertyFloat('TempBoostPercent'));
+        $this->setVarInCat($bewCatID, 'KonfLeakFlowThreshold',
+            $this->ReadPropertyFloat('LeakFlowThreshold'));
+        $this->setVarInCat($bewCatID, 'KonfMaxZoneRuntimeMin',
+            $this->ReadPropertyInteger('MaxZoneRuntimeMin'));
+        $this->setVarInCat($bewCatID, 'KonfWaterPrice',
+            $this->ReadPropertyFloat('WaterPrice'));
     }
 
     private function setVarInCat(int $catID, string $ident, $value) {
@@ -1355,6 +1435,52 @@ class GardenIrrigation extends IPSModule {
             IPS_SetVariableProfileValues('GardenIrr.Moisture', 0, 100, 1);
             IPS_SetVariableProfileText('GardenIrr.Moisture',   '', ' %');
             IPS_SetVariableProfileDigits('GardenIrr.Moisture', 0);
+        }
+
+        // Dünger/Wasser-Verhältnis [%]
+        if (!IPS_VariableProfileExists('GardenIrr.FertPercent')) {
+            IPS_CreateVariableProfile('GardenIrr.FertPercent', 2);
+            IPS_SetVariableProfileValues('GardenIrr.FertPercent', 0, 20, 0.5);
+            IPS_SetVariableProfileText('GardenIrr.FertPercent',   '', ' %');
+            IPS_SetVariableProfileDigits('GardenIrr.FertPercent', 1);
+        }
+
+        // Verzögerung [s]
+        if (!IPS_VariableProfileExists('GardenIrr.Seconds')) {
+            IPS_CreateVariableProfile('GardenIrr.Seconds', 1);
+            IPS_SetVariableProfileValues('GardenIrr.Seconds', 0, 120, 1);
+            IPS_SetVariableProfileText('GardenIrr.Seconds', '', ' s');
+        }
+
+        // Stunden [h]
+        if (!IPS_VariableProfileExists('GardenIrr.Hours')) {
+            IPS_CreateVariableProfile('GardenIrr.Hours', 1);
+            IPS_SetVariableProfileValues('GardenIrr.Hours', 0, 72, 1);
+            IPS_SetVariableProfileText('GardenIrr.Hours', '', ' h');
+        }
+
+        // Minuten [min]
+        if (!IPS_VariableProfileExists('GardenIrr.Minutes')) {
+            IPS_CreateVariableProfile('GardenIrr.Minutes', 1);
+            IPS_SetVariableProfileValues('GardenIrr.Minutes', 5, 180, 5);
+            IPS_SetVariableProfileText('GardenIrr.Minutes', '', ' min');
+        }
+
+        // Temperatur-Schwelle [°C] – nutzt eingebautes IPS-Profil
+        // Boost-Prozentsatz [%]
+        if (!IPS_VariableProfileExists('GardenIrr.BoostPercent')) {
+            IPS_CreateVariableProfile('GardenIrr.BoostPercent', 2);
+            IPS_SetVariableProfileValues('GardenIrr.BoostPercent', 0, 50, 1);
+            IPS_SetVariableProfileText('GardenIrr.BoostPercent',   '', ' %');
+            IPS_SetVariableProfileDigits('GardenIrr.BoostPercent', 0);
+        }
+
+        // Wasserpreis [€/m³]
+        if (!IPS_VariableProfileExists('GardenIrr.WaterPrice')) {
+            IPS_CreateVariableProfile('GardenIrr.WaterPrice', 2);
+            IPS_SetVariableProfileValues('GardenIrr.WaterPrice', 0, 10, 0.01);
+            IPS_SetVariableProfileText('GardenIrr.WaterPrice',   '', ' €/m³');
+            IPS_SetVariableProfileDigits('GardenIrr.WaterPrice', 2);
         }
     }
 

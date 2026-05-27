@@ -88,9 +88,9 @@
     { "name": "GarageDaySo", "type": "CheckBox", "caption": "Sonntag" },
 
     { "type": "Label", "bold": true, "caption": "── Dünger-Steuerung ─────────────────────────────────" },
-    { "type": "Label", "caption": "Pumpe fügt fest 4% Dünger hinzu. Zielmenge in ml je Zone → Pumpe stoppt automatisch." },
-    { "name": "FertEnabled",      "type": "CheckBox",     "caption": "Dünger-Funktion global aktivieren" },
-    { "name": "FertDelaySeconds", "type": "NumberSpinner","caption": "Verzögerung Pumpenstart nach Ventilöffnung (Sek.)", "minimum": 0, "maximum": 120 },
+    { "name": "FertEnabled",       "type": "CheckBox",     "caption": "Dünger-Funktion global aktivieren" },
+    { "name": "FertRatioPercent",  "type": "NumberSpinner","caption": "Dünger/Wasser-Verhältnis (%)", "digits": 1, "minimum": 0, "maximum": 20 },
+    { "name": "FertDelaySeconds",  "type": "NumberSpinner","caption": "Verzögerung Pumpenstart nach Ventilöffnung (Sek.)", "minimum": 0, "maximum": 120 },
 
     { "type": "Label", "bold": true, "caption": "── Sensorschwellen & Anpassung ──────────────────────" },
     { "name": "RainBlockHours",    "type": "NumberSpinner","caption": "Regen-Sperrzeit nach Regen-Ereignis (Stunden)", "minimum": 0, "maximum": 72 },
