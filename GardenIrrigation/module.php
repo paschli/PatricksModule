@@ -74,7 +74,7 @@ class GardenIrrigation extends IPSModule {
             $this->RegisterPropertyFloat(  $z . 'TargetLiters', $z === 'Rasen' ? 80.0 : ($z === 'Hecke' ? 40.0 : 30.0));
             $this->RegisterPropertyFloat(  $z . 'MaxLiters',    $z === 'Rasen' ? 200.0 : ($z === 'Hecke' ? 120.0 : 100.0));
             $this->RegisterPropertyBoolean($z . 'FertEnabled',  false);
-            $this->RegisterPropertyFloat(  $z . 'FertMlPerL',   5.0);
+            $this->RegisterPropertyFloat(  $z . 'FertMl',       50.0); // absolut in ml
             $this->RegisterPropertyInteger($z . 'ScheduleTime', 21600); // 06:00
             // Tage (Mo-So)
             foreach (self::DAY_PROPS as $day) {
@@ -94,7 +94,6 @@ class GardenIrrigation extends IPSModule {
         // ── Dünger global ────────────────────────────────────────────────────
         $this->RegisterPropertyBoolean('FertEnabled',       false);
         $this->RegisterPropertyInteger('FertDelaySeconds',  15);
-        $this->RegisterPropertyFloat(  'FertFlushLiters',   2.0);
 
         // ── Globale Einstellungen ─────────────────────────────────────────────
         $this->RegisterPropertyInteger('RainBlockHours',     24);
@@ -113,6 +112,7 @@ class GardenIrrigation extends IPSModule {
         $this->RegisterAttributeInteger('ZoneStartTime',      0);
         $this->RegisterAttributeFloat(  'ZoneVolumeLiters',   0.0);
         $this->RegisterAttributeFloat(  'ZoneTargetLiters',   0.0);
+        $this->RegisterAttributeFloat(  'FertDispensedMl',    0.0);
         $this->RegisterAttributeInteger('LastPulseCount',     0);
         $this->RegisterAttributeInteger('LastPulseTime',      0);
         $this->RegisterAttributeFloat(  'CurrentFlowRate',    0.0);
@@ -274,6 +274,7 @@ class GardenIrrigation extends IPSModule {
         $this->WriteAttributeFloat(  'ZoneVolumeLiters', 0.0);
         $this->WriteAttributeFloat(  'ZoneTargetLiters', $adjusted);
         $this->WriteAttributeBoolean('FertPumpRunning',  false);
+        $this->WriteAttributeFloat(  'FertDispensedMl',  0.0);
 
         // Puls-Referenz
         $flowID = $this->ReadPropertyInteger('FlowCounterID');
@@ -428,11 +429,18 @@ class GardenIrrigation extends IPSModule {
             $flowRate, $K, $deltaLiters, $newVolume, $target
         ), 0);
 
-        // Düngerpumpe X Liter vor Ende stoppen (Spülung)
-        $flushLiters = $this->ReadPropertyFloat('FertFlushLiters');
-        if ($this->ReadAttributeBoolean('FertPumpRunning') && $newVolume >= ($target - $flushLiters)) {
-            $this->SendDebug('Fert', 'Spülung – stoppe Pumpe', 0);
-            $this->stopFertPump();
+        // Düngerpumpe: Zielmenge in ml erreicht? (Pumpe fügt fest 4% = 40 ml/L hinzu)
+        if ($this->ReadAttributeBoolean('FertPumpRunning')) {
+            $dispensed = $this->ReadAttributeFloat('FertDispensedMl') + $deltaLiters * 40.0;
+            $this->WriteAttributeFloat('FertDispensedMl', $dispensed);
+
+            $prefix       = $this->zonePrefixById($zone);
+            $targetFertMl = $prefix ? $this->ReadPropertyFloat($prefix . 'FertMl') : 0.0;
+
+            if ($targetFertMl > 0 && $dispensed >= $targetFertMl) {
+                $this->SendDebug('Fert', sprintf('%.0f ml Dünger erreicht – stoppe Pumpe (Spülung läuft)', $dispensed), 0);
+                $this->stopFertPump();
+            }
         }
 
         // Zielvolumen erreicht?
@@ -1073,8 +1081,8 @@ class GardenIrrigation extends IPSModule {
                 $this->ensureKonfVar($dueCatID, 'Konf' . $prefix . 'FertDay' . self::DAY_PROPS[$dayIdx],
                     $label, 0, '~Switch', 1 + $dayIdx, $scriptID);
             }
-            $this->ensureKonfVar($dueCatID, 'Konf' . $prefix . 'FertMlPerL',
-                'Düngermenge', 2, 'GardenIrr.FertRatio', 8, $scriptID);
+            $this->ensureKonfVar($dueCatID, 'Konf' . $prefix . 'FertMl',
+                'Düngermenge (ml)', 2, 'GardenIrr.FertMl', 8, $scriptID);
 
             // Werte aus Properties synchronisieren
             $this->syncKonfZone($prefix, $bewCatID, $dueCatID);
@@ -1129,8 +1137,8 @@ class GardenIrrigation extends IPSModule {
                 $this->ReadPropertyBoolean($prefix . 'FertDay' . $day));
         }
 
-        $this->setVarInCat($dueCatID, 'Konf' . $prefix . 'FertMlPerL',
-            $this->ReadPropertyFloat($prefix . 'FertMlPerL'));
+        $this->setVarInCat($dueCatID, 'Konf' . $prefix . 'FertMl',
+            $this->ReadPropertyFloat($prefix . 'FertMl'));
     }
 
     private function setVarInCat(int $catID, string $ident, $value) {
@@ -1325,12 +1333,12 @@ class GardenIrrigation extends IPSModule {
             IPS_SetVariableProfileDigits('GardenIrr.Cost', 4);
         }
 
-        // Düngermenge [ml/L]  (4 % ≙ 40 ml/L)
-        if (!IPS_VariableProfileExists('GardenIrr.FertRatio')) {
-            IPS_CreateVariableProfile('GardenIrr.FertRatio', 2);
-            IPS_SetVariableProfileValues('GardenIrr.FertRatio', 0, 50, 0.5);
-            IPS_SetVariableProfileText('GardenIrr.FertRatio',   '', ' ml/L');
-            IPS_SetVariableProfileDigits('GardenIrr.FertRatio', 1);
+        // Düngermenge [ml] absolut – Pumpe fügt fest 4% (= 40 ml/L) hinzu
+        if (!IPS_VariableProfileExists('GardenIrr.FertMl')) {
+            IPS_CreateVariableProfile('GardenIrr.FertMl', 2);
+            IPS_SetVariableProfileValues('GardenIrr.FertMl', 0, 1000, 10);
+            IPS_SetVariableProfileText('GardenIrr.FertMl',   '', ' ml');
+            IPS_SetVariableProfileDigits('GardenIrr.FertMl', 0);
         }
 
         // Ziel-/Max-Volumen editierbar [L]
