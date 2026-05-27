@@ -193,6 +193,9 @@ class GardenIrrigation extends IPSModule {
             $this->SetTimerInterval('LeakTimer', 30 * 1000);
         }
 
+        // Laufzeit-Variablen nur einblenden wenn tatsächlich eine Zone aktiv ist
+        $this->setRunningVarsVisible($this->ReadAttributeInteger('CurrentZone') != self::ZONE_NONE);
+
         $this->scheduleNext();
         $this->updateStatus();
     }
@@ -285,6 +288,7 @@ class GardenIrrigation extends IPSModule {
         }
 
         // Anzeige
+        $this->setRunningVarsVisible(true);
         $this->SetValue('ActiveZone',   $zone);
         $this->SetValue('ZoneVolume',   0.0);
         $this->SetValue('TargetVolume', $adjusted);
@@ -330,6 +334,7 @@ class GardenIrrigation extends IPSModule {
         $this->SetValue('ZoneVolume',   0.0);
         $this->SetValue('TargetVolume', 0.0);
         $this->SetValue('FlowRate',     0.0);
+        $this->setRunningVarsVisible(false);
 
         $this->SetTimerInterval('LeakTimer', 30 * 1000);
         $this->updateStatus();
@@ -570,9 +575,19 @@ class GardenIrrigation extends IPSModule {
             $this->startZoneFromConfig($next);
         } else {
             $this->WriteAttributeString('ZoneQueue', '[]');
+            $this->setRunningVarsVisible(false);
             $this->scheduleNext();
             $this->updateStatus();
         }
+    }
+
+    /** Blendet Laufzeit-Variablen ein oder aus. */
+    private function setRunningVarsVisible(bool $visible) {
+        $hidden = !$visible;
+        IPS_SetHidden($this->GetIDForIdent('ActiveZone'),   $hidden);
+        IPS_SetHidden($this->GetIDForIdent('FlowRate'),     $hidden);
+        IPS_SetHidden($this->GetIDForIdent('ZoneVolume'),   $hidden);
+        IPS_SetHidden($this->GetIDForIdent('TargetVolume'), $hidden);
     }
 
     // =========================================================================
