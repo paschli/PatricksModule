@@ -424,19 +424,24 @@ class GardenIrrigation extends IPSModule {
     /**
      * Wird bei jeder VM_UPDATE-Nachricht des Durchflusszählers aufgerufen.
      * Berechnet Durchfluss und akkumuliert Volumen event-getrieben.
+     *
+     * WICHTIG: $TimeStamp aus MessageSink ist ein ganzzahliger Unix-Timestamp
+     * (IPS-intern), daher wird microtime(true) für konsistente Zeitmessung genutzt.
      */
     private function onFlowUpdate(float $timestamp) {
+        $now    = (float)microtime(true); // eigenen hochauflösenden Zeitstempel verwenden
         $flowID = $this->ReadPropertyInteger('FlowCounterID');
         if ($flowID == 0 || !IPS_VariableExists($flowID)) return;
 
         $currentCount = GetValueFloat($flowID);
         $lastCount    = $this->ReadAttributeFloat('LastPulseCountF');
         $lastTime     = $this->ReadAttributeFloat('LastPulseTimeF');
-        $deltaTime    = max(0.1, $timestamp - $lastTime); // Sekunden (float, min 100ms)
+        $deltaTime    = $now - $lastTime;
         $deltaPulses  = $currentCount - $lastCount;
 
+        // Referenzwerte immer aktualisieren
         $this->WriteAttributeFloat('LastPulseCountF', $currentCount);
-        $this->WriteAttributeFloat('LastPulseTimeF',   $timestamp);
+        $this->WriteAttributeFloat('LastPulseTimeF',  $now);
 
         // Watchdog zurücksetzen
         $zone = $this->ReadAttributeInteger('CurrentZone');
@@ -447,6 +452,20 @@ class GardenIrrigation extends IPSModule {
         if ($deltaPulses <= 0) {
             $this->SetValue('FlowRate', 0.0);
             $this->WriteAttributeFloat('CurrentFlowRate', 0.0);
+            return;
+        }
+
+        // Anlaufsperre: erste 3s nach Zonenstart ignorieren (vorgequeute Updates /
+        // Rohrfüllung können Delta-Zeit nahe 0 erzeugen und Phantomvolumen addieren)
+        $zoneStartTime = $this->ReadAttributeInteger('ZoneStartTime');
+        if ($zone != self::ZONE_NONE && $zoneStartTime > 0 && ($now - $zoneStartTime) < 3.0) {
+            $this->SendDebug('Flow', sprintf('Anlaufsperre (%.1fs seit Start) – überspringe Update', $now - $zoneStartTime), 0);
+            return;
+        }
+
+        // Mindest-Zeitfenster: deltaTime < 0.5s → zu kurz für genaue Messung, überspringen
+        if ($deltaTime < 0.5) {
+            $this->SendDebug('Flow', sprintf('Δt=%.3fs zu klein – überspringe', $deltaTime), 0);
             return;
         }
 
@@ -470,8 +489,8 @@ class GardenIrrigation extends IPSModule {
         $target = $this->ReadAttributeFloat('ZoneTargetLiters');
 
         $this->SendDebug('Flow', sprintf(
-            'Q=%.2f l/min | Δt=%.2fs | K=%.0f P/L | ΔV=%.3f L | %.1f / %.1f L',
-            $flowRate, $deltaTime, $K, $deltaLiters, $newVolume, $target
+            'Q=%.2f l/min | Δt=%.3fs | ΔP=%.1f | K=%.0f P/L | ΔV=%.3f L | %.1f / %.1f L',
+            $flowRate, $deltaTime, $deltaPulses, $K, $deltaLiters, $newVolume, $target
         ), 0);
 
         // Düngerpumpe: Zielmenge in ml erreicht?
