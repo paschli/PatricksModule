@@ -102,6 +102,9 @@ class GardenIrrigation extends IPSModule {
         $this->RegisterPropertyInteger('MaxZoneRuntimeMin',  60);
         $this->RegisterPropertyFloat(  'WaterPrice',         2.0);
 
+        // ── Profile vorab anlegen (müssen vor RegisterVariable* existieren) ───
+        $this->ensureProfiles();
+
         // ── Laufzeit-Attribute ────────────────────────────────────────────────
         $this->RegisterAttributeInteger('CurrentZone',        0);
         $this->RegisterAttributeString( 'ZoneQueue',          '[]');
