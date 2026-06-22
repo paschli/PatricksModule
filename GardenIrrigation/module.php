@@ -159,6 +159,7 @@ class GardenIrrigation extends IPSModule {
         $this->RegisterTimer('FlowTimer',      0, "GardenIrr_FlowTick($id);");
         $this->RegisterTimer('LeakTimer',      0, "GardenIrr_LeakTick($id);");
         $this->RegisterTimer('FertStartTimer', 0, "GardenIrr_FertStartTick($id);");
+        $this->RegisterTimer('MidnightTimer',  0, "GardenIrr_MidnightTick($id);");
     }
 
     public function ApplyChanges() {
@@ -216,6 +217,7 @@ class GardenIrrigation extends IPSModule {
         }
         $this->SetValue('RainBlocked', $this->isRainBlockedForAnyZone());
 
+        $this->scheduleNextMidnight();
         $this->scheduleNext();
         $this->updateStatus();
     }
@@ -395,6 +397,26 @@ class GardenIrrigation extends IPSModule {
         $next = array_shift($queue);
         $this->WriteAttributeString('ZoneQueue', json_encode($queue));
         $this->startZoneFromConfig($next);
+    }
+
+    /**
+     * Mitternachts-Tick – täglich um 0:00 Uhr.
+     * Aktualisiert Statistik (Heute = 0, Letzte 7 Tage = Rollwert)
+     * und plant den nächsten Tick für die folgende Mitternacht.
+     */
+    public function MidnightTick() {
+        $this->SendDebug('Midnight', 'Tagesreset – Statistik wird aktualisiert', 0);
+        $this->updateStatistik();
+        $this->scheduleNextMidnight();
+    }
+
+    /** Berechnet die Millisekunden bis zur nächsten Mitternacht und startet den Timer. */
+    private function scheduleNextMidnight() {
+        // Nächste Mitternacht = Beginn des nächsten Tages + 5s Puffer
+        $nextMidnight = mktime(0, 0, 5, (int)date('n'), (int)date('j') + 1);
+        $ms           = max(60000, ($nextMidnight - time()) * 1000);
+        $this->SetTimerInterval('MidnightTimer', $ms);
+        $this->SendDebug('Midnight', 'Nächster Reset um ' . date('d.m.Y 00:00:05', $nextMidnight), 0);
     }
 
     /**
