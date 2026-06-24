@@ -9,6 +9,11 @@
     { "name": "ValveHang2ID",  "type": "SelectVariable", "caption": "Ventil Ausgang Hang",                              "validVariableTypes": [0] },
     { "name": "ValveGarageID", "type": "SelectVariable", "caption": "Ventil Ausgang Hecke Garage",                     "validVariableTypes": [0] },
 
+    { "type": "Label", "bold": true, "caption": "── Countdown-Variablen Verteilerventil ───────────────" },
+    { "type": "Label", "caption": "Variablen, in die beim Start der Zone der Countdown-Wert (Minuten) geschrieben wird." },
+    { "name": "ValveHang2CountdownVarID",  "type": "SelectVariable", "caption": "Countdown-Variable Ausgang Hang",         "validVariableTypes": [1] },
+    { "name": "ValveGarageCountdownVarID", "type": "SelectVariable", "caption": "Countdown-Variable Ausgang Hecke Garage", "validVariableTypes": [1] },
+
     { "type": "Label", "bold": true, "caption": "── Pumpe & Sensoren ─────────────────────────────────" },
     { "name": "FertPumpID",   "type": "SelectVariable", "caption": "Dünger-Pumpe",                      "validVariableTypes": [0] },
     { "name": "SoilHeckeID",  "type": "SelectVariable", "caption": "Bodenfeuchte Hecke (%)",            "validVariableTypes": [1] },

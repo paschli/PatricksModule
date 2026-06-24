@@ -56,6 +56,9 @@ class GardenIrrigation extends IPSModule {
         $this->RegisterPropertyInteger('ValveHangID',    0);
         $this->RegisterPropertyInteger('ValveHang2ID',  0); // Ausgangsventil Hang
         $this->RegisterPropertyInteger('ValveGarageID', 0); // Ausgangsventil Hecke Garage
+        // Variablen-IDs für den Countdown-Wert des Verteilerventils
+        $this->RegisterPropertyInteger('ValveHang2CountdownVarID',  0); // Countdown-Variable Ausgang Hang
+        $this->RegisterPropertyInteger('ValveGarageCountdownVarID', 0); // Countdown-Variable Ausgang Hecke Garage
         $this->RegisterPropertyInteger('FertPumpID',    0);
 
         // ── Sensoren ─────────────────────────────────────────────────────────
@@ -93,6 +96,11 @@ class GardenIrrigation extends IPSModule {
                 $this->RegisterPropertyBoolean($z . 'FertDay' . $day, false);
             }
         }
+
+        // ── Countdown für 2-Wege-Ventil (Hang + Garage) ─────────────────────
+        // 0 = deaktiviert (nur nach Volumen stoppen), 1-120 = Laufzeit in Minuten
+        $this->RegisterPropertyInteger('HangCountdownMin',   0);
+        $this->RegisterPropertyInteger('GarageCountdownMin', 0);
 
         // ── Dünger global ────────────────────────────────────────────────────
         $this->RegisterPropertyBoolean('FertEnabled',       false);
@@ -325,8 +333,13 @@ class GardenIrrigation extends IPSModule {
         // Ventile öffnen
         $this->openZoneValves($zone);
 
-        // Sicherheits-Timer
-        $this->SetTimerInterval('ZoneTimer', $this->ReadPropertyInteger('MaxZoneRuntimeMin') * 60 * 1000);
+        // Sicherheits-/Countdown-Timer
+        // Für Hang + Garage: per-Zone Countdown nutzbar, sonst globaler Safety-Timeout
+        $prefix       = $this->zonePrefixById($zone);
+        $countdownMin = ($prefix) ? $this->ReadPropertyInteger($prefix . 'CountdownMin') : 0;
+        $safetyMin    = $this->ReadPropertyInteger('MaxZoneRuntimeMin');
+        $timerMin     = ($countdownMin > 0) ? min($countdownMin, $safetyMin) : $safetyMin;
+        $this->SetTimerInterval('ZoneTimer', $timerMin * 60 * 1000);
 
         // Watchdog: wenn 10s kein Durchfluss-Update → Durchfluss = 0
         $this->SetTimerInterval('FlowTimer', 10000);
@@ -706,10 +719,16 @@ class GardenIrrigation extends IPSModule {
                 $this->setValve($heckeID, true);
                 break;
             case self::ZONE_HANG:
+                // Countdown in externe Variable schreiben (vor Ventilöffnung)
+                $cdMin = $this->ReadPropertyInteger('HangCountdownMin');
+                $this->writeCountdownVar($this->ReadPropertyInteger('ValveHang2CountdownVarID'), $cdMin);
                 $this->setValve($hang2ID, true); // Ausgangsventil Hang
                 $this->setValve($hangID,  true); // gemeinsames Eingangsventil
                 break;
             case self::ZONE_HECKE_GARAGE:
+                // Countdown in externe Variable schreiben (vor Ventilöffnung)
+                $cdMin = $this->ReadPropertyInteger('GarageCountdownMin');
+                $this->writeCountdownVar($this->ReadPropertyInteger('ValveGarageCountdownVarID'), $cdMin);
                 $this->setValve($garageID, true); // Ausgangsventil Garage
                 $this->setValve($hangID,   true); // gemeinsames Eingangsventil
                 break;
@@ -749,6 +768,21 @@ class GardenIrrigation extends IPSModule {
             RequestAction($varID, $state);
         } catch (Exception $e) {
             $this->SendDebug('Valve', 'Fehler VarID ' . $varID . ': ' . $e->getMessage(), 0);
+        }
+    }
+
+    /**
+     * Schreibt einen Countdown-Wert (Minuten) in eine externe Variable
+     * (z.B. Laufzeit-Countdown des 2-Wege-Verteilerventils).
+     * Wird immer gesetzt – auch 0 – um den Zustand zu synchronisieren.
+     */
+    private function writeCountdownVar(int $varID, int $minutes) {
+        if ($varID == 0 || !IPS_VariableExists($varID)) return;
+        try {
+            RequestAction($varID, $minutes);
+            $this->SendDebug('Countdown', sprintf('VarID %d ← %d min', $varID, $minutes), 0);
+        } catch (Exception $e) {
+            $this->SendDebug('Countdown', 'Fehler VarID ' . $varID . ': ' . $e->getMessage(), 0);
         }
     }
 
@@ -1279,6 +1313,12 @@ class GardenIrrigation extends IPSModule {
                     $label, 0, '~Switch', $dayOffset + $dayIdx, $scriptID);
             }
 
+            // Countdown (nur für die 2 Ausgänge des Verteilerventils)
+            if ($prefix === 'Hang' || $prefix === 'Garage') {
+                $this->ensureKonfVar($bewCatID, 'Konf' . $prefix . 'CountdownMin',
+                    'Countdown (0 = nur nach Volumen)', 1, 'GardenIrr.CountdownMin', $dayOffset + 7, $scriptID);
+            }
+
             // ── Düngen-Kategorie ─────────────────────────────────────────────
             $dueCatID = @IPS_GetObjectIDByIdent('KonfDue_' . $prefix, $zoneCatID);
             if (!$dueCatID) {
@@ -1369,6 +1409,12 @@ class GardenIrrigation extends IPSModule {
 
         $this->setVarInCat($dueCatID, 'Konf' . $prefix . 'FertMl',
             $this->ReadPropertyFloat($prefix . 'FertMl'));
+
+        // Countdown (nur Hang + Garage)
+        if ($prefix === 'Hang' || $prefix === 'Garage') {
+            $this->setVarInCat($bewCatID, 'Konf' . $prefix . 'CountdownMin',
+                $this->ReadPropertyInteger($prefix . 'CountdownMin'));
+        }
     }
 
     private function syncKonfAllgemein(int $dueCatID, int $bewCatID) {
@@ -1650,6 +1696,13 @@ class GardenIrrigation extends IPSModule {
             IPS_CreateVariableProfile('GardenIrr.Minutes', 1);
             IPS_SetVariableProfileValues('GardenIrr.Minutes', 5, 180, 5);
             IPS_SetVariableProfileText('GardenIrr.Minutes', '', ' min');
+        }
+
+        // Countdown-Minuten [min] – 2-Wege-Ventil Zonen (0 = deaktiviert, 1–120 = Laufzeit)
+        if (!IPS_VariableProfileExists('GardenIrr.CountdownMin')) {
+            IPS_CreateVariableProfile('GardenIrr.CountdownMin', 1);
+            IPS_SetVariableProfileValues('GardenIrr.CountdownMin', 0, 120, 1);
+            IPS_SetVariableProfileText('GardenIrr.CountdownMin', '', ' min');
         }
 
         // Temperatur-Schwelle [°C] – eigenes editierbares Profil
