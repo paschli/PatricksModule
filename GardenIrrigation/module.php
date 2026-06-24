@@ -149,9 +149,10 @@ class GardenIrrigation extends IPSModule {
         $this->RegisterVariableFloat(  'RainValue',      'Regen',               'GardenIrr.RainMm',    3);
         $this->RegisterVariableBoolean('RainBlocked',    'Regen-Sperre',        '~Switch',             4);
         // Sensorwerte (pos 5–7, werden ausgeblendet wenn kein Sensor konfiguriert)
-        $this->RegisterVariableInteger('SoilHeckeValue', 'Bodenfeuchte Hecke',  'GardenIrr.Moisture',  5);
-        $this->RegisterVariableInteger('SoilHangValue',  'Bodenfeuchte Hang',   'GardenIrr.Moisture',  6);
-        $this->RegisterVariableFloat(  'TempValue',      'Temperatur',          '~Temperature.1',      7);
+        // GardenIrr.SoilMoisture = Integer-Profil (Typ 1), GardenIrr.Moisture = Float-Profil (Typ 2)
+        $this->RegisterVariableInteger('SoilHeckeValue', 'Bodenfeuchte Hecke',  'GardenIrr.SoilMoisture', 5);
+        $this->RegisterVariableInteger('SoilHangValue',  'Bodenfeuchte Hang',   'GardenIrr.SoilMoisture', 6);
+        $this->RegisterVariableFloat(  'TempValue',      'Temperatur',          '~Temperature',           7);
         $this->RegisterVariableBoolean('EmergencyStop',  'Notaus',              '~Switch',             10);
         $this->RegisterVariableBoolean('LeakDetected',   'Leck erkannt',        '~Alert',              11);
         // Laufzeit-Variablen (pos 12–15, standardmäßig ausgeblendet)
@@ -1729,7 +1730,15 @@ class GardenIrrigation extends IPSModule {
             IPS_SetVariableProfileDigits('GardenIrr.VolumeEdit', 1);
         }
 
-        // Feuchtigkeitsschwelle [%]
+        // Bodenfeuchte-Anzeige [%] – Integer (für Display-Variablen SoilHeckeValue / SoilHangValue)
+        if (!IPS_VariableProfileExists('GardenIrr.SoilMoisture')) {
+            IPS_CreateVariableProfile('GardenIrr.SoilMoisture', 1); // Integer
+            IPS_SetVariableProfileValues('GardenIrr.SoilMoisture', 0, 100, 1);
+            IPS_SetVariableProfileText('GardenIrr.SoilMoisture',   '', ' %');
+            IPS_SetVariableProfileIcon('GardenIrr.SoilMoisture',   'Drops');
+        }
+
+        // Feuchtigkeitsschwelle [%] – Float (für Konf-Variablen MoistureThreshold)
         if (!IPS_VariableProfileExists('GardenIrr.Moisture')) {
             IPS_CreateVariableProfile('GardenIrr.Moisture', 2);
             IPS_SetVariableProfileValues('GardenIrr.Moisture', 0, 100, 1);
