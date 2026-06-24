@@ -6,8 +6,8 @@
  * Zonen:
  *   1 = Rasen        → Hauptventil + ValveRasen
  *   2 = Hecke        → Hauptventil + ValveHecke
- *   3 = Hang         → Hauptventil + ValveHang + ValveY(false)
- *   4 = Hecke Garage → Hauptventil + ValveHang + ValveY(true)
+ *   3 = Hang         → Hauptventil + ValveHang (gemeinsam) + ValveHang2 (Ausgang Hang)
+ *   4 = Hecke Garage → Hauptventil + ValveHang (gemeinsam) + ValveGarage (Ausgang Garage)
  *
  * Durchflussmesser-Kalibrierung (logarithmisch):
  *   K(Q) = A · ln(Q) + B   [Pulse/Liter; Q in l/min]
@@ -53,8 +53,9 @@ class GardenIrrigation extends IPSModule {
         $this->RegisterPropertyInteger('MainValveID',   0);
         $this->RegisterPropertyInteger('ValveRasenID',  0);
         $this->RegisterPropertyInteger('ValveHeckeID',  0);
-        $this->RegisterPropertyInteger('ValveHangID',   0);
-        $this->RegisterPropertyInteger('ValveYID',      0);
+        $this->RegisterPropertyInteger('ValveHangID',    0);
+        $this->RegisterPropertyInteger('ValveHang2ID',  0); // Ausgangsventil Hang
+        $this->RegisterPropertyInteger('ValveGarageID', 0); // Ausgangsventil Hecke Garage
         $this->RegisterPropertyInteger('FertPumpID',    0);
 
         // ── Sensoren ─────────────────────────────────────────────────────────
@@ -681,19 +682,22 @@ class GardenIrrigation extends IPSModule {
     // =========================================================================
 
     private function openZoneValves(int $zone) {
-        $mainID  = $this->ReadPropertyInteger('MainValveID');
-        $rasenID = $this->ReadPropertyInteger('ValveRasenID');
-        $heckeID = $this->ReadPropertyInteger('ValveHeckeID');
-        $hangID  = $this->ReadPropertyInteger('ValveHangID');
-        $yID     = $this->ReadPropertyInteger('ValveYID');
+        $mainID    = $this->ReadPropertyInteger('MainValveID');
+        $rasenID   = $this->ReadPropertyInteger('ValveRasenID');
+        $heckeID   = $this->ReadPropertyInteger('ValveHeckeID');
+        $hangID    = $this->ReadPropertyInteger('ValveHangID');
+        $hang2ID   = $this->ReadPropertyInteger('ValveHang2ID');
+        $garageID  = $this->ReadPropertyInteger('ValveGarageID');
 
         // Erst alle Zonenventile schließen
-        $this->setValve($rasenID, false);
-        $this->setValve($heckeID, false);
-        $this->setValve($hangID,  false);
+        $this->setValve($rasenID,  false);
+        $this->setValve($heckeID,  false);
+        $this->setValve($hangID,   false);
+        $this->setValve($hang2ID,  false);
+        $this->setValve($garageID, false);
         usleep(100000); // 100 ms
 
-        // Zonenventil öffnen
+        // Zonenventile öffnen
         switch ($zone) {
             case self::ZONE_RASEN:
                 $this->setValve($rasenID, true);
@@ -702,37 +706,39 @@ class GardenIrrigation extends IPSModule {
                 $this->setValve($heckeID, true);
                 break;
             case self::ZONE_HANG:
-                $this->setValve($yID,    false); // Y → Hang
-                $this->setValve($hangID, true);
+                $this->setValve($hang2ID, true); // Ausgangsventil Hang
+                $this->setValve($hangID,  true); // gemeinsames Eingangsventil
                 break;
             case self::ZONE_HECKE_GARAGE:
-                $this->setValve($yID,    true);  // Y → Hecke Garage
-                $this->setValve($hangID, true);
+                $this->setValve($garageID, true); // Ausgangsventil Garage
+                $this->setValve($hangID,   true); // gemeinsames Eingangsventil
                 break;
         }
 
         // Hauptventil zuletzt öffnen
-        usleep(200000); // 200 ms – Zonenventil öffnet zuerst
+        usleep(200000); // 200 ms – Zonenventile öffnen zuerst
         $this->setValve($mainID, true);
 
         $this->SendDebug('Valves', 'Geöffnet: Zone ' . self::ZONE_NAMES[$zone], 0);
     }
 
     private function closeAllValves() {
-        $mainID  = $this->ReadPropertyInteger('MainValveID');
-        $rasenID = $this->ReadPropertyInteger('ValveRasenID');
-        $heckeID = $this->ReadPropertyInteger('ValveHeckeID');
-        $hangID  = $this->ReadPropertyInteger('ValveHangID');
-        $yID     = $this->ReadPropertyInteger('ValveYID');
+        $mainID   = $this->ReadPropertyInteger('MainValveID');
+        $rasenID  = $this->ReadPropertyInteger('ValveRasenID');
+        $heckeID  = $this->ReadPropertyInteger('ValveHeckeID');
+        $hangID   = $this->ReadPropertyInteger('ValveHangID');
+        $hang2ID  = $this->ReadPropertyInteger('ValveHang2ID');
+        $garageID = $this->ReadPropertyInteger('ValveGarageID');
 
         // Hauptventil zuerst – kein Druck mehr in Leitung
-        $this->setValve($mainID,  false);
+        $this->setValve($mainID,   false);
         usleep(300000); // 300 ms Druckabbau
 
-        $this->setValve($rasenID, false);
-        $this->setValve($heckeID, false);
-        $this->setValve($hangID,  false);
-        $this->setValve($yID,     false); // Y-Ventil in Ruhestellung (Hang)
+        $this->setValve($rasenID,  false);
+        $this->setValve($heckeID,  false);
+        $this->setValve($hangID,   false);
+        $this->setValve($hang2ID,  false);
+        $this->setValve($garageID, false);
 
         $this->SendDebug('Valves', 'Alle Ventile geschlossen', 0);
     }

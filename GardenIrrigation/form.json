@@ -5,8 +5,9 @@
     { "name": "MainValveID",  "type": "SelectVariable", "caption": "Hauptventil",                       "validVariableTypes": [0] },
     { "name": "ValveRasenID", "type": "SelectVariable", "caption": "Ventil Zone Rasen",                 "validVariableTypes": [0] },
     { "name": "ValveHeckeID", "type": "SelectVariable", "caption": "Ventil Zone Hecke",                 "validVariableTypes": [0] },
-    { "name": "ValveHangID",  "type": "SelectVariable", "caption": "Ventil Zone Hang (+ Hecke Garage)", "validVariableTypes": [0] },
-    { "name": "ValveYID",     "type": "SelectVariable", "caption": "Y-Ventil  (false = Hang  /  true = Hecke Garage)", "validVariableTypes": [0] },
+    { "name": "ValveHangID",    "type": "SelectVariable", "caption": "Ventil Hang / Hecke Garage (gemeinsamer Eingang)", "validVariableTypes": [0] },
+    { "name": "ValveHang2ID",  "type": "SelectVariable", "caption": "Ventil Ausgang Hang",                              "validVariableTypes": [0] },
+    { "name": "ValveGarageID", "type": "SelectVariable", "caption": "Ventil Ausgang Hecke Garage",                     "validVariableTypes": [0] },
 
     { "type": "Label", "bold": true, "caption": "── Pumpe & Sensoren ─────────────────────────────────" },
     { "name": "FertPumpID",   "type": "SelectVariable", "caption": "Dünger-Pumpe",                      "validVariableTypes": [0] },
