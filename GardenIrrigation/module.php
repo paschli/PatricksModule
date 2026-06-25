@@ -356,8 +356,8 @@ class GardenIrrigation extends IPSModule {
         $timerMin     = ($countdownMin > 0) ? min($countdownMin, $safetyMin) : $safetyMin;
         $this->SetTimerInterval('ZoneTimer', $timerMin * 60 * 1000);
 
-        // Watchdog: wenn 10s kein Durchfluss-Update → Durchfluss = 0
-        $this->SetTimerInterval('FlowTimer', 10000);
+        // Watchdog: wenn 60s kein Durchfluss-Update → Durchfluss = 0
+        $this->SetTimerInterval('FlowTimer', 60000);
 
         // Leck-Timer pausieren
         $this->SetTimerInterval('LeakTimer', 0);
@@ -464,17 +464,18 @@ class GardenIrrigation extends IPSModule {
     }
 
     /**
-     * FlowTick – Watchdog: wird gefeuert wenn 10s kein VM_UPDATE vom Durchflusszähler kam.
+     * FlowTick – Watchdog: wird gefeuert wenn 60s kein VM_UPDATE vom Durchflusszähler kam.
      * → kein Durchfluss mehr, Rate auf 0 setzen.
+     * Viele Zähler senden VM_UPDATE nur alle 20–60s (aggregierte Werte), daher 60s Intervall.
      */
     public function FlowTick() {
         $zone = $this->ReadAttributeInteger('CurrentZone');
         if ($zone == self::ZONE_NONE) return;
 
-        $this->SendDebug('Flow', 'Watchdog: kein Durchfluss seit 10s → Rate = 0', 0);
+        $this->SendDebug('Flow', 'Watchdog: kein Zähler-Update seit 60s → Rate = 0', 0);
         $this->SetValue('FlowRate', 0.0);
         $this->WriteAttributeFloat('CurrentFlowRate', 0.0);
-        // Watchdog weiter laufen lassen (bleibt auf 10s)
+        // Watchdog weiter laufen lassen (bleibt auf 60s)
     }
 
     /**
@@ -499,10 +500,10 @@ class GardenIrrigation extends IPSModule {
         $this->WriteAttributeFloat('LastPulseCountF', $currentCount);
         $this->WriteAttributeFloat('LastPulseTimeF',  $now);
 
-        // Watchdog zurücksetzen
+        // Watchdog zurücksetzen (60s – Zähler sendet VM_UPDATE ggf. nur alle 20–60s)
         $zone = $this->ReadAttributeInteger('CurrentZone');
         if ($zone != self::ZONE_NONE) {
-            $this->SetTimerInterval('FlowTimer', 10000);
+            $this->SetTimerInterval('FlowTimer', 60000);
         }
 
         if ($deltaPulses <= 0) {
