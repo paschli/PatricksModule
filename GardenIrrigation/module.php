@@ -788,49 +788,62 @@ class GardenIrrigation extends IPSModule {
             self::ZONE_NAMES[$zone], $mainID, $rasenID, $heckeID, $hangID, $hang2ID, $garageID
         ), 0);
 
-        // Erst alle Zonenventile schließen
-        $this->setValve($rasenID,  false, 'Rasen');
-        $this->setValve($heckeID,  false, 'Hecke');
-        $this->setValve($hangID,   false, 'HangEin');
-        $this->setValve($hang2ID,  false, 'HangAus');
-        $this->setValve($garageID, false, 'Garage');
-        usleep(100000); // 100 ms
-
-        // Zonenventile öffnen
+        // Nur Ventile schließen, die für diese Zone NICHT benötigt werden.
+        // Zone-eigene Ventile werden bewusst NICHT geschlossen – eine AUS→AN-Sequenz
+        // in kurzer Folge kann auf manchen Geräten als Stop/Reset interpretiert werden.
         switch ($zone) {
             case self::ZONE_RASEN:
+                $this->setValve($heckeID,  false, 'Hecke');
+                $this->setValve($hangID,   false, 'HangEin');
+                $this->setValve($hang2ID,  false, 'HangAus');
+                $this->setValve($garageID, false, 'Garage');
+                usleep(100000); // 100 ms
                 $this->setValve($rasenID, true, 'Rasen');
                 break;
+
             case self::ZONE_HECKE:
+                $this->setValve($rasenID,  false, 'Rasen');
+                $this->setValve($hangID,   false, 'HangEin');
+                $this->setValve($hang2ID,  false, 'HangAus');
+                $this->setValve($garageID, false, 'Garage');
+                usleep(100000); // 100 ms
                 $this->setValve($heckeID, true, 'Hecke');
                 break;
+
             case self::ZONE_HANG:
-                // 1. Countdown-Wert setzen, BEVOR das Ausgangsventil eingeschaltet wird.
-                //    NUR wenn > 0 – ein Wert von 0 würde das Gerät sofort stoppen!
-                $cdMin    = $this->ReadPropertyInteger('HangCountdownMin');
-                $cdVarID  = $this->ReadPropertyInteger('ValveHang2CountdownVarID');
+                // Andere Ausgänge schließen – HangEin und HangAus werden NICHT angefasst
+                $this->setValve($rasenID,  false, 'Rasen');
+                $this->setValve($heckeID,  false, 'Hecke');
+                $this->setValve($garageID, false, 'Garage');
+                usleep(100000); // 100 ms
+                // Countdown BEVOR Ventil öffnet (nur wenn > 0)
+                $cdMin   = $this->ReadPropertyInteger('HangCountdownMin');
+                $cdVarID = $this->ReadPropertyInteger('ValveHang2CountdownVarID');
                 if ($cdMin > 0) {
                     $this->writeCountdownVar($cdVarID, $cdMin);
-                    usleep(50000); // 50 ms – Gerät verarbeitet den Wert vor Ventilöffnung
+                    usleep(50000); // 50 ms
                 } else {
                     $this->SendDebug('Countdown', sprintf('HangCountdownMin=0 – kein Schreiben an VarID=%d', $cdVarID), 0);
                 }
-                // 2. Ausgangsventil und gemeinsames Eingangsventil öffnen
                 $this->setValve($hang2ID, true, 'HangAus');
                 $this->setValve($hangID,  true, 'HangEin');
                 break;
+
             case self::ZONE_HECKE_GARAGE:
-                // 1. Countdown-Wert setzen, BEVOR das Ausgangsventil eingeschaltet wird.
-                //    NUR wenn > 0 – ein Wert von 0 würde das Gerät sofort stoppen!
-                $cdMin    = $this->ReadPropertyInteger('GarageCountdownMin');
-                $cdVarID  = $this->ReadPropertyInteger('ValveGarageCountdownVarID');
+                // Anderen Ausgang schließen – HangEin und Garage werden NICHT angefasst
+                $this->setValve($rasenID,  false, 'Rasen');
+                $this->setValve($heckeID,  false, 'Hecke');
+                $this->setValve($hang2ID,  false, 'HangAus');
+                usleep(100000); // 100 ms
+                // Countdown BEVOR Ventil öffnet (nur wenn > 0)
+                $cdMin   = $this->ReadPropertyInteger('GarageCountdownMin');
+                $cdVarID = $this->ReadPropertyInteger('ValveGarageCountdownVarID');
                 if ($cdMin > 0) {
                     $this->writeCountdownVar($cdVarID, $cdMin);
-                    usleep(50000); // 50 ms – Gerät verarbeitet den Wert vor Ventilöffnung
+                    usleep(50000); // 50 ms
                 } else {
                     $this->SendDebug('Countdown', sprintf('GarageCountdownMin=0 – kein Schreiben an VarID=%d', $cdVarID), 0);
                 }
-                // 2. Ausgangsventil und gemeinsames Eingangsventil öffnen
                 $this->setValve($garageID, true, 'Garage');
                 $this->setValve($hangID,   true, 'HangEin');
                 break;
