@@ -130,11 +130,8 @@ class GardenIrrigation extends IPSModule {
         $this->RegisterAttributeFloat(  'CurrentFlowRate',    0.0);
         $this->RegisterAttributeInteger('RainBlockUntil',     0);
         $this->RegisterAttributeBoolean('FertPumpRunning',     false);
-        $this->RegisterAttributeInteger('RegisteredRainID',      0);
-        $this->RegisterAttributeInteger('RegisteredFlowID',      0);
-        $this->RegisterAttributeInteger('RegisteredSoilHeckeID', 0);
-        $this->RegisterAttributeInteger('RegisteredSoilHangID',  0);
-        $this->RegisterAttributeInteger('RegisteredTempID',      0);
+        $this->RegisterAttributeInteger('RegisteredRainID',  0);
+        $this->RegisterAttributeInteger('RegisteredFlowID', 0);
 
         // ── Statistik-Historie (JSON: {"2026-05-20": 12.3, ...}) ─────────────
         $this->RegisterAttributeString('DailyHistoryTotal',  '{}');
@@ -144,34 +141,27 @@ class GardenIrrigation extends IPSModule {
         $this->RegisterAttributeString('DailyHistoryGarage', '{}');
 
         // ── Variablen ────────────────────────────────────────────────────────
-        $this->RegisterVariableString( 'Status',         'Status',              '',                    0);
-        $this->RegisterVariableBoolean('AutoMode',       'Automatik',           '~Switch',             1);
-        $this->RegisterVariableFloat(  'RainValue',      'Regen',               'GardenIrr.RainMm',    3);
-        $this->RegisterVariableBoolean('RainBlocked',    'Regen-Sperre',        '~Switch',             4);
-        // Sensorwerte (pos 5–7, werden ausgeblendet wenn kein Sensor konfiguriert)
-        // GardenIrr.SoilMoisture = Integer-Profil (Typ 1), GardenIrr.Moisture = Float-Profil (Typ 2)
-        $this->RegisterVariableInteger('SoilHeckeValue', 'Bodenfeuchte Hecke',  'GardenIrr.SoilMoisture', 5);
-        $this->RegisterVariableInteger('SoilHangValue',  'Bodenfeuchte Hang',   'GardenIrr.SoilMoisture', 6);
-        $this->RegisterVariableFloat(  'TempValue',      'Temperatur',          '~Temperature',           7);
-        $this->RegisterVariableBoolean('EmergencyStop',  'Notaus',              '~Switch',             10);
-        $this->RegisterVariableBoolean('LeakDetected',   'Leck erkannt',        '~Alert',              11);
+        $this->RegisterVariableString( 'Status',       'Status',       '',                   0);
+        $this->RegisterVariableBoolean('AutoMode',     'Automatik',    '~Switch',            1);
+        $this->RegisterVariableFloat(  'RainValue',    'Regen',        'GardenIrr.RainMm',   3);
+        $this->RegisterVariableBoolean('RainBlocked',  'Regen-Sperre', '~Switch',            4);
+        // Pos 5–7: Sensor-Links (werden in ApplyChanges per ensureSensorLink angelegt)
+        $this->RegisterVariableBoolean('EmergencyStop','Notaus',       '~Switch',            10);
+        $this->RegisterVariableBoolean('LeakDetected', 'Leck erkannt', '~Alert',             11);
         // Laufzeit-Variablen (pos 12–15, standardmäßig ausgeblendet)
-        $this->RegisterVariableInteger('ActiveZone',     'Aktive Zone',         'GardenIrr.Zone',      12);
-        $this->RegisterVariableFloat(  'FlowRate',       'Durchfluss',          'GardenIrr.FlowRate',  13);
-        $this->RegisterVariableFloat(  'ZoneVolume',     'Volumen Zone',        'GardenIrr.Volume',    14);
-        $this->RegisterVariableFloat(  'TargetVolume',   'Ziel-Volumen',        'GardenIrr.Volume',    15);
+        $this->RegisterVariableInteger('ActiveZone',   'Aktive Zone',  'GardenIrr.Zone',     12);
+        $this->RegisterVariableFloat(  'FlowRate',     'Durchfluss',   'GardenIrr.FlowRate', 13);
+        $this->RegisterVariableFloat(  'ZoneVolume',   'Volumen Zone', 'GardenIrr.Volume',   14);
+        $this->RegisterVariableFloat(  'TargetVolume', 'Ziel-Volumen', 'GardenIrr.Volume',   15);
 
-        IPS_SetIcon($this->GetIDForIdent('Status'),         'Plant');
-        IPS_SetIcon($this->GetIDForIdent('ActiveZone'),     'Irrigation');
-        IPS_SetIcon($this->GetIDForIdent('FlowRate'),       'Gauge');
-        IPS_SetIcon($this->GetIDForIdent('RainValue'),      'Cloud');
-        IPS_SetIcon($this->GetIDForIdent('RainBlocked'),    'Cloud');
-        IPS_SetIcon($this->GetIDForIdent('SoilHeckeValue'), 'Drops');
-        IPS_SetIcon($this->GetIDForIdent('SoilHangValue'),  'Drops');
-        IPS_SetIcon($this->GetIDForIdent('TempValue'),      'Temperature');
-        IPS_SetIcon($this->GetIDForIdent('LeakDetected'),   'Alert');
-        IPS_SetIcon($this->GetIDForIdent('AutoMode'),       'Execute');
-        IPS_SetIcon($this->GetIDForIdent('EmergencyStop'),  'Alert');
+        IPS_SetIcon($this->GetIDForIdent('Status'),       'Plant');
+        IPS_SetIcon($this->GetIDForIdent('ActiveZone'),   'Irrigation');
+        IPS_SetIcon($this->GetIDForIdent('FlowRate'),     'Gauge');
+        IPS_SetIcon($this->GetIDForIdent('RainValue'),    'Cloud');
+        IPS_SetIcon($this->GetIDForIdent('RainBlocked'),  'Cloud');
+        IPS_SetIcon($this->GetIDForIdent('LeakDetected'), 'Alert');
+        IPS_SetIcon($this->GetIDForIdent('AutoMode'),     'Execute');
+        IPS_SetIcon($this->GetIDForIdent('EmergencyStop'),'Alert');
 
         // ── Timer ─────────────────────────────────────────────────────────────
         $id = $this->InstanceID;
@@ -223,47 +213,13 @@ class GardenIrrigation extends IPSModule {
             $this->WriteAttributeInteger('RegisteredFlowID', 0);
         }
 
-        // Bodenfeuchte Hecke abonnieren
-        $oldID = $this->ReadAttributeInteger('RegisteredSoilHeckeID');
-        if ($oldID != 0) $this->UnregisterMessage($oldID, VM_UPDATE);
-        $soilHeckeID = $this->ReadPropertyInteger('SoilHeckeID');
-        if ($soilHeckeID != 0 && IPS_VariableExists($soilHeckeID)) {
-            $this->RegisterMessage($soilHeckeID, VM_UPDATE);
-            $this->WriteAttributeInteger('RegisteredSoilHeckeID', $soilHeckeID);
-            $this->SetValue('SoilHeckeValue', GetValueInteger($soilHeckeID));
-            IPS_SetHidden($this->GetIDForIdent('SoilHeckeValue'), false);
-        } else {
-            $this->WriteAttributeInteger('RegisteredSoilHeckeID', 0);
-            IPS_SetHidden($this->GetIDForIdent('SoilHeckeValue'), true);
-        }
-
-        // Bodenfeuchte Hang abonnieren
-        $oldID = $this->ReadAttributeInteger('RegisteredSoilHangID');
-        if ($oldID != 0) $this->UnregisterMessage($oldID, VM_UPDATE);
-        $soilHangID = $this->ReadPropertyInteger('SoilHangID');
-        if ($soilHangID != 0 && IPS_VariableExists($soilHangID)) {
-            $this->RegisterMessage($soilHangID, VM_UPDATE);
-            $this->WriteAttributeInteger('RegisteredSoilHangID', $soilHangID);
-            $this->SetValue('SoilHangValue', GetValueInteger($soilHangID));
-            IPS_SetHidden($this->GetIDForIdent('SoilHangValue'), false);
-        } else {
-            $this->WriteAttributeInteger('RegisteredSoilHangID', 0);
-            IPS_SetHidden($this->GetIDForIdent('SoilHangValue'), true);
-        }
-
-        // Temperatursensor abonnieren
-        $oldID = $this->ReadAttributeInteger('RegisteredTempID');
-        if ($oldID != 0) $this->UnregisterMessage($oldID, VM_UPDATE);
-        $tempID = $this->ReadPropertyInteger('TempSensorID');
-        if ($tempID != 0 && IPS_VariableExists($tempID)) {
-            $this->RegisterMessage($tempID, VM_UPDATE);
-            $this->WriteAttributeInteger('RegisteredTempID', $tempID);
-            $this->SetValue('TempValue', GetValueFloat($tempID));
-            IPS_SetHidden($this->GetIDForIdent('TempValue'), false);
-        } else {
-            $this->WriteAttributeInteger('RegisteredTempID', 0);
-            IPS_SetHidden($this->GetIDForIdent('TempValue'), true);
-        }
+        // Sensor-Links anlegen (Archivzugriff über Links möglich)
+        $this->ensureSensorLink('SoilHeckeLnk', 'Bodenfeuchte Hecke', 'Drops',       5,
+            $this->ReadPropertyInteger('SoilHeckeID'));
+        $this->ensureSensorLink('SoilHangLnk',  'Bodenfeuchte Hang',  'Drops',       6,
+            $this->ReadPropertyInteger('SoilHangID'));
+        $this->ensureSensorLink('TempLnk',       'Temperatur',         'Temperature', 7,
+            $this->ReadPropertyInteger('TempSensorID'));
 
         // Leck-Timer starten wenn keine Zone läuft
         if ($this->ReadAttributeInteger('CurrentZone') == self::ZONE_NONE) {
@@ -300,23 +256,6 @@ class GardenIrrigation extends IPSModule {
             return;
         }
 
-        $soilHeckeID = $this->ReadAttributeInteger('RegisteredSoilHeckeID');
-        if ($soilHeckeID != 0 && $SenderID == $soilHeckeID) {
-            $this->SetValue('SoilHeckeValue', GetValueInteger($soilHeckeID));
-            return;
-        }
-
-        $soilHangID = $this->ReadAttributeInteger('RegisteredSoilHangID');
-        if ($soilHangID != 0 && $SenderID == $soilHangID) {
-            $this->SetValue('SoilHangValue', GetValueInteger($soilHangID));
-            return;
-        }
-
-        $tempID = $this->ReadAttributeInteger('RegisteredTempID');
-        if ($tempID != 0 && $SenderID == $tempID) {
-            $this->SetValue('TempValue', GetValueFloat($tempID));
-            return;
-        }
     }
 
     public function RequestAction($ident, $value) {
@@ -1681,12 +1620,42 @@ class GardenIrrigation extends IPSModule {
      * die durch die StatCat-Kategorie abgelöst wurden.
      */
     private function cleanupOldVariables() {
-        foreach (['DailyVolume', 'WeeklyVolume', 'DailyCost'] as $ident) {
+        // Veraltete direkt-registrierte Variablen entfernen
+        foreach (['DailyVolume', 'WeeklyVolume', 'DailyCost',
+                  'SoilHeckeValue', 'SoilHangValue', 'TempValue'] as $ident) {
             $varID = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
             if ($varID && IPS_VariableExists($varID)) {
                 IPS_DeleteVariable($varID);
             }
         }
+    }
+
+    /**
+     * Legt einen IPS-Link auf eine Sensor-Variable an (oder aktualisiert ihn).
+     * Links zeigen direkt auf die Original-Variable → Archiv/History ist in der App zugänglich.
+     * Wenn targetVarID = 0 oder nicht existent, wird der Link ausgeblendet.
+     */
+    private function ensureSensorLink(string $ident, string $name, string $icon, int $pos, int $targetVarID) {
+        $linkID = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
+
+        if ($targetVarID == 0 || !IPS_VariableExists($targetVarID)) {
+            // Sensor nicht konfiguriert: Link ausblenden falls vorhanden
+            if ($linkID) {
+                IPS_SetHidden($linkID, true);
+            }
+            return;
+        }
+
+        if (!$linkID) {
+            $linkID = IPS_CreateLink();
+            IPS_SetParent($linkID, $this->InstanceID);
+            IPS_SetIdent($linkID, $ident);
+        }
+        IPS_SetName($linkID, $name);
+        IPS_SetIcon($linkID, $icon);
+        IPS_SetPosition($linkID, $pos);
+        IPS_SetLinkTargetID($linkID, $targetVarID);
+        IPS_SetHidden($linkID, false);
     }
 
     private function ensureManualCategory() {
