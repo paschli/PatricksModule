@@ -664,7 +664,7 @@ class GardenIrrigation extends IPSModule {
             $this->SetValue('LeakDetected', true);
             // Hauptventil als Schutz schließen
             $mainID = $this->ReadPropertyInteger('MainValveID');
-            $this->setValve($mainID, false);
+            $this->setValve($mainID, false, 'Main[Leck]');
         } else {
             $this->SetValue('LeakDetected', false);
         }
@@ -783,53 +783,64 @@ class GardenIrrigation extends IPSModule {
         $hang2ID   = $this->ReadPropertyInteger('ValveHang2ID');
         $garageID  = $this->ReadPropertyInteger('ValveGarageID');
 
+        $this->SendDebug('Valves', sprintf(
+            'openZoneValves(%s) – IDs: Main=%d Rasen=%d Hecke=%d HangEin=%d HangAus=%d Garage=%d',
+            self::ZONE_NAMES[$zone], $mainID, $rasenID, $heckeID, $hangID, $hang2ID, $garageID
+        ), 0);
+
         // Erst alle Zonenventile schließen
-        $this->setValve($rasenID,  false);
-        $this->setValve($heckeID,  false);
-        $this->setValve($hangID,   false);
-        $this->setValve($hang2ID,  false);
-        $this->setValve($garageID, false);
+        $this->setValve($rasenID,  false, 'Rasen');
+        $this->setValve($heckeID,  false, 'Hecke');
+        $this->setValve($hangID,   false, 'HangEin');
+        $this->setValve($hang2ID,  false, 'HangAus');
+        $this->setValve($garageID, false, 'Garage');
         usleep(100000); // 100 ms
 
         // Zonenventile öffnen
         switch ($zone) {
             case self::ZONE_RASEN:
-                $this->setValve($rasenID, true);
+                $this->setValve($rasenID, true, 'Rasen');
                 break;
             case self::ZONE_HECKE:
-                $this->setValve($heckeID, true);
+                $this->setValve($heckeID, true, 'Hecke');
                 break;
             case self::ZONE_HANG:
                 // 1. Countdown-Wert setzen, BEVOR das Ausgangsventil eingeschaltet wird.
                 //    NUR wenn > 0 – ein Wert von 0 würde das Gerät sofort stoppen!
-                $cdMin = $this->ReadPropertyInteger('HangCountdownMin');
+                $cdMin    = $this->ReadPropertyInteger('HangCountdownMin');
+                $cdVarID  = $this->ReadPropertyInteger('ValveHang2CountdownVarID');
                 if ($cdMin > 0) {
-                    $this->writeCountdownVar($this->ReadPropertyInteger('ValveHang2CountdownVarID'), $cdMin);
+                    $this->writeCountdownVar($cdVarID, $cdMin);
                     usleep(50000); // 50 ms – Gerät verarbeitet den Wert vor Ventilöffnung
+                } else {
+                    $this->SendDebug('Countdown', sprintf('HangCountdownMin=0 – kein Schreiben an VarID=%d', $cdVarID), 0);
                 }
                 // 2. Ausgangsventil und gemeinsames Eingangsventil öffnen
-                $this->setValve($hang2ID, true);
-                $this->setValve($hangID,  true);
+                $this->setValve($hang2ID, true, 'HangAus');
+                $this->setValve($hangID,  true, 'HangEin');
                 break;
             case self::ZONE_HECKE_GARAGE:
                 // 1. Countdown-Wert setzen, BEVOR das Ausgangsventil eingeschaltet wird.
                 //    NUR wenn > 0 – ein Wert von 0 würde das Gerät sofort stoppen!
-                $cdMin = $this->ReadPropertyInteger('GarageCountdownMin');
+                $cdMin    = $this->ReadPropertyInteger('GarageCountdownMin');
+                $cdVarID  = $this->ReadPropertyInteger('ValveGarageCountdownVarID');
                 if ($cdMin > 0) {
-                    $this->writeCountdownVar($this->ReadPropertyInteger('ValveGarageCountdownVarID'), $cdMin);
+                    $this->writeCountdownVar($cdVarID, $cdMin);
                     usleep(50000); // 50 ms – Gerät verarbeitet den Wert vor Ventilöffnung
+                } else {
+                    $this->SendDebug('Countdown', sprintf('GarageCountdownMin=0 – kein Schreiben an VarID=%d', $cdVarID), 0);
                 }
                 // 2. Ausgangsventil und gemeinsames Eingangsventil öffnen
-                $this->setValve($garageID, true);
-                $this->setValve($hangID,   true);
+                $this->setValve($garageID, true, 'Garage');
+                $this->setValve($hangID,   true, 'HangEin');
                 break;
         }
 
         // Hauptventil zuletzt öffnen
         usleep(200000); // 200 ms – Zonenventile öffnen zuerst
-        $this->setValve($mainID, true);
+        $this->setValve($mainID, true, 'Main');
 
-        $this->SendDebug('Valves', 'Geöffnet: Zone ' . self::ZONE_NAMES[$zone], 0);
+        $this->SendDebug('Valves', '── openZoneValves abgeschlossen ──', 0);
     }
 
     private function closeAllValves() {
@@ -840,53 +851,79 @@ class GardenIrrigation extends IPSModule {
         $hang2ID  = $this->ReadPropertyInteger('ValveHang2ID');
         $garageID = $this->ReadPropertyInteger('ValveGarageID');
 
+        $this->SendDebug('Valves', sprintf(
+            'closeAllValves – IDs: Main=%d Rasen=%d Hecke=%d HangEin=%d HangAus=%d Garage=%d',
+            $mainID, $rasenID, $heckeID, $hangID, $hang2ID, $garageID
+        ), 0);
+
         // Hauptventil zuerst – kein Druck mehr in Leitung
-        $this->setValve($mainID,   false);
+        $this->setValve($mainID,   false, 'Main');
         usleep(300000); // 300 ms Druckabbau
 
-        $this->setValve($rasenID,  false);
-        $this->setValve($heckeID,  false);
-        $this->setValve($hangID,   false);
-        $this->setValve($hang2ID,  false);
-        $this->setValve($garageID, false);
+        $this->setValve($rasenID,  false, 'Rasen');
+        $this->setValve($heckeID,  false, 'Hecke');
+        $this->setValve($hangID,   false, 'HangEin');
+        $this->setValve($hang2ID,  false, 'HangAus');
+        $this->setValve($garageID, false, 'Garage');
 
-        $this->SendDebug('Valves', 'Alle Ventile geschlossen', 0);
+        $this->SendDebug('Valves', '── closeAllValves abgeschlossen ──', 0);
     }
 
-    private function setValve(int $varID, bool $state) {
-        if ($varID == 0 || !IPS_VariableExists($varID)) return;
+    /**
+     * Setzt ein Ventil und loggt VarID, Label, bisherigen und neuen Zustand.
+     */
+    private function setValve(int $varID, bool $state, string $label = '?') {
+        if ($varID == 0) {
+            $this->SendDebug('Valve', sprintf('[%s] VarID=0 – nicht konfiguriert, überspringe', $label), 0);
+            return;
+        }
+        if (!IPS_VariableExists($varID)) {
+            $this->SendDebug('Valve', sprintf('[%s] VarID=%d existiert nicht!', $label, $varID), 0);
+            return;
+        }
+        $current = GetValueBoolean($varID) ? 'AN' : 'AUS';
+        $target  = $state ? 'AN' : 'AUS';
+        $this->SendDebug('Valve', sprintf('[%s] VarID=%d: %s → %s', $label, $varID, $current, $target), 0);
         try {
             RequestAction($varID, $state);
         } catch (Exception $e) {
-            $this->SendDebug('Valve', 'Fehler VarID ' . $varID . ': ' . $e->getMessage(), 0);
+            $this->SendDebug('Valve', sprintf('[%s] VarID=%d Fehler: %s', $label, $varID, $e->getMessage()), 0);
         }
     }
 
     /**
-     * Schreibt einen Countdown-Wert (Minuten) in eine externe Variable
+     * Schreibt einen Countdown-Wert (Minuten > 0) in eine externe Variable
      * (z.B. Laufzeit-Countdown des 2-Wege-Verteilerventils).
-     * Wird immer gesetzt – auch 0 – um den Zustand zu synchronisieren.
+     * Wird NUR aufgerufen wenn minutes > 0, da 0 das Gerät sofort stoppen kann.
      */
     private function writeCountdownVar(int $varID, int $minutes) {
-        if ($varID == 0 || !IPS_VariableExists($varID)) return;
+        if ($varID == 0) {
+            $this->SendDebug('Countdown', sprintf('%d min – VarID=0, nicht konfiguriert', $minutes), 0);
+            return;
+        }
+        if (!IPS_VariableExists($varID)) {
+            $this->SendDebug('Countdown', sprintf('VarID=%d existiert nicht!', $varID), 0);
+            return;
+        }
+        $current = GetValueInteger($varID);
+        $this->SendDebug('Countdown', sprintf('VarID=%d: %d → %d min', $varID, $current, $minutes), 0);
         try {
             RequestAction($varID, $minutes);
-            $this->SendDebug('Countdown', sprintf('VarID %d ← %d min', $varID, $minutes), 0);
         } catch (Exception $e) {
-            $this->SendDebug('Countdown', 'Fehler VarID ' . $varID . ': ' . $e->getMessage(), 0);
+            $this->SendDebug('Countdown', sprintf('VarID=%d Fehler: %s', $varID, $e->getMessage()), 0);
         }
     }
 
     private function startFertPump() {
         $pumpID = $this->ReadPropertyInteger('FertPumpID');
-        $this->setValve($pumpID, true);
+        $this->setValve($pumpID, true, 'Pumpe');
     }
 
     private function stopFertPump() {
         if (!$this->ReadAttributeBoolean('FertPumpRunning')) return;
         $this->WriteAttributeBoolean('FertPumpRunning', false);
         $pumpID = $this->ReadPropertyInteger('FertPumpID');
-        $this->setValve($pumpID, false);
+        $this->setValve($pumpID, false, 'Pumpe');
         $this->SendDebug('Fert', 'Pumpe gestoppt', 0);
     }
 
