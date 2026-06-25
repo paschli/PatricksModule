@@ -17,6 +17,7 @@
     { "type": "Label", "bold": true, "caption": "── Pumpe & Sensoren ─────────────────────────────────" },
     { "name": "FertPumpID",   "type": "SelectVariable", "caption": "Dünger-Pumpe",                      "validVariableTypes": [0] },
     { "name": "SoilHeckeID",  "type": "SelectVariable", "caption": "Bodenfeuchte Hecke (%)",            "validVariableTypes": [1] },
+    { "name": "SoilGarageID","type": "SelectVariable", "caption": "Bodenfeuchte Hecke Garage (%)",      "validVariableTypes": [1] },
     { "name": "SoilHangID",   "type": "SelectVariable", "caption": "Bodenfeuchte Hang (%)",             "validVariableTypes": [1] },
     { "name": "RainSensorID", "type": "SelectVariable", "caption": "Regensensor (mm, Float)",           "validVariableTypes": [2] },
     { "name": "TempSensorID", "type": "SelectVariable", "caption": "Temperatursensor (°C)",             "validVariableTypes": [2] },
