@@ -430,6 +430,11 @@ class GardenIrrigation extends IPSModule {
      * Stoppt alle Ventile sofort (Notaus / Programmende).
      */
     public function StopAll() {
+        // Aufrufer ermitteln für Debug-Trace
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+        $caller = isset($trace[1]) ? ($trace[1]['function'] ?? '?') : '?';
+        $caller2 = isset($trace[2]) ? ($trace[2]['function'] ?? '') : '';
+        $this->SendDebug('StopAll', sprintf('Aufruf von: %s%s', $caller, $caller2 ? ' ← ' . $caller2 : ''), 0);
         $this->SendDebug('StopAll', 'Alle Ventile werden geschlossen', 0);
 
         $this->SetTimerInterval('ZoneTimer',      0);
@@ -619,6 +624,7 @@ class GardenIrrigation extends IPSModule {
 
         // Zielvolumen erreicht?
         if ($newVolume >= $target) {
+            $this->SendDebug('Flow', sprintf('Zielvolumen erreicht: %.1f >= %.1f L → finishZone', $newVolume, $target), 0);
             $this->finishZone($zone, false);
         } else {
             $this->updateStatus();
@@ -709,11 +715,13 @@ class GardenIrrigation extends IPSModule {
 
     private function finishZone(int $zone, bool $forced) {
         $volume   = $this->ReadAttributeFloat('ZoneVolumeLiters');
+        $target   = $this->ReadAttributeFloat('ZoneTargetLiters');
         $duration = time() - $this->ReadAttributeInteger('ZoneStartTime');
 
+        $reason = $forced ? 'Timeout/Safety' : sprintf('Zielvolumen erreicht (%.1f / %.1f L)', $volume, $target);
         $this->SendDebug('Zone', sprintf(
-            '%s beendet: %.1f L in %d Sek.%s',
-            self::ZONE_NAMES[$zone], $volume, $duration, $forced ? ' [Timeout]' : ''
+            '%s beendet nach %d Sek. – Grund: %s',
+            self::ZONE_NAMES[$zone], $duration, $reason
         ), 0);
 
         $this->SetTimerInterval('ZoneTimer',      0);
@@ -792,19 +800,25 @@ class GardenIrrigation extends IPSModule {
                 $this->setValve($heckeID, true);
                 break;
             case self::ZONE_HANG:
-                // 1. Countdown-Wert setzen, BEVOR das Ausgangsventil eingeschaltet wird
+                // 1. Countdown-Wert setzen, BEVOR das Ausgangsventil eingeschaltet wird.
+                //    NUR wenn > 0 – ein Wert von 0 würde das Gerät sofort stoppen!
                 $cdMin = $this->ReadPropertyInteger('HangCountdownMin');
-                $this->writeCountdownVar($this->ReadPropertyInteger('ValveHang2CountdownVarID'), $cdMin);
-                usleep(50000); // 50 ms – Gerät verarbeitet den Wert vor Ventilöffnung
+                if ($cdMin > 0) {
+                    $this->writeCountdownVar($this->ReadPropertyInteger('ValveHang2CountdownVarID'), $cdMin);
+                    usleep(50000); // 50 ms – Gerät verarbeitet den Wert vor Ventilöffnung
+                }
                 // 2. Ausgangsventil und gemeinsames Eingangsventil öffnen
                 $this->setValve($hang2ID, true);
                 $this->setValve($hangID,  true);
                 break;
             case self::ZONE_HECKE_GARAGE:
-                // 1. Countdown-Wert setzen, BEVOR das Ausgangsventil eingeschaltet wird
+                // 1. Countdown-Wert setzen, BEVOR das Ausgangsventil eingeschaltet wird.
+                //    NUR wenn > 0 – ein Wert von 0 würde das Gerät sofort stoppen!
                 $cdMin = $this->ReadPropertyInteger('GarageCountdownMin');
-                $this->writeCountdownVar($this->ReadPropertyInteger('ValveGarageCountdownVarID'), $cdMin);
-                usleep(50000); // 50 ms – Gerät verarbeitet den Wert vor Ventilöffnung
+                if ($cdMin > 0) {
+                    $this->writeCountdownVar($this->ReadPropertyInteger('ValveGarageCountdownVarID'), $cdMin);
+                    usleep(50000); // 50 ms – Gerät verarbeitet den Wert vor Ventilöffnung
+                }
                 // 2. Ausgangsventil und gemeinsames Eingangsventil öffnen
                 $this->setValve($garageID, true);
                 $this->setValve($hangID,   true);
