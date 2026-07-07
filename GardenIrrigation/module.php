@@ -415,10 +415,11 @@ class GardenIrrigation extends IPSModule {
             return;
         }
 
-        // Queue aufbauen oder nächste Zone entnehmen
+        // Queue aufbauen: nur Zonen, deren geplante Zeit ±5 Min. um jetzt liegt.
+        // buildQueueForNow() verhindert, dass Zonen anderer Uhrzeiten mit gestartet werden.
         $queue = json_decode($this->ReadAttributeString('ZoneQueue'), true);
         if (!is_array($queue) || empty($queue)) {
-            $queue = $this->buildDailyQueue();
+            $queue = $this->buildQueueForNow();
             $this->WriteAttributeString('ZoneQueue', json_encode($queue));
         }
 
@@ -907,19 +908,45 @@ class GardenIrrigation extends IPSModule {
     // PRIVATE – ZEITPLAN
     // =========================================================================
 
-    private function buildDailyQueue(): array {
-        $dowIdx = (int)date('N') - 1; // 0=Mo … 6=So
-        $day    = self::DAY_PROPS[$dowIdx];
-        $queue  = [];
+    /**
+     * Baut eine Queue nur für Zonen, deren geplante Startzeit innerhalb
+     * eines ±5-Minuten-Fensters um jetzt liegt.
+     *
+     * Hintergrund: buildDailyQueue() würde ALLE Zonen des Tages in eine Queue
+     * packen – unabhängig von ihrer geplanten Zeit. Dadurch startete z.B.
+     * Hecke (06:00) sofort nach Rasen (23:00), weil beide am selben Tag aktiv waren.
+     */
+    private function buildQueueForNow(): array {
+        $dowIdx  = (int)date('N') - 1; // 0=Mo … 6=So
+        $day     = self::DAY_PROPS[$dowIdx];
+        $now     = time();
+        $window  = 5 * 60; // ±5 Minuten
+        $queue   = [];
 
         foreach (self::ZONE_PREFIX as $prefix => $zone) {
-            if (!$this->ReadPropertyBoolean($prefix . 'Enabled'))       continue;
-            if (!$this->ReadPropertyBoolean($prefix . 'Day' . $day))    continue;
+            if (!$this->ReadPropertyBoolean($prefix . 'Enabled'))    continue;
+            if (!$this->ReadPropertyBoolean($prefix . 'Day' . $day)) continue;
 
-            $queue[] = [
-                'zone'         => $zone,
-                'targetLiters' => $this->ReadPropertyFloat($prefix . 'TargetLiters'),
-            ];
+            $schedTime = $this->ReadPropertyInteger($prefix . 'ScheduleTime');
+            $hour      = intdiv($schedTime, 3600);
+            $min       = intdiv($schedTime % 3600, 60);
+            $fireTime  = mktime($hour, $min, 0); // heutiger Timestamp für diese Zeit
+
+            if (abs($now - $fireTime) <= $window) {
+                $queue[] = [
+                    'zone'         => $zone,
+                    'targetLiters' => $this->ReadPropertyFloat($prefix . 'TargetLiters'),
+                ];
+                $this->SendDebug('Schedule', sprintf(
+                    '%s fällig (%s, Δ%ds) – in Queue',
+                    self::ZONE_NAMES[$zone], date('H:i', $fireTime), $now - $fireTime
+                ), 0);
+            } else {
+                $this->SendDebug('Schedule', sprintf(
+                    '%s (%s) liegt außerhalb des ±5min-Fensters – überspringe',
+                    self::ZONE_NAMES[$zone], date('H:i', $fireTime)
+                ), 0);
+            }
         }
 
         return $queue;
