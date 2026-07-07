@@ -642,18 +642,21 @@ class GardenIrrigation extends IPSModule {
         $zone         = (int)$cfg['zone'];
         $targetLiters = (float)$cfg['targetLiters'];
 
+        $this->SendDebug('Zone', sprintf('Prüfe %s (%.1f L)', self::ZONE_NAMES[$zone], $targetLiters), 0);
+
         if ($this->isRainBlockedForZone($zone)) {
-            $this->SendDebug('Zone', self::ZONE_NAMES[$zone] . ': Regen-Sperre – überspringe', 0);
+            $this->SendDebug('Zone', self::ZONE_NAMES[$zone] . ': Regen-Sperre → überspringe', 0);
             $this->dequeueNext();
             return;
         }
 
         if ($this->isMoistureOk($zone)) {
-            $this->SendDebug('Zone', self::ZONE_NAMES[$zone] . ': Feuchte ausreichend – überspringe', 0);
+            $this->SendDebug('Zone', self::ZONE_NAMES[$zone] . ': Feuchte ausreichend → überspringe', 0);
             $this->dequeueNext();
             return;
         }
 
+        $this->SendDebug('Zone', self::ZONE_NAMES[$zone] . ': Bedingungen OK → starte Zone', 0);
         $this->StartZone($zone, $targetLiters);
     }
 
@@ -1044,7 +1047,10 @@ class GardenIrrigation extends IPSModule {
 
     /**
      * Gibt true zurück wenn die Bodenfeuchte ausreichend ist (Zone überspringen).
-     * Sensor-Zuordnung: Hecke + HeckeGarage → SoilHeckeID | Hang → SoilHangID | Rasen → kein Sensor
+     * Sensor-Zuordnung: Hecke → SoilHeckeID | HeckeGarage → SoilGarageID | Hang → SoilHangID | Rasen → kein Sensor
+     *
+     * Rückgabe true  = Feuchte OK  → Zone ÜBERSPRINGEN (kein Bewässern nötig)
+     * Rückgabe false = Feuchte LOW → Zone STARTEN (Bewässerung nötig)
      */
     private function isMoistureOk(int $zone): bool {
         $prefix    = $this->zonePrefixById($zone);
@@ -1054,22 +1060,46 @@ class GardenIrrigation extends IPSModule {
         switch ($zone) {
             case self::ZONE_HECKE:
                 $sensorID = $this->ReadPropertyInteger('SoilHeckeID');
+                $propKey  = 'SoilHeckeID';
                 break;
             case self::ZONE_HECKE_GARAGE:
                 $sensorID = $this->ReadPropertyInteger('SoilGarageID');
+                $propKey  = 'SoilGarageID';
                 break;
             case self::ZONE_HANG:
                 $sensorID = $this->ReadPropertyInteger('SoilHangID');
+                $propKey  = 'SoilHangID';
                 break;
             default:
-                return false; // Kein Sensor → nie überspringen
+                $this->SendDebug('Moisture', sprintf('%s: kein Sensor vorgesehen → Bewässerung wird gestartet', self::ZONE_NAMES[$zone]), 0);
+                return false; // Kein Sensor für diese Zone → nie überspringen
         }
 
-        if ($sensorID == 0 || !IPS_VariableExists($sensorID)) return false;
+        if ($sensorID == 0) {
+            $this->SendDebug('Moisture', sprintf(
+                '%s: %s nicht konfiguriert (VarID=0) → Bewässerung wird gestartet',
+                self::ZONE_NAMES[$zone], $propKey
+            ), 0);
+            return false;
+        }
+        if (!IPS_VariableExists($sensorID)) {
+            $this->SendDebug('Moisture', sprintf(
+                '%s: Variable %d existiert nicht mehr → Bewässerung wird gestartet',
+                self::ZONE_NAMES[$zone], $sensorID
+            ), 0);
+            return false;
+        }
 
         $moisture = (float)GetValueInteger($sensorID);
-        $this->SendDebug('Moisture', sprintf('%s: %.1f%% (Schwelle %.1f%%)', self::ZONE_NAMES[$zone], $moisture, $threshold), 0);
-        return $moisture >= $threshold;
+        $ok       = $moisture >= $threshold;
+
+        $this->SendDebug('Moisture', sprintf(
+            '%s: VarID=%d Ist=%.0f%% Schwelle=%.0f%% → %s',
+            self::ZONE_NAMES[$zone], $sensorID, $moisture, $threshold,
+            $ok ? 'ÜBERSPRINGEN (Feuchte ausreichend)' : 'BEWÄSSERN (Feuchte zu niedrig)'
+        ), 0);
+
+        return $ok;
     }
 
     private function applyTemperatureFactor(float $baseLiters): float {
