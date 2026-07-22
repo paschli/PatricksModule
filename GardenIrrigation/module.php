@@ -737,16 +737,9 @@ class GardenIrrigation extends IPSModule {
             self::ZONE_NAMES[$zone], $duration, $reason
         ), 0);
 
-        // Push: Ende (normal) oder Problem (Timeout)
-        if (!$forced && $this->ReadPropertyBoolean('PushOnEnd')) {
-            $moisture = $this->getSoilMoistureForZone($zone);
-            $msg = sprintf('%s: %.1f L', self::ZONE_NAMES[$zone], $volume);
-            if ($moisture !== null) { $msg .= sprintf(' | Feuchte: %.0f%%', $moisture); }
-            $this->sendPush('Bewässerung beendet', $msg);
-        } elseif ($forced && $this->ReadPropertyBoolean('PushOnProblem')) {
-            $this->sendPush('Bewässerung gestoppt', sprintf('%s: Sicherheits-Timeout nach %.1f L', self::ZONE_NAMES[$zone], $volume));
-        }
-
+        // Zuerst Zustand zurücksetzen, DANN Push – sonst kommen währd des blockierenden
+        // WFC_PushNotification-Aufrufs weitere VM_UPDATE-Ereignisse und rufen finishZone
+        // erneut auf (CurrentZone noch nicht ZONE_NONE → Race Condition).
         $this->SetTimerInterval('ZoneTimer',      0);
         $this->SetTimerInterval('FlowTimer',      0);
         $this->SetTimerInterval('FertStartTimer', 0);
@@ -766,6 +759,16 @@ class GardenIrrigation extends IPSModule {
         $this->SetValue('FlowRate',     0.0);
 
         $this->SetTimerInterval('LeakTimer', 30 * 1000);
+
+        // Push erst nach dem Reset (concurrent onFlowUpdate sieht jetzt ZONE_NONE und bricht ab)
+        if (!$forced && $this->ReadPropertyBoolean('PushOnEnd')) {
+            $moisture = $this->getSoilMoistureForZone($zone);
+            $msg = sprintf('%s: %.1f L', self::ZONE_NAMES[$zone], $volume);
+            if ($moisture !== null) { $msg .= sprintf(' | Feuchte: %.0f%%', $moisture); }
+            $this->sendPush('Bewässerung beendet', $msg);
+        } elseif ($forced && $this->ReadPropertyBoolean('PushOnProblem')) {
+            $this->sendPush('Bewässerung gestoppt', sprintf('%s: Sicherheits-Timeout nach %.1f L', self::ZONE_NAMES[$zone], $volume));
+        }
 
         $this->dequeueNext();
     }
