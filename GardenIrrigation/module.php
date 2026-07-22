@@ -116,6 +116,14 @@ class GardenIrrigation extends IPSModule {
         $this->RegisterPropertyInteger('MaxZoneRuntimeMin',  60);
         $this->RegisterPropertyFloat(  'WaterPrice',         2.0);
 
+        // ── Push-Benachrichtigungen ───────────────────────────────────────────
+        $this->RegisterPropertyInteger('PushTargetID',    0);
+        $this->RegisterPropertyBoolean('PushOnStart',     false);
+        $this->RegisterPropertyBoolean('PushOnEnd',       false);
+        $this->RegisterPropertyBoolean('PushOnProblem',   false);
+        $this->RegisterPropertyBoolean('PushOnRain',      false);
+        $this->RegisterPropertyInteger('FlowWatchdogMin', 3);
+
         // ── Profile vorab anlegen (müssen vor RegisterVariable* existieren) ───
         $this->ensureProfiles();
 
@@ -172,6 +180,7 @@ class GardenIrrigation extends IPSModule {
         $this->RegisterTimer('LeakTimer',      0, "GardenIrr_LeakTick($id);");
         $this->RegisterTimer('FertStartTimer', 0, "GardenIrr_FertStartTick($id);");
         $this->RegisterTimer('MidnightTimer',  0, "GardenIrr_MidnightTick($id);");
+        $this->RegisterTimer('NoFlowTimer',    0, "GardenIrr_NoFlowTick($id);");
     }
 
     public function ApplyChanges() {
@@ -280,6 +289,13 @@ class GardenIrrigation extends IPSModule {
 
             case 'EmergencyStop':
                 if ((bool)$value) {
+                    if ($this->ReadPropertyBoolean('PushOnProblem')) {
+                        $zone = $this->ReadAttributeInteger('CurrentZone');
+                        if ($zone != self::ZONE_NONE) {
+                            $vol = $this->ReadAttributeFloat('ZoneVolumeLiters');
+                            $this->sendPush('Bewässerung manuell gestoppt', sprintf('%s: %.1f L bewässert', self::ZONE_NAMES[$zone], $vol));
+                        }
+                    }
                     $this->StopAll();
                     $this->SetValue('EmergencyStop', false);
                 }
@@ -359,11 +375,27 @@ class GardenIrrigation extends IPSModule {
         // Watchdog: wenn 60s kein Durchfluss-Update → Durchfluss = 0
         $this->SetTimerInterval('FlowTimer', 60000);
 
+        // Kein-Fluss-Watchdog
+        $watchdogMin = $this->ReadPropertyInteger('FlowWatchdogMin');
+        if ($watchdogMin > 0) {
+            $this->SetTimerInterval('NoFlowTimer', $watchdogMin * 60 * 1000);
+        }
+
         // Leck-Timer pausieren
         $this->SetTimerInterval('LeakTimer', 0);
 
         // Dünger planen
         $this->scheduleFertStart($zone);
+
+        // Push: Start
+        if ($this->ReadPropertyBoolean('PushOnStart')) {
+            $moisture = $this->getSoilMoistureForZone($zone);
+            $isFert   = $this->isFertActiveToday($zone);
+            $msg = sprintf('%s: %.1f L geplant', $name, $adjusted);
+            if ($isFert)         { $msg .= ' + Düngung'; }
+            if ($moisture !== null) { $msg .= sprintf(' | Feuchte: %.0f%%', $moisture); }
+            $this->sendPush('Bewässerung gestartet', $msg);
+        }
 
         $this->updateStatus();
     }
@@ -382,6 +414,7 @@ class GardenIrrigation extends IPSModule {
         $this->SetTimerInterval('ZoneTimer',      0);
         $this->SetTimerInterval('FlowTimer',      0);
         $this->SetTimerInterval('FertStartTimer', 0);
+        $this->SetTimerInterval('NoFlowTimer',    0);
 
         $this->stopFertPump();
         $this->closeAllValves();
@@ -465,6 +498,23 @@ class GardenIrrigation extends IPSModule {
     }
 
     /**
+     * Kein-Fluss-Watchdog – wird gefeuert wenn seit N Minuten kein positiver Durchfluss gemessen wurde.
+     */
+    public function NoFlowTick() {
+        $this->SetTimerInterval('NoFlowTimer', 0);
+        $zone = $this->ReadAttributeInteger('CurrentZone');
+        if ($zone == self::ZONE_NONE) return;
+
+        $min = $this->ReadPropertyInteger('FlowWatchdogMin');
+        $this->SendDebug('NoFlow', sprintf('Kein Durchfluss seit %d Min – stoppe Zone %s', $min, self::ZONE_NAMES[$zone]), 0);
+
+        if ($this->ReadPropertyBoolean('PushOnProblem')) {
+            $this->sendPush('Kein Durchfluss', sprintf('%s: Kein Wasser seit %d Min – Zone gestoppt', self::ZONE_NAMES[$zone], $min));
+        }
+        $this->StopAll();
+    }
+
+    /**
      * FlowTick – Watchdog: wird gefeuert wenn 60s kein VM_UPDATE vom Durchflusszähler kam.
      * → kein Durchfluss mehr, Rate auf 0 setzen.
      * Viele Zähler senden VM_UPDATE nur alle 20–60s (aggregierte Werte), daher 60s Intervall.
@@ -511,6 +561,14 @@ class GardenIrrigation extends IPSModule {
             $this->SetValue('FlowRate', 0.0);
             $this->WriteAttributeFloat('CurrentFlowRate', 0.0);
             return;
+        }
+
+        // Kein-Fluss-Watchdog zurücksetzen, da positive Pulse vorhanden
+        if ($zone != self::ZONE_NONE) {
+            $watchdogMin = $this->ReadPropertyInteger('FlowWatchdogMin');
+            if ($watchdogMin > 0) {
+                $this->SetTimerInterval('NoFlowTimer', $watchdogMin * 60 * 1000);
+            }
         }
 
         // Anlaufsperre: erste 3s nach Zonenstart ignorieren (vorgequeute Updates /
@@ -605,6 +663,9 @@ class GardenIrrigation extends IPSModule {
 
         if ($flowRate >= $threshold) {
             $this->SendDebug('Leak', sprintf('Leck! %.1f l/min bei geschlossenen Ventilen', $flowRate), 0);
+            if (!$this->GetValue('LeakDetected') && $this->ReadPropertyBoolean('PushOnProblem')) {
+                $this->sendPush('Leck erkannt', sprintf('Durchfluss %.1f l/min bei geschlossenen Ventilen!', $flowRate));
+            }
             $this->SetValue('LeakDetected', true);
             // Hauptventil als Schutz schließen
             $mainID = $this->ReadPropertyInteger('MainValveID');
@@ -646,6 +707,11 @@ class GardenIrrigation extends IPSModule {
 
         if ($this->isRainBlockedForZone($zone)) {
             $this->SendDebug('Zone', self::ZONE_NAMES[$zone] . ': Regen-Sperre → überspringe', 0);
+            if ($this->ReadPropertyBoolean('PushOnRain')) {
+                $rainID = $this->ReadPropertyInteger('RainSensorID');
+                $mm = ($rainID != 0 && IPS_VariableExists($rainID)) ? GetValueFloat($rainID) : 0.0;
+                $this->sendPush('Bewässerung übersprungen', sprintf('%s: Regen-Sperre (%.1f mm)', self::ZONE_NAMES[$zone], $mm));
+            }
             $this->dequeueNext();
             return;
         }
@@ -671,9 +737,20 @@ class GardenIrrigation extends IPSModule {
             self::ZONE_NAMES[$zone], $duration, $reason
         ), 0);
 
+        // Push: Ende (normal) oder Problem (Timeout)
+        if (!$forced && $this->ReadPropertyBoolean('PushOnEnd')) {
+            $moisture = $this->getSoilMoistureForZone($zone);
+            $msg = sprintf('%s: %.1f L', self::ZONE_NAMES[$zone], $volume);
+            if ($moisture !== null) { $msg .= sprintf(' | Feuchte: %.0f%%', $moisture); }
+            $this->sendPush('Bewässerung beendet', $msg);
+        } elseif ($forced && $this->ReadPropertyBoolean('PushOnProblem')) {
+            $this->sendPush('Bewässerung gestoppt', sprintf('%s: Sicherheits-Timeout nach %.1f L', self::ZONE_NAMES[$zone], $volume));
+        }
+
         $this->SetTimerInterval('ZoneTimer',      0);
         $this->SetTimerInterval('FlowTimer',      0);
         $this->SetTimerInterval('FertStartTimer', 0);
+        $this->SetTimerInterval('NoFlowTimer',    0);
 
         $this->stopFertPump();
         $this->closeAllValves();
@@ -1014,6 +1091,9 @@ class GardenIrrigation extends IPSModule {
         $currentZone = $this->ReadAttributeInteger('CurrentZone');
         if ($currentZone != self::ZONE_NONE && $this->isRainBlockedForZone($currentZone, $mm)) {
             $this->SendDebug('Rain', 'Laufende Zone ' . self::ZONE_NAMES[$currentZone] . ' wird durch Regen gestoppt', 0);
+            if ($this->ReadPropertyBoolean('PushOnRain')) {
+                $this->sendPush('Bewässerung gestoppt', sprintf('%s: Regen-Sperre (%.1f mm)', self::ZONE_NAMES[$currentZone], $mm));
+            }
             $this->StopAll();
         }
     }
@@ -1397,6 +1477,24 @@ class GardenIrrigation extends IPSModule {
         $this->ensureKonfVar($allgBewCatID, 'KonfWaterPrice',
             'Wasserpreis',                  2, 'GardenIrr.WaterPrice',   5, $scriptID);
 
+        // Allgemein / Push-Benachrichtigungen
+        $allgPushCatID = @IPS_GetObjectIDByIdent('KonfAllgPush', $allgCatID);
+        if (!$allgPushCatID) {
+            $allgPushCatID = IPS_CreateCategory();
+            IPS_SetParent($allgPushCatID, $allgCatID);
+            IPS_SetIdent($allgPushCatID, 'KonfAllgPush');
+            IPS_SetIcon($allgPushCatID, 'Mobile');
+        }
+        IPS_SetName($allgPushCatID, 'Push-Benachrichtigungen');
+        IPS_SetPosition($allgPushCatID, 2);
+
+        $this->ensureKonfVar($allgPushCatID, 'KonfPushTargetID',    'WebFront-ID',        1, '',                        0, $scriptID);
+        $this->ensureKonfVar($allgPushCatID, 'KonfPushOnStart',     'Push bei Start',     0, '~Switch',                1, $scriptID);
+        $this->ensureKonfVar($allgPushCatID, 'KonfPushOnEnd',       'Push bei Ende',      0, '~Switch',                2, $scriptID);
+        $this->ensureKonfVar($allgPushCatID, 'KonfPushOnProblem',   'Push bei Problemen', 0, '~Switch',                3, $scriptID);
+        $this->ensureKonfVar($allgPushCatID, 'KonfPushOnRain',      'Push bei Regen',     0, '~Switch',                4, $scriptID);
+        $this->ensureKonfVar($allgPushCatID, 'KonfFlowWatchdogMin', 'Kein-Fluss-Alarm',   1, 'GardenIrr.ShortMinutes', 5, $scriptID);
+
         // Allgemein synchronisieren
         $this->syncKonfAllgemein($allgDueCatID, $allgBewCatID);
 
@@ -1580,6 +1678,19 @@ class GardenIrrigation extends IPSModule {
             $this->ReadPropertyInteger('MaxZoneRuntimeMin'));
         $this->setVarInCat($bewCatID, 'KonfWaterPrice',
             $this->ReadPropertyFloat('WaterPrice'));
+
+        // Push-Benachrichtigungen
+        $konfCatID = @IPS_GetObjectIDByIdent('KonfCat',     $this->InstanceID);
+        $allgCatID = $konfCatID ? @IPS_GetObjectIDByIdent('KonfAllgemein', $konfCatID) : 0;
+        $pushCatID = $allgCatID ? @IPS_GetObjectIDByIdent('KonfAllgPush',  $allgCatID) : 0;
+        if ($pushCatID) {
+            $this->setVarInCat($pushCatID, 'KonfPushTargetID',    $this->ReadPropertyInteger('PushTargetID'));
+            $this->setVarInCat($pushCatID, 'KonfPushOnStart',     $this->ReadPropertyBoolean('PushOnStart'));
+            $this->setVarInCat($pushCatID, 'KonfPushOnEnd',       $this->ReadPropertyBoolean('PushOnEnd'));
+            $this->setVarInCat($pushCatID, 'KonfPushOnProblem',   $this->ReadPropertyBoolean('PushOnProblem'));
+            $this->setVarInCat($pushCatID, 'KonfPushOnRain',      $this->ReadPropertyBoolean('PushOnRain'));
+            $this->setVarInCat($pushCatID, 'KonfFlowWatchdogMin', $this->ReadPropertyInteger('FlowWatchdogMin'));
+        }
     }
 
     private function setVarInCat(int $catID, string $ident, $value) {
@@ -1909,6 +2020,52 @@ class GardenIrrigation extends IPSModule {
             IPS_SetVariableProfileText('GardenIrr.WaterPrice',   '', ' €/m³');
             IPS_SetVariableProfileDigits('GardenIrr.WaterPrice', 2);
         }
+
+        // Kurzzeit-Minuten [1–10] für Kein-Fluss-Watchdog
+        if (!IPS_VariableProfileExists('GardenIrr.ShortMinutes')) {
+            IPS_CreateVariableProfile('GardenIrr.ShortMinutes', 1);
+            IPS_SetVariableProfileValues('GardenIrr.ShortMinutes', 1, 10, 1);
+            IPS_SetVariableProfileText('GardenIrr.ShortMinutes',   '', ' min');
+        }
+    }
+
+    // =========================================================================
+    // PRIVATE – PUSH-BENACHRICHTIGUNGEN
+    // =========================================================================
+
+    private function sendPush(string $title, string $text) {
+        $targetID = $this->ReadPropertyInteger('PushTargetID');
+        if ($targetID == 0 || !IPS_InstanceExists($targetID)) {
+            $this->SendDebug('Push', 'Kein Push-Ziel konfiguriert', 0);
+            return;
+        }
+        $this->SendDebug('Push', $title . ': ' . $text, 0);
+        try {
+            WFC_PushNotification($targetID, $title, $text, '');
+        } catch (Exception $e) {
+            $this->SendDebug('Push', 'Fehler: ' . $e->getMessage(), 0);
+        }
+    }
+
+    private function getSoilMoistureForZone(int $zone): ?float {
+        $propMap = [
+            self::ZONE_HECKE        => 'SoilHeckeID',
+            self::ZONE_HANG         => 'SoilHangID',
+            self::ZONE_HECKE_GARAGE => 'SoilGarageID',
+        ];
+        if (!isset($propMap[$zone])) return null;
+        $id = $this->ReadPropertyInteger($propMap[$zone]);
+        if ($id == 0 || !IPS_VariableExists($id)) return null;
+        return (float)GetValueInteger($id);
+    }
+
+    private function isFertActiveToday(int $zone): bool {
+        if (!$this->ReadPropertyBoolean('FertEnabled')) return false;
+        $prefix = $this->zonePrefixById($zone);
+        if (!$prefix) return false;
+        if (!$this->ReadPropertyBoolean($prefix . 'FertEnabled')) return false;
+        $day = self::DAY_PROPS[(int)date('N') - 1];
+        return $this->ReadPropertyBoolean($prefix . 'FertDay' . $day);
     }
 
     // =========================================================================
