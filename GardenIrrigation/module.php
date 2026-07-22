@@ -2045,7 +2045,7 @@ class GardenIrrigation extends IPSModule {
         }
         $this->SendDebug('Push', $title . ': ' . $text, 0);
         try {
-            WFC_PushNotification($targetID, $title, $text);
+            WFC_PushNotification($targetID, $title . ': ' . $text);
             $this->SendDebug('Push', 'Gesendet OK', 0);
         } catch (Throwable $e) {
             $this->SendDebug('Push', 'Fehler (' . get_class($e) . '): ' . $e->getMessage(), 0);
