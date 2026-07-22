@@ -1007,27 +1007,35 @@ class GardenIrrigation extends IPSModule {
         $queue   = [];
 
         foreach (self::ZONE_PREFIX as $prefix => $zone) {
-            if (!$this->ReadPropertyBoolean($prefix . 'Enabled'))    continue;
-            if (!$this->ReadPropertyBoolean($prefix . 'Day' . $day)) continue;
+            $name = self::ZONE_NAMES[$zone];
+            if (!$this->ReadPropertyBoolean($prefix . 'Enabled')) {
+                $this->SendDebug('Queue', $name . ': deaktiviert – überspringe', 0);
+                continue;
+            }
+            if (!$this->ReadPropertyBoolean($prefix . 'Day' . $day)) {
+                $this->SendDebug('Queue', $name . ': heute (' . $day . ') kein Bewässerungstag – überspringe', 0);
+                continue;
+            }
 
             $schedTime = $this->ReadPropertyInteger($prefix . 'ScheduleTime');
             $hour      = intdiv($schedTime, 3600);
             $min       = intdiv($schedTime % 3600, 60);
             $fireTime  = mktime($hour, $min, 0); // heutiger Timestamp für diese Zeit
+            $delta     = $now - $fireTime;
 
-            if (abs($now - $fireTime) <= $window) {
+            if (abs($delta) <= $window) {
                 $queue[] = [
                     'zone'         => $zone,
                     'targetLiters' => $this->ReadPropertyFloat($prefix . 'TargetLiters'),
                 ];
-                $this->SendDebug('Schedule', sprintf(
+                $this->SendDebug('Queue', sprintf(
                     '%s fällig (%s, Δ%ds) – in Queue',
-                    self::ZONE_NAMES[$zone], date('H:i', $fireTime), $now - $fireTime
+                    $name, date('H:i', $fireTime), $delta
                 ), 0);
             } else {
-                $this->SendDebug('Schedule', sprintf(
-                    '%s (%s) liegt außerhalb des ±5min-Fensters – überspringe',
-                    self::ZONE_NAMES[$zone], date('H:i', $fireTime)
+                $this->SendDebug('Queue', sprintf(
+                    '%s (%s) außerhalb ±5min-Fenster (Δ%ds) – überspringe',
+                    $name, date('H:i', $fireTime), $delta
                 ), 0);
             }
         }
@@ -1041,14 +1049,22 @@ class GardenIrrigation extends IPSModule {
             return;
         }
 
-        $dowIdx   = (int)date('N') - 1;
-        $day      = self::DAY_PROPS[$dowIdx];
-        $now      = time();
-        $earliest = null;
+        $dowIdx      = (int)date('N') - 1;
+        $day         = self::DAY_PROPS[$dowIdx];
+        $now         = time();
+        $earliest    = null;
+        $earliestZone = '';
 
         foreach (self::ZONE_PREFIX as $prefix => $zone) {
-            if (!$this->ReadPropertyBoolean($prefix . 'Enabled'))    continue;
-            if (!$this->ReadPropertyBoolean($prefix . 'Day' . $day)) continue;
+            $name = self::ZONE_NAMES[$zone];
+            if (!$this->ReadPropertyBoolean($prefix . 'Enabled')) {
+                $this->SendDebug('Schedule', $name . ': deaktiviert – überspringe', 0);
+                continue;
+            }
+            if (!$this->ReadPropertyBoolean($prefix . 'Day' . $day)) {
+                $this->SendDebug('Schedule', $name . ': heute (' . $day . ') kein Bewässerungstag – überspringe', 0);
+                continue;
+            }
 
             $schedTime = $this->ReadPropertyInteger($prefix . 'ScheduleTime');
             $hour      = intdiv($schedTime, 3600);
@@ -1059,19 +1075,25 @@ class GardenIrrigation extends IPSModule {
                 $fireTime += 86400; // morgen
             }
 
+            $this->SendDebug('Schedule', sprintf('%s: nächste Bewässerung %s (in %d min)',
+                $name, date('d.m. H:i', $fireTime), (int)(($fireTime - $now) / 60)), 0);
+
             if ($earliest === null || $fireTime < $earliest) {
-                $earliest = $fireTime;
+                $earliest     = $fireTime;
+                $earliestZone = $name;
             }
         }
 
         if ($earliest === null) {
+            $this->SendDebug('Schedule', 'Keine aktiven Zonen – Timer gestoppt', 0);
             $this->SetTimerInterval('ScheduleTimer', 0);
             return;
         }
 
         $intervalMs = ($earliest - $now) * 1000;
         $this->SetTimerInterval('ScheduleTimer', max(1000, $intervalMs));
-        $this->SendDebug('Schedule', 'Nächster Lauf: ' . date('d.m.Y H:i', $earliest), 0);
+        $this->SendDebug('Schedule', sprintf('Nächster Lauf: %s um %s (in %d min)',
+            $earliestZone, date('d.m.Y H:i', $earliest), (int)(($earliest - $now) / 60)), 0);
     }
 
     // =========================================================================
