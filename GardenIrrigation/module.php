@@ -1549,19 +1549,21 @@ class GardenIrrigation extends IPSModule {
             IPS_SetName($bewCatID, 'Bewässern');
             IPS_SetPosition($bewCatID, 0);
 
+            $this->ensureKonfVar($bewCatID, 'Konf' . $prefix . 'Enabled',
+                'Zone aktiv', 0, '~Switch', 0, $scriptID);
             $this->ensureKonfVar($bewCatID, 'Konf' . $prefix . 'TargetLiters',
-                'Ziel-Volumen', 2, 'GardenIrr.VolumeEdit', 0, $scriptID);
+                'Ziel-Volumen', 2, 'GardenIrr.VolumeEdit', 1, $scriptID);
             $this->ensureKonfVar($bewCatID, 'Konf' . $prefix . 'MaxLiters',
-                'Max-Volumen (Sicherheit)', 2, 'GardenIrr.VolumeEdit', 1, $scriptID);
+                'Max-Volumen (Sicherheit)', 2, 'GardenIrr.VolumeEdit', 2, $scriptID);
             $this->ensureKonfVar($bewCatID, 'Konf' . $prefix . 'ScheduleTime',
-                'Bewässerungszeit', 1, '~UnixTimestampTime', 2, $scriptID);
+                'Bewässerungszeit', 1, '~UnixTimestampTime', 3, $scriptID);
 
             // Bodenfeuchte-Schwelle nur für Zonen mit Sensor (nicht Rasen)
-            $dayOffset = 3;
+            $dayOffset = 4;
             if ($prefix !== 'Rasen') {
                 $this->ensureKonfVar($bewCatID, 'Konf' . $prefix . 'MoistureThreshold',
-                    'Bodenfeuchte-Schwelle', 2, 'GardenIrr.Moisture', 3, $scriptID);
-                $dayOffset = 4;
+                    'Bodenfeuchte-Schwelle', 2, 'GardenIrr.Moisture', 4, $scriptID);
+                $dayOffset = 5;
             } else {
                 // Alte Variable entfernen falls vorhanden
                 $oldID = @IPS_GetObjectIDByIdent('KonfRasenMoistureThreshold', $bewCatID);
@@ -1637,6 +1639,9 @@ class GardenIrrigation extends IPSModule {
      */
     private function syncKonfZone(string $prefix, int $bewCatID, int $dueCatID) {
         // Bewässern
+        $this->setVarInCat($bewCatID, 'Konf' . $prefix . 'Enabled',
+            $this->ReadPropertyBoolean($prefix . 'Enabled'));
+
         $target = $this->ReadPropertyFloat($prefix . 'TargetLiters');
         $this->setVarInCat($bewCatID, 'Konf' . $prefix . 'TargetLiters', $target);
 
