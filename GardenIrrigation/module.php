@@ -2038,6 +2038,7 @@ class GardenIrrigation extends IPSModule {
 
     private function sendPush(string $title, string $text) {
         $targetID = $this->ReadPropertyInteger('PushTargetID');
+        $this->SendDebug('Push', sprintf('TargetID=%d exists=%s', $targetID, IPS_InstanceExists($targetID) ? 'ja' : 'nein'), 0);
         if ($targetID == 0 || !IPS_InstanceExists($targetID)) {
             $this->SendDebug('Push', 'Kein Push-Ziel konfiguriert', 0);
             return;
@@ -2045,8 +2046,9 @@ class GardenIrrigation extends IPSModule {
         $this->SendDebug('Push', $title . ': ' . $text, 0);
         try {
             WFC_PushNotification($targetID, $title, $text, '');
-        } catch (Exception $e) {
-            $this->SendDebug('Push', 'Fehler: ' . $e->getMessage(), 0);
+            $this->SendDebug('Push', 'Gesendet OK', 0);
+        } catch (Throwable $e) {
+            $this->SendDebug('Push', 'Fehler (' . get_class($e) . '): ' . $e->getMessage(), 0);
         }
     }
 
