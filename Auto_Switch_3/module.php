@@ -3,6 +3,8 @@
 // Modul schaltet eine ausgewählte Variable in IP-Symcon.
 // Zeigt einen Schalter in der Visualisierung.
 // Reagiert auf externe Änderungen der Ziel-Variable (bidirektionale Synchronisation).
+// Optional: Bei externem Einschalten des Ziels wird der Countdown-Timer ebenfalls
+// aktiviert, auch wenn er zuvor nicht lief ("Ziel überwachen"-Schalter in der App).
 // Optionaler Countdown-Timer mit Eingabe in Stunden/Minuten/Sekunden (in eigenem Ordner).
 // Konfigurierbare Zeitschalter (manuell oder Solar) über die App.
 
@@ -28,7 +30,10 @@ class AutSw3 extends IPSModule {
         $this->RegisterVariableBoolean('CDActive', 'Countdown aktiv', '~Switch', 1);
         IPS_SetIcon($this->GetIDForIdent('CDActive'), 'Clock');
 
-        $this->RegisterVariableBoolean('TimerActive', 'Zeitschalter', '~Switch', 3);
+        $this->RegisterVariableBoolean('WatchTarget', 'Ziel überwachen', '~Switch', 2);
+        IPS_SetIcon($this->GetIDForIdent('WatchTarget'), 'Eye');
+
+        $this->RegisterVariableBoolean('TimerActive', 'Zeitschalter', '~Switch', 4);
         IPS_SetIcon($this->GetIDForIdent('TimerActive'), 'Calendar');
 
         // Migration: alte Integer-Countdown-Variable löschen falls vorhanden
@@ -36,7 +41,7 @@ class AutSw3 extends IPSModule {
         if ($oldID && IPS_VariableExists($oldID) && IPS_GetVariable($oldID)['VariableType'] !== 3) {
             IPS_DeleteVariable($oldID);
         }
-        $this->RegisterVariableString('Countdown', 'Verbleibend', '', 5);
+        $this->RegisterVariableString('Countdown', 'Verbleibend', '', 6);
 
         // Timer registrieren – NUR in Create() erlaubt
         $this->RegisterTimer('CountdownTimer',     0, 'AutSw3_CountdownTick('     . $this->InstanceID . ');');
@@ -58,6 +63,7 @@ class AutSw3 extends IPSModule {
 
         $this->EnableAction('State');
         $this->EnableAction('CDActive');
+        $this->EnableAction('WatchTarget');
         $this->EnableAction('TimerActive');
 
         // Gemeinsames Aktions-Script für Timer-Sub-Variablen und Countdown-Kategorie
@@ -92,6 +98,7 @@ class AutSw3 extends IPSModule {
         // Countdown Sichtbarkeit
         $featureEnabled = $this->ReadPropertyBoolean('CountdownEnabled');
         IPS_SetHidden($this->GetIDForIdent('CDActive'), !$featureEnabled);
+        IPS_SetHidden($this->GetIDForIdent('WatchTarget'), !$featureEnabled);
         $showCD = $featureEnabled && $this->GetValue('CDActive');
         $cdCatID = @IPS_GetObjectIDByIdent('CountdownTimeCat', $this->InstanceID);
         if ($cdCatID) {
@@ -153,6 +160,8 @@ class AutSw3 extends IPSModule {
             } else {
                 $this->timerStop();
             }
+        } elseif ($ident === 'WatchTarget') {
+            $this->SetValue('WatchTarget', (bool)$value);
         } elseif (in_array($ident, ['CDHours', 'CDMinutes', 'CDSeconds'])) {
             $this->setCDTimeVar($ident, (int)$value);
             if ($this->GetValue('State') && $this->isCountdownActive()) {
@@ -290,9 +299,20 @@ class AutSw3 extends IPSModule {
         $this->SetValue('State', $targetState);
         if (!$targetState) {
             $this->timerStop();
-        } elseif ($this->isCountdownActive()) {
+            return;
+        }
+        if ($this->isCountdownActive()) {
+            // Countdown lief bereits (CDActive an) → für den neuen Einschaltvorgang neu starten
             $total = $this->getCDSeconds();
             if ($total > 0) {
+                $this->timerStart($total);
+            }
+        } elseif ($this->isWatchTargetActive()) {
+            // Ziel wurde extern eingeschaltet, ohne dass CDActive aktiv war → Countdown jetzt aktivieren
+            $total = $this->getCDSeconds();
+            if ($total > 0) {
+                $this->SendDebug('TargetChanged', 'Extern eingeschaltet – Countdown wird aktiviert', 0);
+                $this->SetValue('CDActive', true);
                 $this->timerStart($total);
             }
         }
@@ -611,6 +631,10 @@ class AutSw3 extends IPSModule {
         return $this->ReadPropertyBoolean('CountdownEnabled') && $this->GetValue('CDActive');
     }
 
+    private function isWatchTargetActive(): bool {
+        return $this->ReadPropertyBoolean('CountdownEnabled') && $this->GetValue('WatchTarget');
+    }
+
     private function getCDTimeVar(string $ident): int {
         $catID = @IPS_GetObjectIDByIdent('CountdownTimeCat', $this->InstanceID);
         if (!$catID) {
@@ -793,7 +817,7 @@ class AutSw3 extends IPSModule {
             IPS_SetIcon($catID, 'Calendar');
         }
         IPS_SetName($catID, 'Zeitschalter');
-        IPS_SetPosition($catID, 4);
+        IPS_SetPosition($catID, 5);
 
         // Migration: alten Bool-AddTimer + NewTimerName löschen falls vorhanden
         foreach (['NewTimerName', 'AddTimer'] as $ident) {
@@ -852,7 +876,7 @@ class AutSw3 extends IPSModule {
             IPS_SetIcon($catID, 'Clock');
         }
         IPS_SetName($catID, 'Countdown-Zeit');
-        IPS_SetPosition($catID, 2);
+        IPS_SetPosition($catID, 3);
         $this->ensureTimerVar($catID, 'CDHours',   1, 'Stunden',  'AutSw3.Hours',   0, $scriptID);
         $this->ensureTimerVar($catID, 'CDMinutes', 1, 'Minuten',  'AutSw3.Minutes', 1, $scriptID);
         $this->ensureTimerVar($catID, 'CDSeconds', 1, 'Sekunden', 'AutSw3.Seconds', 2, $scriptID);
