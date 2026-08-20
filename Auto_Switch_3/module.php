@@ -399,6 +399,9 @@ class AutSw3 extends IPSModule {
         $this->updateTimeModeProfile();
         $this->updateAllTimerCategoryNames();
         $this->scheduleProfileUpdate();
+        // Nach der taeglichen Solar-Aktualisierung muss auch die Schaltplanung
+        // neu berechnet werden - sonst haengt sie an der Sunrise-Subscription.
+        $this->scheduleNext();
     }
 
     // ===== ZEITSCHALTER – SCHEDULING =====
