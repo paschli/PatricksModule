@@ -30,12 +30,14 @@
       "onClick": "AutSw3_ProfileUpdateTick($id);"
     },
     {
+      "type": "Label",
+      "caption": "Zeitschalter werden in der App unter \"Zeitschalter\" angelegt und geloescht. Hier koennen sie nur umbenannt werden - Anlegen/Loeschen ueber das Formular wuerde die Einstellungen der uebrigen Timer verschieben."
+    },
+    {
       "type": "List",
       "name": "TimerList",
       "caption": "Zeitschalter",
       "rowCount": 4,
-      "add": true,
-      "delete": true,
       "columns": [
         {
           "caption": "Name",
