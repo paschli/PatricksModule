@@ -285,6 +285,34 @@ class AutSw3 extends IPSModule {
         }
     }
 
+    public function Toggle() {
+        $this->SetSwitch(!$this->GetValue('State'));
+    }
+
+    public function SetOn() {
+        $this->SetSwitch(true);
+    }
+
+    public function SetOff() {
+        $this->SetSwitch(false);
+    }
+
+    // Schaltet ein und startet einen Countdown über die übergebene Laufzeit (in Minuten),
+    // unabhängig davon, ob die Countdown-Funktion in der Konfiguration aktiviert ist.
+    public function Set_Timer(int $Laufzeit) {
+        if ($Laufzeit > 0) {
+            $seconds = $Laufzeit * 60;
+            $this->setCDTimeVar('CDHours',   intdiv($seconds, 3600));
+            $this->setCDTimeVar('CDMinutes', intdiv($seconds % 3600, 60));
+            $this->setCDTimeVar('CDSeconds', $seconds % 60);
+            $this->SetValue('CDActive', true);
+            $this->SetSwitch(true);
+            $this->timerStart($seconds);
+        } else {
+            $this->SetSwitch(false);
+        }
+    }
+
     public function TargetChanged() {
         $targetID = $this->ReadPropertyInteger('TargetID');
         if ($targetID == 0) {
