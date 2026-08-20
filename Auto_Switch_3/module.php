@@ -452,6 +452,11 @@ class AutSw3 extends IPSModule {
         $mode   = $this->getTimerInt('TMode',   $index);
         $offset = $this->getTimerInt('TOffset', $index) * 60; // → Sekunden
         if ($mode === 0) {
+            // ACHTUNG Zeitkonvention: Bei Profil ~UnixTimestampTime schreibt der
+            // Zeit-Picker der Visualisierung mktime($h, $m, 0, 1, 1, 1970) - also
+            // einen Timestamp, dessen LOKALE Uhrzeit die gewaehlte Zeit ist
+            // (00:00 -> -3600, 09:00 -> 28800 bei CET). date() liest ihn deshalb
+            // korrekt zurueck. Nicht durch intdiv($timeVal, 3600) "korrigieren"!
             $timeVal = $this->getTimerInt('TTime', $index);
             $hour    = (int)date('G', $timeVal);
             $min     = (int)date('i', $timeVal);
@@ -617,7 +622,9 @@ class AutSw3 extends IPSModule {
             $oldMin  = $oldMinID  ? GetValueInteger($oldMinID)  : 0;
             $tTimeID = @IPS_GetObjectIDByIdent('TTime' . $s, $catID);
             if ($tTimeID && GetValueInteger($tTimeID) == 0 && ($oldHour > 0 || $oldMin > 0)) {
-                SetValueInteger($tTimeID, $oldHour * 3600 + $oldMin * 60);
+                // Gleiche Konvention wie der Zeit-Picker: Timestamp, dessen lokale
+                // Uhrzeit die gewuenschte Zeit ist (sonst Versatz um den UTC-Offset).
+                SetValueInteger($tTimeID, mktime($oldHour, $oldMin, 0, 1, 1, 1970));
             }
             if ($oldHourID) { IPS_DeleteVariable($oldHourID); }
             if ($oldMinID)  { IPS_DeleteVariable($oldMinID);  }
