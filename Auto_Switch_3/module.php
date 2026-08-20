@@ -104,10 +104,16 @@ class AutSw3 extends IPSModule {
         if ($cdCatID) {
             IPS_SetHidden($cdCatID, !$showCD);
         }
-        IPS_SetHidden($this->GetIDForIdent('Countdown'), true);
         if (!$showCD) {
             $this->timerStop();
         }
+        // Restzeit nur ausblenden, wenn tatsaechlich kein Countdown laeuft.
+        // Sonst verschwindet die Anzeige bei jedem ApplyChanges dauerhaft,
+        // weil sie nur in timerStart() wieder eingeblendet wird.
+        IPS_SetHidden(
+            $this->GetIDForIdent('Countdown'),
+            $this->ReadAttributeInteger('CountdownEndTime') == 0
+        );
 
         // Timer-Kategorie Sichtbarkeit
         IPS_SetHidden($timersCatID, !$this->GetValue('TimerActive'));
