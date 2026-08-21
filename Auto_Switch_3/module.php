@@ -14,6 +14,15 @@ class AutSw3 extends IPSModule {
         parent::Create();
 
         $this->RegisterPropertyInteger('TargetID', 0);
+        $this->RegisterPropertyInteger('TargetMode', 0);       // 0 = Variable, 1 = Skript
+        $this->RegisterPropertyInteger('TargetScriptID', 0);
+        $this->RegisterPropertyInteger('StatusID', 0);         // 0 = wie Schaltziel
+        $this->RegisterPropertyString('ValueOn', '');          // leer = Vorgabe je Variablentyp
+        $this->RegisterPropertyString('ValueOff', '');
+        $this->RegisterPropertyString('StatusValueOn', '');    // leer = natives Bool an der Statusquelle
+        $this->RegisterPropertyString('StatusValueOff', '');
+        $this->RegisterPropertyInteger('VerifyDelay', 0);      // ms, 0 = keine Verifikation
+        $this->RegisterPropertyInteger('VerifyRetries', 1);
         $this->RegisterPropertyBoolean('CountdownEnabled', false);
         $this->RegisterPropertyString('TimerList', '[]');
         $this->RegisterPropertyInteger('LocationID', 0);
@@ -82,15 +91,16 @@ class AutSw3 extends IPSModule {
         $timersCatID = $this->ensureTimersCat($scriptID);
         $this->migrateTimerCatsToTimersCat($timersCatID);
 
-        // Ziel-Variable registrieren
+        // Statusquelle registrieren (Rückmeldung kann von einer anderen Variable
+        // kommen als geschaltet wird, z. B. MQTT oder LCN-Lämpchen)
         $oldTargetID = $this->ReadAttributeInteger('RegisteredTargetID');
         if ($oldTargetID != 0) {
             $this->UnregisterMessage($oldTargetID, VM_UPDATE);
         }
-        $targetID = $this->ReadPropertyInteger('TargetID');
-        if ($targetID != 0 && IPS_VariableExists($targetID)) {
-            $this->RegisterMessage($targetID, VM_UPDATE);
-            $this->WriteAttributeInteger('RegisteredTargetID', $targetID);
+        $statusID = $this->getStatusVarID();
+        if ($statusID != 0 && IPS_VariableExists($statusID)) {
+            $this->RegisterMessage($statusID, VM_UPDATE);
+            $this->WriteAttributeInteger('RegisteredTargetID', $statusID);
         } else {
             $this->WriteAttributeInteger('RegisteredTargetID', 0);
         }
@@ -136,7 +146,7 @@ class AutSw3 extends IPSModule {
         if ($Message != VM_UPDATE) {
             return;
         }
-        if ($SenderID == $this->ReadPropertyInteger('TargetID')) {
+        if ($SenderID == $this->getStatusVarID()) {
             $this->TargetChanged();
             return;
         }
@@ -259,21 +269,31 @@ class AutSw3 extends IPSModule {
     }
 
     public function SetSwitch(bool $state) {
-        if (!IPS_SemaphoreEnter('AutSw3_' . $this->InstanceID, 1000)) {
+        $tries = max(1, $this->ReadPropertyInteger('VerifyRetries'));
+        $delay = $this->ReadPropertyInteger('VerifyDelay');
+        // Acquire-Timeout muss die maximale Haltedauer der Verifikationsschleife abdecken,
+        // sonst laeuft ein paralleler Aufruf ins Leere und wird kommentarlos verworfen.
+        $acquireTimeout = 1000 + ($delay > 0 ? $tries * $delay : 0);
+
+        if (!IPS_SemaphoreEnter('AutSw3_' . $this->InstanceID, $acquireTimeout)) {
             $this->SendDebug('SetSwitch', 'Semaphor Timeout', 0);
             return;
         }
         try {
-            $targetID = $this->ReadPropertyInteger('TargetID');
-            $this->SendDebug('SetSwitch', 'Schalte auf ' . ($state ? 'EIN' : 'AUS') . ', TargetID=' . $targetID, 0);
+            $this->SendDebug('SetSwitch', 'Schalte auf ' . ($state ? 'EIN' : 'AUS'), 0);
 
-            if ($targetID != 0 && IPS_VariableExists($targetID)) {
-                try {
-                    RequestAction($targetID, $state);
-                    $this->SendDebug('SetSwitch', 'RequestAction erfolgreich', 0);
-                } catch (Exception $e) {
-                    $this->SendDebug('SetSwitch', 'RequestAction Fehler: ' . $e->getMessage(), 0);
+            for ($i = 1; $i <= $tries; $i++) {
+                $this->writeTarget($state);
+                if ($delay <= 0) {
+                    break; // keine Verifikation gewünscht
                 }
+                usleep($delay * 1000);
+                $status = $this->readStatus();
+                if ($status === $state) {
+                    break;
+                }
+                $this->SendDebug('SetSwitch', 'Verifikation Versuch ' . $i . ' nicht bestätigt (Status: '
+                    . ($status === null ? 'unbekannt' : ($status ? 'EIN' : 'AUS')) . ')', 0);
             }
 
             $this->SetValue('State', $state);
@@ -289,6 +309,78 @@ class AutSw3 extends IPSModule {
         } finally {
             IPS_SemaphoreLeave('AutSw3_' . $this->InstanceID);
         }
+    }
+
+    // Schreibt auf das Schaltziel: Variable (per RequestAction, mit Wertabbildung)
+    // oder Skript (synchron, damit eine anschliessende Statusprüfung nicht zu früh liest).
+    private function writeTarget(bool $state): void {
+        if ($this->ReadPropertyInteger('TargetMode') === 1) {
+            $scriptID = $this->ReadPropertyInteger('TargetScriptID');
+            if ($scriptID && IPS_ScriptExists($scriptID)) {
+                try {
+                    IPS_RunScriptWaitEx($scriptID, ['VALUE' => $state, 'INSTANCE' => $this->InstanceID]);
+                } catch (Exception $e) {
+                    $this->SendDebug('writeTarget', 'Skript-Fehler: ' . $e->getMessage(), 0);
+                }
+            }
+            return;
+        }
+        $targetID = $this->ReadPropertyInteger('TargetID');
+        if ($targetID != 0 && IPS_VariableExists($targetID)) {
+            try {
+                RequestAction($targetID, $this->mapValue($state, IPS_GetVariable($targetID)['VariableType']));
+            } catch (Exception $e) {
+                $this->SendDebug('writeTarget', 'RequestAction Fehler: ' . $e->getMessage(), 0);
+            }
+        }
+    }
+
+    // Bildet den Schaltzustand auf die Repräsentation des Zieltyps ab.
+    // Bool-Ziele bekommen immer $state direkt - ein Text-Mapping ergibt dort keinen Sinn
+    // und würde bei einem Wert wie "AN" (nicht in einer festen Wortliste) sonst invertieren.
+    private function mapValue(bool $state, int $type) {
+        if ($type === 0) {
+            return $state;
+        }
+        $raw = $state ? $this->ReadPropertyString('ValueOn') : $this->ReadPropertyString('ValueOff');
+        if ($raw === '') {
+            return [1 => (int)$state, 2 => (float)$state, 3 => ($state ? 'ON' : 'OFF')][$type] ?? $state;
+        }
+        switch ($type) {
+            case 1:  return (int)$raw;
+            case 2:  return (float)$raw;
+            default: return $raw;
+        }
+    }
+
+    // Liest den Zustand von der Statusquelle. Eigene Wertabbildung (StatusValueOn/Off),
+    // weil Statusquelle und Schaltziel unterschiedliche Variablen mit unterschiedlicher
+    // Repräsentation sein können (z. B. MQTT: Schaltziel String "ON"/"OFF", Status bool).
+    // Liefert null, wenn der Wert weder StatusValueOn noch StatusValueOff entspricht -
+    // Aufrufer müssen "unbekannt" von "aus" unterscheiden (sonst falsche Wiederholungen
+    // bzw. falsche TargetChanged-Auslösung bei z. B. noch leeren MQTT-Statuswerten).
+    private function readStatus(): ?bool {
+        $statusID = $this->getStatusVarID();
+        if (!$statusID || !IPS_VariableExists($statusID)) {
+            return null;
+        }
+        $on  = $this->ReadPropertyString('StatusValueOn');
+        $off = $this->ReadPropertyString('StatusValueOff');
+        if ($on === '' && $off === '') {
+            return (bool)GetValue($statusID);
+        }
+        $val = (string)GetValue($statusID);
+        if ($on !== '' && $val === $on) {
+            return true;
+        }
+        if ($off !== '' && $val === $off) {
+            return false;
+        }
+        return null;
+    }
+
+    private function getStatusVarID(): int {
+        return $this->ReadPropertyInteger('StatusID') ?: $this->ReadPropertyInteger('TargetID');
     }
 
     public function Toggle() {
@@ -320,11 +412,14 @@ class AutSw3 extends IPSModule {
     }
 
     public function TargetChanged() {
-        $targetID = $this->ReadPropertyInteger('TargetID');
-        if ($targetID == 0) {
+        if ($this->getStatusVarID() == 0) {
             return;
         }
-        $targetState  = GetValueBoolean($targetID);
+        $targetState = $this->readStatus();
+        if ($targetState === null) {
+            // Status weder auf ValueOn noch ValueOff -> unbekannt, nicht werten
+            return;
+        }
         $currentState = $this->GetValue('State');
         if ($targetState === $currentState) {
             return;

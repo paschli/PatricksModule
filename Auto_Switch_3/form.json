@@ -2,18 +2,88 @@
   "elements": [
     {
       "type": "Label",
-      "caption": "Ziel-Variable auswählen (Boolean-Schalter der zu steuernden Instanz)"
+      "caption": "Schaltziel: entweder eine Variable direkt schalten, oder ein Skript ausführen (z. B. für LCN, MQTT, GPIO)"
+    },
+    {
+      "name": "TargetMode",
+      "type": "Select",
+      "caption": "Schaltziel-Art",
+      "options": [
+        {"value": 0, "caption": "Variable"},
+        {"value": 1, "caption": "Skript"}
+      ]
     },
     {
       "name": "TargetID",
       "type": "SelectVariable",
-      "caption": "Ziel-Variable",
-      "validVariableTypes": [0]
+      "caption": "Ziel-Variable (bei Schaltziel-Art \"Variable\")"
+    },
+    {
+      "name": "TargetScriptID",
+      "type": "SelectScript",
+      "caption": "Schalt-Skript (bei Schaltziel-Art \"Skript\", erhält $_IPS['VALUE'] als bool)"
     },
     {
       "name": "CountdownEnabled",
       "type": "CheckBox",
       "caption": "Countdown-Funktion aktivieren (Zeit wird in der App eingestellt)"
+    },
+    {
+      "type": "ExpansionPanel",
+      "caption": "Erweitert: Statusquelle, Wertabbildung, Verifikation",
+      "items": [
+        {
+          "type": "Label",
+          "caption": "Statusquelle (leer = wie Schaltziel). Nötig, wenn die Rückmeldung über eine andere Variable erfolgt als geschaltet wird, z. B. MQTT oder LCN-Lämpchen."
+        },
+        {
+          "name": "StatusID",
+          "type": "SelectVariable",
+          "caption": "Statusquelle"
+        },
+        {
+          "type": "Label",
+          "caption": "Wertabbildung fürs Schaltziel (leer = Vorgabe je Variablentyp, z. B. bei String \"ON\"/\"OFF\"). Bei Bool-Zielen ohne Wirkung."
+        },
+        {
+          "name": "ValueOn",
+          "type": "ValidationTextBox",
+          "caption": "Wert für EIN"
+        },
+        {
+          "name": "ValueOff",
+          "type": "ValidationTextBox",
+          "caption": "Wert für AUS"
+        },
+        {
+          "type": "Label",
+          "caption": "Wertabbildung für die Statusquelle (leer = natives Bool). Nur nötig, wenn die Statusquelle Text liefert, z. B. \"E\"/\"A\" bei LCN-Tableau-Variablen. Unabhängig von der Wertabbildung fürs Schaltziel, da Statusquelle und Schaltziel unterschiedliche Variablen sein können."
+        },
+        {
+          "name": "StatusValueOn",
+          "type": "ValidationTextBox",
+          "caption": "Status-Wert für EIN"
+        },
+        {
+          "name": "StatusValueOff",
+          "type": "ValidationTextBox",
+          "caption": "Status-Wert für AUS"
+        },
+        {
+          "type": "Label",
+          "caption": "Verifikation: nach dem Schalten den Status zurücklesen und bei Abweichung wiederholen (Wartezeit 0 ms = keine Verifikation)"
+        },
+        {
+          "name": "VerifyDelay",
+          "type": "NumberSpinner",
+          "caption": "Wartezeit vor Prüfung (ms)"
+        },
+        {
+          "name": "VerifyRetries",
+          "type": "NumberSpinner",
+          "caption": "Versuche"
+        }
+      ]
     },
     {
       "type": "Label",
