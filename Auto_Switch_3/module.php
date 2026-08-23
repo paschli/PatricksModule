@@ -282,6 +282,7 @@ class AutSw3 extends IPSModule {
         try {
             $this->SendDebug('SetSwitch', 'Schalte auf ' . ($state ? 'EIN' : 'AUS'), 0);
 
+            $status = null;
             for ($i = 1; $i <= $tries; $i++) {
                 $this->writeTarget($state);
                 if ($delay <= 0) {
@@ -296,9 +297,22 @@ class AutSw3 extends IPSModule {
                     . ($status === null ? 'unbekannt' : ($status ? 'EIN' : 'AUS')) . ')', 0);
             }
 
-            $this->SetValue('State', $state);
+            if ($delay > 0 && $status !== $state) {
+                // Nach allen Versuchen nicht bestätigt: Anzeige NICHT auf den Sollwert setzen,
+                // sonst zeigt die App z.B. "aus", waehrend das Geraet weiter "ein" meldet.
+                // Stattdessen den tatsaechlich beobachteten Status uebernehmen - ist der auch
+                // unbekannt, bleibt State unveraendert, statt geraten zu werden.
+                IPS_LogMessage('AutSw3_' . $this->InstanceID, 'Schaltbefehl ' . ($state ? 'EIN' : 'AUS')
+                    . ' nach ' . $tries . ' Versuch(en) nicht bestätigt'
+                    . ($status === null ? ' (Status unbekannt)' : (', tatsächlicher Status: ' . ($status ? 'EIN' : 'AUS'))));
+                if ($status !== null) {
+                    $this->SetValue('State', $status);
+                }
+            } else {
+                $this->SetValue('State', $state);
+            }
 
-            if ($state && $this->isCountdownActive()) {
+            if ($this->GetValue('State') && $this->isCountdownActive()) {
                 $total = $this->getCDSeconds();
                 if ($total > 0) {
                     $this->timerStart($total);
